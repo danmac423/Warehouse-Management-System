@@ -3,17 +3,19 @@ CREATE OR REPLACE unpacked_function()
 AS
 $$
 	BEGIN
-	-- logowanie supplies
+	-- TODO: logowanie supplies
 		INSERT INTO NAZWA_HISTORII_DOSTAW
 
 	-- logowanie products_supply: dla logguje do posredniej tabeli kolejne rzedy i dodaje do stanu magazynu
+		-- TODO: przekazywanie supply_id jako arg
 		FOR r in SELECT * FROM supplies_products WHERE supply_id = argument
 		LOOP
 			-- dodaj do stanu magazynu
-			
+			UPDATE inventory_stock SET amount = amount + r.amount;
 			-- archiwizuj rząd
 			INSERT INTO supplies_products_history (supply_id, product_id, amount)
 			VALUES (r.supply_id, r.product_id, r.amount);
+			DELETE FROM supplies_products where r.id = supplies_products.id;
 		END LOOP;
 	
 	RETURN NEW;
