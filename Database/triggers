@@ -3,11 +3,18 @@ CREATE OR REPLACE unpacked_function()
 AS
 $$
 	BEGIN
-	// logowanie supplies
+	-- logowanie supplies
 		INSERT INTO NAZWA_HISTORII_DOSTAW
 
-	// logowanie products_supply: dla logguje do posredniej tabeli kolejne rzedy i dodaje do stanu magazynu
-
+	-- logowanie products_supply: dla logguje do posredniej tabeli kolejne rzedy i dodaje do stanu magazynu
+		FOR r in SELECT * FROM supplies_products WHERE supply_id = argument
+		LOOP
+			-- dodaj do stanu magazynu
+			
+			-- archiwizuj rząd
+			INSERT INTO supplies_products_history (supply_id, product_id, amount)
+			VALUES (r.supply_id, r.product_id, r.amount);
+		END LOOP;
 	
 	RETURN NEW;
 END;
@@ -15,5 +22,5 @@ $$ LANGUAGE plsql;
 
 CREATE OR REPLACE TRIGGER unpacked_supply
 AFTER UPDATE OF supplies.state on supplies
-FOR EACH ROW 
+FOR EACH STATEMENT 
 EXECUTE FUNCTION unpacked_function();
