@@ -27,13 +27,13 @@ public class CategoryController {
     }
 
     @PostMapping
-    public int addCategory(Category category) {
-        return categoryService.addCategory(category);
+    public void addCategory(@RequestBody Category category) {
+        categoryService.addCategory(category);
     }
 
     @DeleteMapping("{id}")
-    public int deleteCategory(@PathVariable Long id) {
-        return categoryService.deleteCategory(id);
+    public void deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
     }
 
 }

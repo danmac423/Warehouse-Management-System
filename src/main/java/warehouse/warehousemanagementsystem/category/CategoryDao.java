@@ -45,7 +45,7 @@ public class CategoryDao {
                 """;
         return jdbcTemplate.update(
                 sql,
-                category.getName()
+                category.name()
         );
     }
 

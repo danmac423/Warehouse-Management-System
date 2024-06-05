@@ -22,12 +22,12 @@ public class CategoryService {
         return categoryDao.getCategoryById(id);
     }
 
-    public int addCategory(Category category) {
-        return categoryDao.addCategory(category);
+    public void addCategory(Category category) {
+        categoryDao.addCategory(category);
     }
 
-    public int deleteCategory(Long id) {
-        return categoryDao.deleteCategory(id);
+    public void deleteCategory(Long id) {
+        categoryDao.deleteCategory(id);
     }
 
 
