@@ -25,5 +25,5 @@ ADD CONSTRAINT categories_name_unique UNIQUE (name);
 ALTER TABLE customers
 ADD CONSTRAINT customers_email_unique UNIQUE (email);
 
-ALTER TABLE supplier
+ALTER TABLE suppliers
 ADD CONSTRAINT supplier_name_unique UNIQUE (name);
