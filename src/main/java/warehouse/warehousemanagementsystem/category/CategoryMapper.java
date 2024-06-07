@@ -9,7 +9,8 @@ public class CategoryMapper implements RowMapper<Category> {
     public Category mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new Category(
                 rs.getLong("id"),
-                rs.getString("name")
+                rs.getString("name"),
+                rs.getInt("productCount")
         );
     }
 }

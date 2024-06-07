@@ -18,23 +18,13 @@ public class CategoryDao {
 
     public List<Category> getAllCategories() {
         var sql = """
-                SELECT * FROM categories
+                SELECT c.id, c.name, COUNT(p.id) AS productCount
+                FROM categories c LEFT JOIN products p ON c.id = p.category_id
+                GROUP BY c.id, c.name
                 """;
         return jdbcTemplate.query(
                 sql,
                 new CategoryMapper()
-        );
-    }
-
-    public Category getCategoryById(Long id) {
-        var sql = """
-                SELECT * FROM categories
-                WHERE id = ?
-                """;
-        return jdbcTemplate.queryForObject(
-                sql,
-                new CategoryMapper(),
-                id
         );
     }
 

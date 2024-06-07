@@ -18,10 +18,6 @@ public class CategoryService {
         return categoryDao.getAllCategories();
     }
 
-    public Category getCategoryById(Long id) {
-        return categoryDao.getCategoryById(id);
-    }
-
     public void addCategory(Category category) {
         categoryDao.addCategory(category);
     }
