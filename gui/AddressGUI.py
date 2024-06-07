@@ -50,7 +50,7 @@ class AddressManager(QWidget):
         layout.addWidget(self.delete_button)
 
         self.addresses_table = QTableWidget()
-        self.addresses_table.setColumnCount(5)
+        self.addresses_table.setColumnCount(6)
         self.addresses_table.setHorizontalHeaderLabels(['ID', 'Street', 'House Number', 'Postal Code', 'City', 'Country'])
         self.addresses_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         layout.addWidget(self.addresses_table)
@@ -71,11 +71,12 @@ class AddressManager(QWidget):
         city = self.city_input.text()
         country = self.country_input.text()
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'postal_code': postal_code, 'city': city, 'street': street, 'house_nr': house_nr, 'country': country})
+        data = json.dumps({'street': street, 'houseNumber': house_nr, 'postalCode': postal_code, 'city': city, 'country': country})
+        print(data)
         response = requests.post('http://localhost:8080/api/addresses', headers=headers, data=data)
 
         if response.status_code == 200:
-            QMessageBox.information(self, 'Success', 'address added successfully')
+            QMessageBox.information(self, 'Success', 'Address added successfully')
             self.load_addresses()
         else:
             QMessageBox.warning(self, 'Error', 'Failed to add address')
@@ -87,12 +88,13 @@ class AddressManager(QWidget):
             return
 
         address_id = self.addresses_table.item(selected_row, 0).text()
-        name = self.name_input.text()
-        price = self.price_input.text()
-        category_id = self.category_id_input.text()
-        stock = self.stock_input.text()
+        street = self.street_input.text()
+        house_nr = self.house_nr_input.text()
+        postal_code = self.postal_code_input.text()
+        city = self.city_input.text()
+        country = self.country_input.text()
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'id': address_id, 'name': name, 'price': price, 'categoryId': category_id, 'stock': stock})
+        data = json.dumps({'id': address_id, 'street': street, 'houseNumber': house_nr, 'postalCode': postal_code, 'city': city, 'country': country})
         response = requests.put(f'http://localhost:8080/api/addresses', headers=headers, data=data)
 
         if response.status_code == 200:
@@ -126,10 +128,11 @@ class AddressManager(QWidget):
                 row_position = self.addresses_table.rowCount()
                 self.addresses_table.insertRow(row_position)
                 self.addresses_table.setItem(row_position, 0, QTableWidgetItem(str(address['id'])))
-                self.addresses_table.setItem(row_position, 1, QTableWidgetItem(address['name']))
-                self.addresses_table.setItem(row_position, 2, QTableWidgetItem(str(address['price'])))
-                self.addresses_table.setItem(row_position, 3, QTableWidgetItem(str(address['categoryId'])))
-                self.addresses_table.setItem(row_position, 4, QTableWidgetItem(str(address['stock'])))
+                self.addresses_table.setItem(row_position, 1, QTableWidgetItem(address['street']))
+                self.addresses_table.setItem(row_position, 2, QTableWidgetItem(str(address['houseNumber'])))
+                self.addresses_table.setItem(row_position, 3, QTableWidgetItem(address['postalCode']))
+                self.addresses_table.setItem(row_position, 4, QTableWidgetItem(address['city']))
+                self.addresses_table.setItem(row_position, 5, QTableWidgetItem(address['country']))
         else:
             QMessageBox.warning(self, 'Error', 'Failed to load addresses')
 

@@ -40,7 +40,7 @@ public class AddressDao {
     public int addAddress(Address address) {
         var sql = """
                 INSERT INTO addresses (street, house_nr, postal_code, city, country)
-                VALUES (?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?)
                 """;
         return jdbcTemplate.update(
                 sql,

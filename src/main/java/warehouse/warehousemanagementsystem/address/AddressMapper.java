@@ -11,7 +11,7 @@ public class AddressMapper implements RowMapper<Address> {
         return new Address(
                 resultSet.getLong("id"),
                 resultSet.getString("street"),
-                resultSet.getInt("house_number"),
+                resultSet.getInt("house_nr"),
                 resultSet.getString("postal_code"),
                 resultSet.getString("city"),
                 resultSet.getString("country")
