@@ -3,6 +3,7 @@ package warehouse.warehousemanagementsystem.address;
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -13,12 +14,13 @@ public class AddressService {
         this.addressDao = addressDao;
     }
 
-    public java.util.List<Address> getAllAddresses() {
+    public List<Address> getAllAddresses() {
         return addressDao.getAllAddresses();
     }
 
     public void addAddress(Address address) {
         if (address.street().isEmpty()
+                || address.houseNumber().isEmpty()
                 || address.postalCode().isEmpty()
                 || address.city().isEmpty()
                 || address.country().isEmpty()) {
@@ -57,6 +59,7 @@ public class AddressService {
             throw new BadRequestException("Address already exists");
         }
         if (address.street().isEmpty()
+                || address.houseNumber().isEmpty()
                 || address.postalCode().isEmpty()
                 || address.city().isEmpty()
                 || address.country().isEmpty()) {

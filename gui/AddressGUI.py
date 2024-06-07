@@ -134,7 +134,7 @@ class AddressManager(QWidget):
                 self.addresses_table.insertRow(row_position)
                 self.addresses_table.setItem(row_position, 0, QTableWidgetItem(str(address['id'])))
                 self.addresses_table.setItem(row_position, 1, QTableWidgetItem(address['street']))
-                self.addresses_table.setItem(row_position, 2, QTableWidgetItem(str(address['houseNumber'])))
+                self.addresses_table.setItem(row_position, 2, QTableWidgetItem(address['houseNumber']))
                 self.addresses_table.setItem(row_position, 3, QTableWidgetItem(address['postalCode']))
                 self.addresses_table.setItem(row_position, 4, QTableWidgetItem(address['city']))
                 self.addresses_table.setItem(row_position, 5, QTableWidgetItem(address['country']))
