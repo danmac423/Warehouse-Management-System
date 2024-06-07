@@ -38,13 +38,15 @@ CREATE TABLE IF NOT EXISTS public.orders
     PRIMARY KEY (id)
 );
 
+
 CREATE TABLE IF NOT EXISTS public.addresses
 (
     id bigserial NOT NULL,
-    postal_code character varying(5) NOT NULL,
-    city character varying(50) NOT NULL,
     street character varying(100) NOT NULL,
     house_nr integer NOT NULL,
+    postal_code character varying(5) NOT NULL,
+    city character varying(50) NOT NULL,
+    country VARCHAR(50) NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -127,133 +129,133 @@ ALTER TABLE IF EXISTS public.products
     ADD CONSTRAINT cat_id_fk FOREIGN KEY (category_id)
     REFERENCES public.categories (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.products_orders
     ADD CONSTRAINT product_fk FOREIGN KEY (product_id)
     REFERENCES public.products (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.products_orders
     ADD CONSTRAINT product_to_order FOREIGN KEY (order_id)
     REFERENCES public.orders (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.orders
     ADD CONSTRAINT order_customer FOREIGN KEY (customer_id)
     REFERENCES public.customers (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.orders
     ADD CONSTRAINT order_worker FOREIGN KEY (worker_id)
     REFERENCES public.workers (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.customers
     ADD CONSTRAINT address_customer FOREIGN KEY (address_id)
     REFERENCES public.addresses (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.supplies
     ADD CONSTRAINT supplies_workers FOREIGN KEY (worker_id)
     REFERENCES public.workers (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.supplies
     ADD CONSTRAINT supplier_supply FOREIGN KEY (supplier_id)
     REFERENCES public.suppliers (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.supplies
     ADD CONSTRAINT product_supply FOREIGN KEY (product_id)
     REFERENCES public.products (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.suppliers
     ADD CONSTRAINT address_fk FOREIGN KEY (address_id)
     REFERENCES public.addresses (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.supplies_history
     ADD CONSTRAINT hist_supply_worker FOREIGN KEY (worker_id)
     REFERENCES public.workers (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.supplies_history
     ADD CONSTRAINT hist_supply_supplier FOREIGN KEY (supplier_id)
     REFERENCES public.suppliers (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.supplies_history
     ADD CONSTRAINT hist_supply_product FOREIGN KEY (product_id)
     REFERENCES public.products (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.orders_history
     ADD CONSTRAINT hist_order_customer FOREIGN KEY (customer_id)
     REFERENCES public.customers (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.orders_history
     ADD CONSTRAINT hist_worker_id FOREIGN KEY (worker_id)
     REFERENCES public.workers (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.products_orders_history
     ADD CONSTRAINT hist_product_fk FOREIGN KEY (product_id)
     REFERENCES public.products (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
 
 
 ALTER TABLE IF EXISTS public.products_orders_history
     ADD CONSTRAINT hist_order_fk FOREIGN KEY (order_id)
     REFERENCES public.orders (id) MATCH SIMPLE
     ON UPDATE NO ACTION
-    ON DELETE NO ACTION
-    NOT VALID;
+       ON DELETE NO ACTION
+              NOT VALID;
