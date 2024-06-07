@@ -72,4 +72,17 @@ public class CategoryDao {
                 id
         );
     }
+
+    public int updateCategory(Category category) {
+        var sql = """
+                UPDATE categories
+                SET name = ?
+                WHERE id = ?
+                """;
+        return jdbcTemplate.update(
+                sql,
+                category.name(),
+                category.id()
+        );
+    }
 }
