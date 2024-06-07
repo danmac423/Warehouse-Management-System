@@ -31,4 +31,9 @@ public class CategoryController {
         categoryService.deleteCategory(id);
     }
 
+    @PutMapping
+    public void updateCategory(@RequestBody Category category) {
+        categoryService.updateCategory(category);
+    }
+
 }

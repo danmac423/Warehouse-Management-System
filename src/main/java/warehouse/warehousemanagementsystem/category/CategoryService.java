@@ -44,7 +44,7 @@ public class CategoryService {
         try {
             result = categoryDao.deleteCategory(id);
         } catch (Exception e) {
-            throw new ConflictException("Category is used as foreign key");
+            throw new ConflictException("Some products are still using this category");
         }
 
         if (result != 1) {
@@ -52,5 +52,16 @@ public class CategoryService {
         }
     }
 
+    public void updateCategory(Category category) {
+        if (categoryDao.getCategoryById(category.id()).isEmpty()) {
+            throw new NotFoundException("Category not found");
+        }
+        if (category.name().isEmpty()) {
+            throw new BadRequestException("Category name cannot be empty");
+        }
+        if (categoryDao.updateCategory(category) != 1) {
+            throw new DatabaseException("Failed to update category");
+        }
+    }
 
 }

@@ -47,13 +47,16 @@ class CategoryManager(QWidget):
         name = self.name_input.text()
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'name': name})
+
         response = requests.post('http://localhost:8080/api/categories', headers=headers, data=data)
+
 
         if response.status_code == 200:
             QMessageBox.information(self, 'Success', 'Category added successfully')
             self.load_categories()
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to add category')
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
 
     def update_category(self):
         selected_row = self.categories_table.currentRow()
@@ -64,14 +67,18 @@ class CategoryManager(QWidget):
         category_id = self.categories_table.item(selected_row, 0).text()
         name = self.name_input.text()
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'name': name})
-        response = requests.put(f'http://localhost:8080/api/categories/{category_id}', headers=headers, data=data)
+        data = json.dumps({
+            'name': name,
+            'id': category_id
+            })
+        response = requests.put(f'http://localhost:8080/api/categories', headers=headers, data=data)
 
         if response.status_code == 200:
             QMessageBox.information(self, 'Success', 'Category updated successfully')
             self.load_categories()
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to update category')
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
 
     def delete_category(self):
         selected_row = self.categories_table.currentRow()
@@ -86,7 +93,8 @@ class CategoryManager(QWidget):
             QMessageBox.information(self, 'Success', 'Category deleted successfully')
             self.load_categories()
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to delete category')
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
 
     def load_categories(self):
         response = requests.get('http://localhost:8080/api/categories')
