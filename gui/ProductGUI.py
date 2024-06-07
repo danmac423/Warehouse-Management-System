@@ -73,7 +73,8 @@ class ProductManager(QWidget):
             QMessageBox.information(self, 'Success', 'Product added successfully')
             self.load_products()
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to add product')
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
 
     def update_product(self):
         selected_row = self.products_table.currentRow()
@@ -94,7 +95,8 @@ class ProductManager(QWidget):
             QMessageBox.information(self, 'Success', 'Product updated successfully')
             self.load_products()
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to update product')
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
 
     def delete_product(self):
         selected_row = self.products_table.currentRow()
@@ -109,7 +111,8 @@ class ProductManager(QWidget):
             QMessageBox.information(self, 'Success', 'Product deleted successfully')
             self.load_products()
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to delete product')
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
 
     def load_products(self):
         response = requests.get('http://localhost:8080/api/products')
@@ -127,7 +130,6 @@ class ProductManager(QWidget):
                 self.products_table.setItem(row_position, 4, QTableWidgetItem(str(product['stock'])))
         else:
             QMessageBox.warning(self, 'Error', 'Failed to load products')
-
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
