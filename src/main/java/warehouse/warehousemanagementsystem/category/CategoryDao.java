@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CategoryDao {
@@ -18,7 +19,9 @@ public class CategoryDao {
 
     public List<Category> getAllCategories() {
         var sql = """
-                SELECT * FROM categories
+                SELECT c.id, c.name, COUNT(p.id) AS productCount
+                FROM categories c LEFT JOIN products p ON c.id = p.category_id
+                GROUP BY c.id, c.name
                 """;
         return jdbcTemplate.query(
                 sql,
@@ -26,16 +29,26 @@ public class CategoryDao {
         );
     }
 
-    public Category getCategoryById(Long id) {
+    public Optional<Category> getCategoryById(Long id) {
         var sql = """
-                SELECT * FROM categories
-                WHERE id = ?
+                SELECT c.id, c.name, COUNT(p.id) AS productCount
+                FROM categories c LEFT JOIN products p ON c.id = p.category_id
+                WHERE c.id = ?
+                GROUP BY c.id, c.name
                 """;
-        return jdbcTemplate.queryForObject(
-                sql,
-                new CategoryMapper(),
-                id
-        );
+        return jdbcTemplate.query(sql, new CategoryMapper(), id)
+                .stream().findFirst();
+    }
+
+    public Optional<Category> getCategoryByName(String name) {
+        var sql = """
+                SELECT c.id, c.name, COUNT(p.id) AS productCount
+                FROM categories c LEFT JOIN products p ON c.id = p.category_id
+                WHERE c.name = ?
+                GROUP BY c.id, c.name
+                """;
+        return jdbcTemplate.query(sql, new CategoryMapper(), name)
+                .stream().findFirst();
     }
 
     public int addCategory(Category category) {
@@ -45,7 +58,7 @@ public class CategoryDao {
                 """;
         return jdbcTemplate.update(
                 sql,
-                category.getName()
+                category.name()
         );
     }
 
