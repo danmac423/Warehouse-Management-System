@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class CategoryDao {
@@ -26,6 +27,28 @@ public class CategoryDao {
                 sql,
                 new CategoryMapper()
         );
+    }
+
+    public Optional<Category> getCategoryById(Long id) {
+        var sql = """
+                SELECT c.id, c.name, COUNT(p.id) AS productCount
+                FROM categories c LEFT JOIN products p ON c.id = p.category_id
+                WHERE c.id = ?
+                GROUP BY c.id, c.name
+                """;
+        return jdbcTemplate.query(sql, new CategoryMapper(), id)
+                .stream().findFirst();
+    }
+
+    public Optional<Category> getCategoryByName(String name) {
+        var sql = """
+                SELECT c.id, c.name, COUNT(p.id) AS productCount
+                FROM categories c LEFT JOIN products p ON c.id = p.category_id
+                WHERE c.name = ?
+                GROUP BY c.id, c.name
+                """;
+        return jdbcTemplate.query(sql, new CategoryMapper(), name)
+                .stream().findFirst();
     }
 
     public int addCategory(Category category) {
