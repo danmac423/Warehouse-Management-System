@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class ProductDao {
@@ -25,16 +26,28 @@ public class ProductDao {
         );
     }
 
-    public Product getProductById(Long id) {
+    public Optional<Product> getProductById(Long id) {
         var sql = """
                 SELECT * FROM products
                 WHERE id = ?
                 """;
-        return jdbcTemplate.queryForObject(
+        return jdbcTemplate.query(
                 sql,
                 new ProductMapper(),
                 id
-        );
+        ).stream().findFirst();
+    }
+
+    public Optional<Product> getProductByName(Product product) {
+        var sql = """
+                SELECT * FROM products
+                WHERE name = ?
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new ProductMapper(),
+                product.name()
+        ).stream().findFirst();
     }
 
     public int addProduct(Product product) {
