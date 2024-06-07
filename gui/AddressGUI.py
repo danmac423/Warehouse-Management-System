@@ -72,14 +72,15 @@ class AddressManager(QWidget):
         country = self.country_input.text()
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'street': street, 'houseNumber': house_nr, 'postalCode': postal_code, 'city': city, 'country': country})
-        print(data)
         response = requests.post('http://localhost:8080/api/addresses', headers=headers, data=data)
 
         if response.status_code == 200:
             QMessageBox.information(self, 'Success', 'Address added successfully')
             self.load_addresses()
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to add address')
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
+
 
     def update_address(self):
         selected_row = self.addresses_table.currentRow()
@@ -101,7 +102,9 @@ class AddressManager(QWidget):
             QMessageBox.information(self, 'Success', 'address updated successfully')
             self.load_addresses()
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to update address')
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
+
 
     def delete_address(self):
         selected_row = self.addresses_table.currentRow()
@@ -116,7 +119,9 @@ class AddressManager(QWidget):
             QMessageBox.information(self, 'Success', 'address deleted successfully')
             self.load_addresses()
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to delete address')
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
+
 
     def load_addresses(self):
         response = requests.get('http://localhost:8080/api/addresses')

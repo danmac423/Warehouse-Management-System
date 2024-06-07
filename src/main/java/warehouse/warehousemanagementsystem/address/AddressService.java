@@ -1,6 +1,9 @@
 package warehouse.warehousemanagementsystem.address;
 
 import org.springframework.stereotype.Service;
+import warehouse.warehousemanagementsystem.exception.BadRequestException;
+
+import java.util.Optional;
 
 @Service
 public class AddressService {
@@ -14,19 +17,53 @@ public class AddressService {
         return addressDao.getAllAddresses();
     }
 
-    public Address getAddressById(Long id) {
-        return addressDao.getAddressById(id);
+    public void addAddress(Address address) {
+        if (address.street().isEmpty()
+                || address.postalCode().isEmpty()
+                || address.city().isEmpty()
+                || address.country().isEmpty()) {
+            throw new BadRequestException("All fields are required");
+        }
+        if (addressDao.getAddressByData(address).isPresent()) {
+            throw new BadRequestException("Address already exists");
+        }
+        if (addressDao.addAddress(address) != 1) {
+            throw new BadRequestException("Failed to add address");
+        }
     }
 
-    public int addAddress(Address address) {
-        return addressDao.addAddress(address);
+    public void deleteAddress(Long id) {
+        Optional<Address> address = addressDao.getAddressById(id);
+        int result;
+        if (address.isEmpty()) {
+            throw new BadRequestException("Address not found");
+        }
+        try {
+            result = addressDao.deleteAddress(id);
+        } catch (Exception e) {
+            throw new BadRequestException("This address is still in use");
+        }
+
+        if (result != 1) {
+            throw new BadRequestException("Failed to delete address");
+        }
     }
 
-    public int deleteAddress(Long id) {
-        return addressDao.deleteAddress(id);
-    }
-
-    public int updateAddress(Address address) {
-        return addressDao.updateAddress(address);
+    public void updateAddress(Address address) {
+        if (addressDao.getAddressById(address.id()).isEmpty()) {
+            throw new BadRequestException("Address not found");
+        }
+        if (addressDao.getAddressByData(address).isPresent()) {
+            throw new BadRequestException("Address already exists");
+        }
+        if (address.street().isEmpty()
+                || address.postalCode().isEmpty()
+                || address.city().isEmpty()
+                || address.country().isEmpty()) {
+            throw new BadRequestException("All fields are required");
+        }
+        if (addressDao.updateAddress(address) != 1) {
+            throw new BadRequestException("Failed to update address");
+        }
     }
 }

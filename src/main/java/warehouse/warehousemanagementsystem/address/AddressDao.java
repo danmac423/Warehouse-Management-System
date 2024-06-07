@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class AddressDao {
@@ -25,16 +26,29 @@ public class AddressDao {
         );
     }
 
-    public Address getAddressById(Long id) {
+    public Optional<Address> getAddressById(Long id) {
         var sql = """
                 SELECT * FROM addresses
                 WHERE id = ?
                 """;
-        return jdbcTemplate.queryForObject(
+        return jdbcTemplate.query(sql, new AddressMapper(), id)
+                .stream().findFirst();
+    }
+
+    public Optional<Address> getAddressByData(Address address) {
+        var sql = """
+                SELECT * FROM addresses
+                WHERE street = ? AND house_nr = ? AND postal_code = ? AND city = ? AND country = ?
+                """;
+        return jdbcTemplate.query(
                 sql,
                 new AddressMapper(),
-                id
-        );
+                address.street(),
+                address.houseNumber(),
+                address.postalCode(),
+                address.city(),
+                address.country()
+        ).stream().findFirst();
     }
 
     public int addAddress(Address address) {
