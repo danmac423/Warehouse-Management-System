@@ -8,7 +8,7 @@ DECLARE
 BEGIN
     -- Log the order processing into orders_history
     INSERT INTO orders_history (customer_id, date_processed, worker_id, date_received)
-    VALUES (NEW.customer_id, NEW.date_processed, NEW.worker_id, NEW.date_received)
+    VALUES (NEW.customer_id, CURRENT_TIMESTAMP, NEW.worker_id, NEW.date_received)
 	returning id into hist_order_id;
 
     -- Log and update the products_supply: log into the intermediate table and add to the inventory stock

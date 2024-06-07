@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS public.orders
     id bigserial NOT NULL,
     customer_id bigserial NOT NULL,
     date_processed timestamp without time zone,
-    worker_id bigserial NOT NULL,
+    worker_id bigserial,
     state character varying(10),
     date_received timestamp without time zone NOT NULL,
     PRIMARY KEY (id)
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS public.supplies
     supplier_id bigserial NOT NULL,
     worker_id bigserial,
     state character varying NOT NULL,
-    arrival_date timestamp without time zone NOT NULL,
+    arrival_date timestamp without time zone,
     processed_date timestamp without time zone,
     expected_date timestamp without time zone NOT NULL,
     product_id bigserial NOT NULL,
