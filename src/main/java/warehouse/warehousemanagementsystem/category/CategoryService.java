@@ -45,20 +45,18 @@ public class CategoryService {
         } catch (Exception e) {
             throw new ConflictException("Some products are still using this category");
         }
-
         if (result != 1) {
             throw new DatabaseException("Failed to delete category");
         }
     }
 
     public void updateCategory(Category category) {
-        if (categoryDao.getCategoryById(category.id()).isEmpty()) {
-            throw new NotFoundException("Category not found");
-        }
+        Category currentCategory = categoryDao.getCategoryById(category.id()).orElseThrow(() -> new NotFoundException("Category not found"));
+
         if (category.name().isEmpty()) {
             throw new BadRequestException("Category name cannot be empty");
         }
-        if (categoryDao.getCategoryByName(category.name()).isPresent()) {
+        if (categoryDao.getCategoryByName(category.name()).isPresent() && !currentCategory.name().startsWith(category.name())) {
             throw new ConflictException("Category already exists");
         }
         if (categoryDao.updateCategory(category) != 1) {

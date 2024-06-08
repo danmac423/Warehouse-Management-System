@@ -1,7 +1,8 @@
 package warehouse.warehousemanagementsystem.category;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,24 +19,30 @@ public class CategoryController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
-    public List<Category> getAllCategories() {
-        return categoryService.getAllCategories();
+//    @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER)")
+    public ResponseEntity<List<Category>> getAllCategories() {
+        return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
     }
 
     @PostMapping
-    public void addCategory(@RequestBody Category category) {
+//    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<String> addCategory(@RequestBody Category category) {
         categoryService.addCategory(category);
+        return new ResponseEntity<>("Category added successfully", HttpStatus.CREATED);
     }
 
     @DeleteMapping("{id}")
-    public void deleteCategory(@PathVariable Long id) {
+//    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
+        return new ResponseEntity<>("Category deleted successfully", HttpStatus.OK);
     }
 
     @PutMapping
-    public void updateCategory(@RequestBody Category category) {
+//    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<String> updateCategory(@RequestBody Category category) {
         categoryService.updateCategory(category);
+        return new ResponseEntity<>("Category updated successfully", HttpStatus.OK);
     }
 
 }
