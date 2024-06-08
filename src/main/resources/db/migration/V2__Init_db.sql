@@ -32,19 +32,18 @@ CREATE TABLE IF NOT EXISTS public.orders
     id bigserial NOT NULL,
     customer_id bigserial NOT NULL,
     date_processed timestamp without time zone,
-    worker_id bigserial NOT NULL,
+    worker_id bigserial,
     state character varying(10),
     date_received timestamp without time zone NOT NULL,
     PRIMARY KEY (id)
 );
 
-
 CREATE TABLE IF NOT EXISTS public.addresses
 (
     id bigserial NOT NULL,
     street character varying(100) NOT NULL,
-    house_nr integer NOT NULL,
-    postal_code character varying(5) NOT NULL,
+    house_nr character varying(5) NOT NULL,
+    postal_code character varying(10) NOT NULL,
     city character varying(50) NOT NULL,
     country VARCHAR(50) NOT NULL,
     PRIMARY KEY (id)
@@ -63,12 +62,13 @@ CREATE TABLE IF NOT EXISTS public.customers
 CREATE TABLE IF NOT EXISTS public.workers
 (
     id bigserial NOT NULL,
-    login character varying(20) NOT NULL,
+    username character varying(20) NOT NULL,
+    password character varying(100) NOT NULL,
     name character varying(100) NOT NULL,
     last_name character varying(100) NOT NULL,
-    "position" character varying(100) NOT NULL,
+    role character varying(20) NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT "unique login" UNIQUE (login)
+    CONSTRAINT "unique username" UNIQUE (username)
 );
 
 CREATE TABLE IF NOT EXISTS public.supplies
@@ -77,7 +77,7 @@ CREATE TABLE IF NOT EXISTS public.supplies
     supplier_id bigserial NOT NULL,
     worker_id bigserial,
     state character varying NOT NULL,
-    arrival_date timestamp without time zone NOT NULL,
+    arrival_date timestamp without time zone,
     processed_date timestamp without time zone,
     expected_date timestamp without time zone NOT NULL,
     product_id bigserial NOT NULL,
