@@ -22,7 +22,10 @@ public class SupplierService {
             || supplier.addressId() == null) {
             throw new BadRequestException("All fields are required");
         }
-        if (supplierDao.getSupplierByName(supplier).isPresent()) {
+        if (supplierDao.getSupplierByName(supplier.name()).isPresent()) {
+            throw new BadRequestException("Product with this name already exists");
+        }
+        if (supplierDao.getSupplierByData(supplier).isPresent()) {
             throw new BadRequestException("Product already exists");
         }
         if (supplierDao.addSupplier(supplier) != 1) {
@@ -47,7 +50,6 @@ public class SupplierService {
     }
 
     public void updateSupplier(Supplier supplier) {
-
         if (supplier.name().isEmpty()
                 || supplier.addressId() == null) {
             throw new BadRequestException("All fields are required");
@@ -55,7 +57,7 @@ public class SupplierService {
         if (supplierDao.getSupplierById(supplier.id()).isEmpty()) {
             throw new BadRequestException("Product not found");
         }
-        if (supplierDao.getSupplierByName(supplier).isPresent()) {
+        if (supplierDao.getSupplierByData(supplier).isPresent()) {
             throw new BadRequestException("Product already exists");
         }
         if (supplierDao.updateSupplier(supplier) != 1) {

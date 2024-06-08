@@ -48,12 +48,6 @@ DECLARE
 	yesterday_timestamp TIMESTAMP WITHOUT TIME ZONE;
 
 BEGIN
-	ALTER TABLE public.addresses
-	ALTER COLUMN postal_code TYPE VARCHAR(10);
-
-	ALTER TABLE public.addresses
-	ALTER COLUMN house_nr TYPE VARCHAR(5);
-
 	ALTER TABLE supplies ALTER COLUMN worker_id DROP NOT NULL;
 
 	yesterday_timestamp := (CURRENT_TIMESTAMP - INTERVAL '1 day')::timestamp;	
@@ -94,20 +88,20 @@ BEGIN
 	VALUES ('100000', 'Beijing', 'Wangfujing Street', '9', 'China')
 	RETURNING id INTO addr_id9;
 
-	INSERT INTO workers (login, name, last_name, position)
-    VALUES ('24135', 'John', 'Doe', 'worker')
+	INSERT INTO workers (username, password, name, last_name, role)
+    VALUES ('jdoe', 'passwordJohn','John', 'Doe', 'WORKER')
     RETURNING id INTO work_id1;
 
-    INSERT INTO workers (login, name, last_name, position)
-    VALUES ('89012', 'Jane', 'Smith', 'worker')
+    INSERT INTO workers (username, password, name, last_name, role)
+    VALUES ('jsmith', 'kitty123','Jane', 'Smith', 'WORKER')
     RETURNING id INTO work_id2;
 
-    INSERT INTO workers (login, name, last_name, position)
-    VALUES ('01283', 'Michael', 'Johnson', 'worker')
+    INSERT INTO workers (username, password, name, last_name, role)
+    VALUES ('mjohnson', 'jordan95','Michael', 'Johnson', 'WORKER')
     RETURNING id INTO work_id3;
 
-    INSERT INTO workers (login, name, last_name, position)
-    VALUES ('53745', 'Emily', 'Williams', 'worker')
+    INSERT INTO workers (username, password, name, last_name, role)
+    VALUES ('ewilliams', 'sunny67', 'Emily', 'Williams', 'WORKER')
     RETURNING id INTO work_id4;
 
 	-- Dostawcy od Apple od telefonu
