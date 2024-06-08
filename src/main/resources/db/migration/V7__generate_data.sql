@@ -178,11 +178,11 @@ BEGIN
 	VALUES ('Michael', 'Johnson', addr_id9, 'michael.johnson@gmail.com')
 	RETURNING id INTO cust3_id;
 
-	INSERT INTO orders (customer_id, date_processed, worker_id, state, date_received)
+	INSERT INTO orders (customer_id, date_processed, worker_id, status, date_received)
 	VALUES (cust1_id, null, work_id2, 'received', CURRENT_TIMESTAMP)
 	RETURNING id INTO order1_id;
 
-	INSERT INTO orders (customer_id, date_processed, worker_id, state, date_received)
+	INSERT INTO orders (customer_id, date_processed, worker_id, status, date_received)
 	VALUES (cust3_id, null, work_id1, 'received', yesterday_timestamp)
 	RETURNING id INTO order2_id;
 
@@ -202,24 +202,24 @@ BEGIN
 	VALUES (prod5_id, order2_id, 3);
 
 	UPDATE orders
-	SET state = 'processed'
+	SET status = 'processed'
 	WHERE id = order2_id;
 
 
-	INSERT INTO supplies (supplier_id, worker_id, state, arrival_date, processed_date, expected_date, product_id, amount)
+	INSERT INTO supplies (supplier_id, worker_id, status, arrival_date, processed_date, expected_date, product_id, amount)
 	VALUES (supplier_id1, work_id3, 'arrived', CURRENT_TIMESTAMP, null, CURRENT_TIMESTAMP, prod1_id, 20)
 	RETURNING id INTO supply1_id;
 
-	INSERT INTO supplies (supplier_id, worker_id, state, arrival_date, processed_date, expected_date, product_id, amount)
+	INSERT INTO supplies (supplier_id, worker_id, status, arrival_date, processed_date, expected_date, product_id, amount)
 	VALUES (supplier_id2, null, 'underway', null, null, CURRENT_TIMESTAMP, prod2_id, 5)
 	RETURNING id INTO supply2_id;
 
-	INSERT INTO supplies (supplier_id, worker_id, state, arrival_date, processed_date, expected_date, product_id, amount)
+	INSERT INTO supplies (supplier_id, worker_id, status, arrival_date, processed_date, expected_date, product_id, amount)
 	VALUES (supplier_id3, work_id4, 'arrived', CURRENT_TIMESTAMP, null, CURRENT_TIMESTAMP, prod3_id, 2)
 	RETURNING id INTO supply3_id;
 
 	UPDATE supplies
-	SET state = 'processed'
+	SET status = 'processed'
 	WHERE id = supply3_id;
 
 END $$;

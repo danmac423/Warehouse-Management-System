@@ -33,7 +33,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER packed_order
-AFTER UPDATE OF state on orders
+AFTER UPDATE OF status on orders
 FOR EACH ROW
-WHEN (NEW.state = 'processed')
+WHEN (NEW.status = 'processed')
 EXECUTE FUNCTION packed_function();
