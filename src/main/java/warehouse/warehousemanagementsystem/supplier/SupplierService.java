@@ -2,6 +2,8 @@ package warehouse.warehousemanagementsystem.supplier;
 
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
+import warehouse.warehousemanagementsystem.exception.NotFoundException;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -50,6 +52,7 @@ public class SupplierService {
     }
 
     public void updateSupplier(Supplier supplier) {
+        Supplier currentSupplier = supplierDao.getSupplierById(supplier.id()).orElseThrow(() -> new NotFoundException("Product not found"));
         if (supplier.name().isEmpty()
                 || supplier.addressId() == null) {
             throw new BadRequestException("All fields are required");
