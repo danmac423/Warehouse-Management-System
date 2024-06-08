@@ -1,6 +1,8 @@
 package warehouse.warehousemanagementsystem.supplier;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,23 +18,26 @@ public class SupplierController {
     }
 
     @GetMapping
-    public List<Supplier> getAllSuppliers() {
-        return supplierService.getAllSupplies();
+    public ResponseEntity<List<Supplier>> getAllSuppliers() {
+        return new ResponseEntity<>(supplierService.getAllSupplies(), HttpStatus.OK);
     }
 
     @PostMapping
-    public void addSupplier(@RequestBody Supplier supplier) {
+    public ResponseEntity<String> addSupplier(@RequestBody Supplier supplier) {
         supplierService.addSupplier(supplier);
+        return new ResponseEntity<>("Supplier added successfully", HttpStatus.CREATED);
     }
 
     @DeleteMapping("{id}")
-    public void deleteSupplier(@PathVariable Long id) {
+    public ResponseEntity<String> deleteSupplier(@PathVariable Long id) {
         supplierService.deleteSupplier(id);
+        return new ResponseEntity<>("Supplier deleted successfully", HttpStatus.OK);
     }
 
     @PutMapping
-    public void updateProduct(@RequestBody Supplier supplier) {
+    public ResponseEntity<String> updateProduct(@RequestBody Supplier supplier) {
         supplierService.updateSupplier(supplier);
+        return new ResponseEntity<>("Supplier updated successfully", HttpStatus.OK);
     }
 
 }

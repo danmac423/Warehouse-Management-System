@@ -56,7 +56,7 @@ class ProductManager(QWidget):
         data = json.dumps({'name': name, 'addressId': address_id})
         response = requests.post('http://localhost:8080/api/suppliers', headers=headers, data=data)
 
-        if response.status_code == 200:
+        if response.status_code == 201:
             QMessageBox.information(self, 'Success', 'Supplier added successfully')
             self.load_suppliers()
         else:

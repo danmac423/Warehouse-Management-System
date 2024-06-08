@@ -1,6 +1,8 @@
 package warehouse.warehousemanagementsystem.address;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -8,6 +10,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/addresses")
 public class AddressController {
+
     private final AddressService addressService;
 
     @Autowired
@@ -16,22 +19,29 @@ public class AddressController {
     }
 
     @GetMapping
-    public List<Address> getAllAddresses() {
-        return addressService.getAllAddresses();
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<Address>> getAllAddresses() {
+        return new ResponseEntity<>(addressService.getAllAddresses(), HttpStatus.OK);
     }
 
     @PostMapping
-    public void addAddress(@RequestBody Address address) {
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> addAddress(@RequestBody Address address) {
         addressService.addAddress(address);
+        return new ResponseEntity<>("Address added successfully", HttpStatus.CREATED);
     }
 
     @DeleteMapping("{id}")
-    public void deleteAddress(@PathVariable Long id) {
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> deleteAddress(@PathVariable Long id) {
         addressService.deleteAddress(id);
+        return new ResponseEntity<>("Address deleted successfully", HttpStatus.OK);
     }
 
     @PutMapping
-    public void updateAddress(@RequestBody Address address) {
+//    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> updateAddress(@RequestBody Address address) {
         addressService.updateAddress(address);
+        return new ResponseEntity<>("Address updated successfully", HttpStatus.OK);
     }
 }

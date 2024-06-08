@@ -1,6 +1,8 @@
 package warehouse.warehousemanagementsystem.customer;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,12 +18,13 @@ public class CustomerController {
     }
 
     @GetMapping
-    public List<Customer> getAllCustomers() {
-        return customerService.getAllCustomers();
+    public ResponseEntity<List<Customer>> getAllCustomers() {
+        return new ResponseEntity<>(customerService.getAllCustomers(), HttpStatus.OK);
     }
 
     @PostMapping
-    public void addCustomer(@RequestBody Customer customer) {
+    public ResponseEntity<String> addCustomer(@RequestBody Customer customer) {
         customerService.addCustomer(customer);
+        return new ResponseEntity<>("Customer added successfully", HttpStatus.CREATED);
     }
 }

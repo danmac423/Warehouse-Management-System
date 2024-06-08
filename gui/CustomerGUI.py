@@ -60,7 +60,7 @@ class CustomerManager(QWidget):
         data = json.dumps({'name': name, 'lastName': last_name, 'addressId': address_id, 'email': email})
         response = requests.post('http://localhost:8080/api/customers', headers=headers, data=data)
 
-        if response.status_code == 200:
+        if response.status_code == 201:
             QMessageBox.information(self, 'Success', 'Customer added successfully')
             self.load_customers()
         else:

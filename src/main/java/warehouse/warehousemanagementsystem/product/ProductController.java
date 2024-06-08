@@ -1,6 +1,8 @@
 package warehouse.warehousemanagementsystem.product;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,27 +18,30 @@ public class ProductController {
     }
 
     @GetMapping
-    public List<Product> getAllProducts() {
-        return productService.getAllProducts();
+    public ResponseEntity<List<Product>> getAllProducts() {
+        return new ResponseEntity<>(productService.getAllProducts(), HttpStatus.OK);
     }
 
     @PostMapping
-    public void addProduct(@RequestBody Product product) {
+    public ResponseEntity<String> addProduct(@RequestBody Product product) {
         productService.addProduct(product);
+        return new ResponseEntity<>("Product added successfully", HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public void deleteProduct(@PathVariable Long id) {
+    public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
+        return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
     }
 
     @PutMapping
-    public void updateProduct(@RequestBody Product product) {
+    public ResponseEntity<String> updateProduct(@RequestBody Product product) {
         productService.updateProduct(product);
+        return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
     }
 
     @GetMapping("/category/{categoryId}")
-    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
-        return productService.getProductsByCategory(categoryId);
+    public ResponseEntity<List<Product>> getProductsByCategory(@PathVariable Long categoryId) {
+        return new ResponseEntity<>(productService.getProductsByCategory(categoryId), HttpStatus.OK);
     }
 }
