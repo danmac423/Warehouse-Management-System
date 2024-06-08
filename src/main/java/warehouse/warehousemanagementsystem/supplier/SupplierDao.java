@@ -38,7 +38,7 @@ public class SupplierDao {
         ).stream().findFirst();
     }
 
-    public Optional<Supplier> getSupplierByName(Supplier supplier) {
+    public Optional<Supplier> getSupplierByName(String name) {
         var sql = """
                 SELECT * FROM suppliers
                 WHERE name = ?
@@ -46,7 +46,20 @@ public class SupplierDao {
         return jdbcTemplate.query(
                 sql,
                 new SupplierMapper(),
-                supplier.name()
+                name
+        ).stream().findFirst();
+    }
+
+    public Optional<Supplier> getSupplierByData(Supplier supplier) {
+        var sql = """
+                SELECT * FROM suppliers
+                WHERE name = ? AND address_id = ?
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new SupplierMapper(),
+                supplier.name(),
+                supplier.addressId()
         ).stream().findFirst();
     }
 

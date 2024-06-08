@@ -59,6 +59,9 @@ public class CategoryService {
         if (category.name().isEmpty()) {
             throw new BadRequestException("Category name cannot be empty");
         }
+        if (categoryDao.getCategoryByName(category.name()).isPresent()) {
+            throw new ConflictException("Category already exists");
+        }
         if (categoryDao.updateCategory(category) != 1) {
             throw new DatabaseException("Failed to update category");
         }
