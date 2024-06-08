@@ -51,7 +51,7 @@ class CategoryManager(QWidget):
         response = requests.post('http://localhost:8080/api/categories', headers=headers, data=data)
 
 
-        if response.status_code == 200:
+        if response.status_code == 201:
             QMessageBox.information(self, 'Success', 'Category added successfully')
             self.load_categories()
         else:

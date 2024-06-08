@@ -69,7 +69,7 @@ class ProductManager(QWidget):
         data = json.dumps({'name': name, 'price': price, 'categoryId': category_id, 'stock': stock})
         response = requests.post('http://localhost:8080/api/products', headers=headers, data=data)
 
-        if response.status_code == 200:
+        if response.status_code == 201:
             QMessageBox.information(self, 'Success', 'Product added successfully')
             self.load_products()
         else:

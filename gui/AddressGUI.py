@@ -74,7 +74,7 @@ class AddressManager(QWidget):
         data = json.dumps({'street': street, 'houseNumber': house_nr, 'postalCode': postal_code, 'city': city, 'country': country})
         response = requests.post('http://localhost:8080/api/addresses', headers=headers, data=data)
 
-        if response.status_code == 200:
+        if response.status_code == 201:
             QMessageBox.information(self, 'Success', 'Address added successfully')
             self.load_addresses()
         else:
