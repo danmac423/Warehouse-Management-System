@@ -49,7 +49,7 @@ public class AuthController {
 
         workerDao.addWorker(worker);
 
-        return new ResponseEntity<>("User registered success", HttpStatus.CREATED);
+        return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
     }
 
     @PostMapping("login")

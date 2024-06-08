@@ -19,7 +19,7 @@ public class CategoryController {
     }
 
     @GetMapping
-//    @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER)")
+//    @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
     public ResponseEntity<List<Category>> getAllCategories() {
         return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
     }
@@ -44,5 +44,4 @@ public class CategoryController {
         categoryService.updateCategory(category);
         return new ResponseEntity<>("Category updated successfully", HttpStatus.OK);
     }
-
 }
