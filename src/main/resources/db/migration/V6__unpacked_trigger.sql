@@ -16,7 +16,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE TRIGGER unpacked_supply
-AFTER UPDATE OF state on supplies
+AFTER UPDATE OF status on supplies
 FOR EACH ROW
-WHEN (NEW.state = 'processed')
+WHEN (NEW.status = 'processed')
 EXECUTE FUNCTION unpacked_function();
