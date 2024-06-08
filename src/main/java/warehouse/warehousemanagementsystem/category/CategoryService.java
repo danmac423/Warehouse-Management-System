@@ -12,7 +12,6 @@ import java.util.Optional;
 @Service
 public class CategoryService {
 
-
     private final CategoryDao categoryDao;
 
     public CategoryService(CategoryDao categoryDao) {

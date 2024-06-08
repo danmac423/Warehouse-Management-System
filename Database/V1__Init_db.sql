@@ -71,12 +71,12 @@ CREATE TABLE IF NOT EXISTS public.inventory_stock
 CREATE TABLE IF NOT EXISTS public.workers
 (
     id bigserial NOT NULL,
-    login character varying(20) NOT NULL,
+    username character varying(20) NOT NULL,
     name character varying(100) NOT NULL,
     last_name character varying(100) NOT NULL,
     "position" character varying(100) NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT "unique login" UNIQUE (login)
+    CONSTRAINT "unique username" UNIQUE (username)
 );
 
 CREATE TABLE IF NOT EXISTS public.supplies
