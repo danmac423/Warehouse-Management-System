@@ -34,4 +34,38 @@ public class SupplyController {
         return new ResponseEntity<>("Supply updated successfully", HttpStatus.OK);
     }
 
+    @GetMapping("/worker/{workerId}")
+    public List<Supply> getProductsByWorker(@PathVariable Long workerId) {
+        return supplyService.getProductsByWorkerId(workerId);
+    }
+
+    @GetMapping("/product/{productId}")
+    public List<Supply> getProductsByProduct(@PathVariable Long productId) {
+        return supplyService.getProductsByProductId(productId);
+    }
+
+    @GetMapping("/supplier/{supplierId}")
+    public List<Supply> getProductsBySupplier(@PathVariable Long supplierId) {
+        return supplyService.getProductsBySupplierId(supplierId);
+    }
+
+    @PutMapping("/acknowledge")
+    public ResponseEntity<String> acknowledgeSupply(@RequestBody Supply supply) {
+        supplyService.acknowledgeSupply(supply);
+        return new ResponseEntity<>("Supply acknowledged successfully", HttpStatus.OK);
+    }
+
+    @PutMapping("/unpack")
+    public ResponseEntity<String> unpackSupply(@RequestBody Supply supply) {
+        supplyService.unpackSupply(supply);
+        return new ResponseEntity<>("Supply unpacked successfully", HttpStatus.OK);
+    }
+
+    @PutMapping("/updateWorker")
+    public ResponseEntity<String> updateWorker(@RequestBody Supply supply) {
+        supplyService.updateWorker(supply);
+        return new ResponseEntity<>("Worker updated successfully", HttpStatus.OK);
+    }
+    // TODO: View by status + write trigger for 'arrived'
+
 }

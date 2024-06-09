@@ -53,4 +53,39 @@ public class SupplyService {
             throw new BadRequestException("Failed to update supply");
         }
     }
+    public List<Supply> getProductsByWorkerId(Long workerId) { return supplyDao.getSupplyByWorker(workerId); }
+
+    public List<Supply> getProductsByProductId(Long productId) { return supplyDao.getSupplyByProduct(productId); }
+
+    public List<Supply> getProductsBySupplierId(Long supplierId) { return supplyDao.getSupplyBySupplier(supplierId); }
+
+    public void acknowledgeSupply(Supply supply) {
+        if (!supply.status().equals("underway")) {
+            throw new BadRequestException("The supply must be underway to acknowledge");
+        }
+
+        if (supplyDao.acknowledgeSupply(supply) != 1) {
+            throw new BadRequestException("Failed to acknowledge supply");
+        }
+    }
+
+    public void unpackSupply(Supply supply) {
+        if (!supply.status().equals("arrived")) {
+            throw new BadRequestException("The supply must be underway to acknowledge");
+        }
+
+        if (supplyDao.unpackSupply(supply) != 1) {
+            throw new BadRequestException("Failed to acknowledge supply");
+        }
+    }
+
+    public void updateWorker(Supply supply) {
+        if (!supply.status().equals("arrived")) {
+            throw new BadRequestException("The supply must be underway to acknowledge");
+        }
+
+        if (supplyDao.updateWorker(supply) != 1) {
+            throw new BadRequestException("Failed to acknowledge supply");
+        }
+    }
 }
