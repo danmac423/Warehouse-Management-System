@@ -66,6 +66,5 @@ public class SupplyController {
         supplyService.updateWorker(supply);
         return new ResponseEntity<>("Worker updated successfully", HttpStatus.OK);
     }
-    // TODO: View by status + write trigger for 'arrived'
 
 }
