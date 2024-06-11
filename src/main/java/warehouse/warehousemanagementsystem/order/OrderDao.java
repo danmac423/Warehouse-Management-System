@@ -17,7 +17,8 @@ public class OrderDao {
 
     public List<Order> getAllOrders() {
         var sql = """
-                SELECT * FROM orders
+                SELECT * 
+                FROM orders
                 """;
         return jdbcTemplate.query(
                 sql,
@@ -35,7 +36,7 @@ public class OrderDao {
                 order.customerId(),
                 order.dateProcessed(),
                 order.workerId(),
-                order.status(),
+                "received",
                 order.dateReceived()
         );
     }
@@ -53,6 +54,56 @@ public class OrderDao {
                 order.workerId(),
                 order.status(),
                 order.dateReceived(),
+                order.id()
+        );
+    }
+
+    public List<Order> getOrdersByWorker(Long workerId) {
+        var sql = """
+                SELECT * FROM orders
+                WHERE worker_id = ?
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new OrderMapper(),
+                workerId
+        );
+    }
+
+    public List<Order> getOrdersByCustomer(Long customerId) {
+        var sql = """
+                SELECT * FROM orders
+                WHERE customer_id = ?
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new OrderMapper(),
+                customerId
+        );
+    }
+
+    public int packOrder(Order order) {
+        var sql = """
+                UPDATE orders
+                SET status = ?
+                WHERE id = ?
+                """;
+        return jdbcTemplate.update(
+                sql,
+                "processed",
+                order.id()
+        );
+    }
+
+    public int assignWorker(Order order) {
+        var sql = """
+                UPDATE orders
+                SET worker_id = ?
+                WHERE id = ?
+                """;
+        return jdbcTemplate.update(
+                sql,
+                order.workerId(),
                 order.id()
         );
     }

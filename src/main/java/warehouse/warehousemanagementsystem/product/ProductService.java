@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.NotFoundException;
 
-import javax.swing.*;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -80,5 +79,9 @@ public class ProductService {
 
     public List<Product> getProductsByCategory(Long categoryId) {
         return productDao.getProductsByCategory(categoryId);
+    }
+
+    public List<ProductInOrder> getProductsByOrder(Long orderId) {
+        return productDao.getProductsByOrder(orderId);
     }
 }

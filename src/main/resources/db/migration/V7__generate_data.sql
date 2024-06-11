@@ -49,6 +49,7 @@ DECLARE
 
 BEGIN
 	ALTER TABLE supplies ALTER COLUMN worker_id DROP NOT NULL;
+    ALTER TABLE orders ALTER COLUMN worker_id DROP NOT NULL;
 
 	yesterday_timestamp := (CURRENT_TIMESTAMP - INTERVAL '1 day')::timestamp;	
 	    -- 9 adresow 

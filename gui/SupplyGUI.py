@@ -88,7 +88,7 @@ class SupplyManager(QWidget):
         response = requests.post('http://localhost:8080/api/supplies', headers=headers, data=data)
 
         if response.status_code == 201:
-            QMessageBox.information(self, 'Success', 'supplt added successfully')
+            QMessageBox.information(self, 'Success', 'supply added successfully')
             self.load_supplies()
         else:
             body = json.loads(response.text)
@@ -106,7 +106,7 @@ class SupplyManager(QWidget):
         expected_date = self.expected_date_input.date().toString("yyyy-MM-dd")
         product_id = self.product_id_input.text()
         amount = self.amount_input.text()
-        
+
 
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({ 'id': supply_id, 'supplierId': supplier_id, 'status': status, 'expectedDate': expected_date, 'productId': product_id, 'amount': amount})
@@ -147,11 +147,11 @@ class SupplyManager(QWidget):
 
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'id': id,
-                            'supplierId': supplier_id, 
+                            'supplierId': supplier_id,
                             'workerId': worker_id,
                             'status': status,
                             'expectedDate': expected_date,
-                            'productDd': product_id,
+                            'productId': product_id,
                             'amount': amount})
         response = requests.put('http://localhost:8080/api/supplies/acknowledge', headers=headers, data=data)
 
@@ -177,7 +177,7 @@ class SupplyManager(QWidget):
 
         id = self.supplies_table.item(selected_row, 0).text()
         supplier_id = self.supplies_table.item(selected_row, 1).text()
-        
+
         status = self.supplies_table.item(selected_row, 3).text()
         # convert to YYYY-MM-DD
         arrival_date = self.supplies_table.item(selected_row, 4).text()
@@ -191,7 +191,7 @@ class SupplyManager(QWidget):
 
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'id': id,
-                            'supplierId': supplier_id, 
+                            'supplierId': supplier_id,
                             'workerId': worker_id,
                             'status': status,
                             'expectedDate': expected_date,
@@ -235,7 +235,7 @@ class SupplyManager(QWidget):
 
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'id': id,
-                            'supplierId': supplier_id, 
+                            'supplierId': supplier_id,
                             'workerId': worker_id,
                             'status': status,
                             'expectedDate': expected_date,
