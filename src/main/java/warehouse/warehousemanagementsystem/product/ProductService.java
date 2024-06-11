@@ -2,6 +2,8 @@ package warehouse.warehousemanagementsystem.product;
 
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
+import warehouse.warehousemanagementsystem.exception.ConflictException;
+import warehouse.warehousemanagementsystem.exception.DatabaseException;
 import warehouse.warehousemanagementsystem.exception.NotFoundException;
 
 import java.math.BigDecimal;
@@ -33,10 +35,10 @@ public class ProductService {
             throw new BadRequestException("Price cannot be negative");
         }
         if (productDao.getProductByName(product).isPresent()) {
-            throw new BadRequestException("Product with this name already exists");
+            throw new ConflictException("Product with this name already exists");
         }
         if (productDao.addProduct(product) != 1) {
-            throw new BadRequestException("Failed to add product");
+            throw new DatabaseException("Failed to add product");
         }
     }
 
@@ -44,15 +46,15 @@ public class ProductService {
         Optional<Product> product = productDao.getProductById(id);
         int result;
         if (product.isEmpty()) {
-            throw new IllegalArgumentException("Product not found");
+            throw new BadRequestException("Product not found");
         }
         try {
             result = productDao.deleteProduct(id);
         } catch (Exception e) {
-            throw new IllegalArgumentException("This product is still in use");
+            throw new ConflictException("This product is still in use");
         }
         if (result != 1) {
-            throw new IllegalArgumentException("Failed to delete product");
+            throw new DatabaseException("Failed to delete product");
         }
     }
 
@@ -70,10 +72,10 @@ public class ProductService {
             throw new BadRequestException("Price cannot be negative");
         }
         if (productDao.getProductByName(product).isPresent() && !currentProduct.name().startsWith(product.name())) {
-            throw new BadRequestException("Product with this name already exists");
+            throw new ConflictException("Product with this name already exists");
         }
         if (productDao.updateProduct(product) != 1) {
-            throw new BadRequestException("Failed to update product");
+            throw new DatabaseException("Failed to update product");
         }
     }
 

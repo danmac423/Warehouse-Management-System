@@ -2,6 +2,7 @@ package warehouse.warehousemanagementsystem.supply;
 
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
+import warehouse.warehousemanagementsystem.exception.DatabaseException;
 
 import java.util.Date;
 import java.util.List;
@@ -32,7 +33,7 @@ public class SupplyService {
             throw new BadRequestException("The expected date must be in the future");
         }
         if (supplyDao.addSupply(supply) != 1) {
-            throw new BadRequestException("Failed to update supply");
+            throw new DatabaseException("Failed to update supply");
         }
     }
 
@@ -50,7 +51,7 @@ public class SupplyService {
             throw new BadRequestException("The expected date must be in the future");
         }
         if (supplyDao.updateSupply(supply) != 1) {
-            throw new BadRequestException("Failed to update supply");
+            throw new DatabaseException("Failed to update supply");
         }
     }
     public List<Supply> getProductsByWorkerId(Long workerId) { return supplyDao.getSupplyByWorker(workerId); }
@@ -65,7 +66,7 @@ public class SupplyService {
         }
 
         if (supplyDao.acknowledgeSupply(supply) != 1) {
-            throw new BadRequestException("Failed to acknowledge supply");
+            throw new DatabaseException("Failed to acknowledge supply");
         }
     }
 
@@ -79,7 +80,7 @@ public class SupplyService {
         }
 
         if (supplyDao.unpackSupply(supply) != 1) {
-            throw new BadRequestException("Failed to acknowledge supply");
+            throw new DatabaseException("Failed to acknowledge supply");
         }
     }
 
@@ -89,7 +90,7 @@ public class SupplyService {
         }
 
         if (supplyDao.updateWorker(supply) != 1) {
-            throw new BadRequestException("Failed to acknowledge supply");
+            throw new DatabaseException("Failed to acknowledge supply");
         }
     }
 }
