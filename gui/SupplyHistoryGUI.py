@@ -43,7 +43,7 @@ class SupplyManager(QWidget):
         layout.addWidget(self.supplier_button)
 
         self.supplies_table = QTableWidget()
-        self.supplies_table.setColumnCount(9)
+        self.supplies_table.setColumnCount(8)
         self.supplies_table.setHorizontalHeaderLabels(['ID', 'supplier ID', 'worker ID', 'Arrival Date', 'Processed Date', 'Expected Date', "Product ID", "Amount"])
         self.supplies_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         layout.addWidget(self.supplies_table)
@@ -68,12 +68,12 @@ class SupplyManager(QWidget):
 
     def load_supplies_by_supplier(self):
         supplier_name = self.supplier_name_input.text()
-        response = requests.get(f'http://localhost:8080/api/suppliesHistory/worker/{supplier_name}')
+        response = requests.get(f'http://localhost:8080/api/suppliesHistory/supplier/{supplier_name}')
         self.load_supplies(response)
 
     def load_supplies_by_product(self):
         product_name = self.product_name_input.text()
-        response = requests.get(f'http://localhost:8080/api/suppliesHistory/worker/{product_name}')
+        response = requests.get(f'http://localhost:8080/api/suppliesHistory/product/{product_name}')
         self.load_supplies(response)
 
 
@@ -88,11 +88,11 @@ class SupplyManager(QWidget):
                     self.supplies_table.setItem(row_position, 0, QTableWidgetItem(str(supply['id'])))
                     self.supplies_table.setItem(row_position, 1, QTableWidgetItem(str(supply['supplierId'])))
                     self.supplies_table.setItem(row_position, 2, QTableWidgetItem(str(supply['workerId'])))
-                    self.supplies_table.setItem(row_position, 4, QTableWidgetItem(str(supply['arrivalDate'])))
-                    self.supplies_table.setItem(row_position, 5, QTableWidgetItem(str(supply['processedDate'])))
-                    self.supplies_table.setItem(row_position, 6, QTableWidgetItem(str(supply['expectedDate'])))
-                    self.supplies_table.setItem(row_position, 7, QTableWidgetItem(str(supply['productId'])))
-                    self.supplies_table.setItem(row_position, 8, QTableWidgetItem(str(supply['amount'])))
+                    self.supplies_table.setItem(row_position, 3, QTableWidgetItem(str(supply['arrivalDate'])))
+                    self.supplies_table.setItem(row_position, 4, QTableWidgetItem(str(supply['processedDate'])))
+                    self.supplies_table.setItem(row_position, 5, QTableWidgetItem(str(supply['expectedDate'])))
+                    self.supplies_table.setItem(row_position, 6, QTableWidgetItem(str(supply['productId'])))
+                    self.supplies_table.setItem(row_position, 7, QTableWidgetItem(str(supply['amount'])))
             else:
                 body = response.json()
                 QMessageBox.warning(self, 'Error', body.get('message', 'An error occurred'))

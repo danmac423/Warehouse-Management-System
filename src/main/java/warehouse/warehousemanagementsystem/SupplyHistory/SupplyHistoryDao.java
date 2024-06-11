@@ -42,12 +42,13 @@ public class SupplyHistoryDao {
                 SELECT s.id, s.supplier_id, s.worker_id, s.arrival_date, s.processed_date, s.expected_date, s.product_id, s.amount
                 FROM supplies_history s
                 JOIN products p ON s.product_id = p.id
-                WHERE p.name LIKE '%?%';
+                WHERE LOWER(p.name) LIKE LOWER(?);
                 """;
+        String toSearch = "%" +  productName + "%";
         return jdbcTemplate.query(
                 sql,
                 new SupplyHistoryMapper(),
-                productName
+                toSearch
         );
     }
 
@@ -56,12 +57,13 @@ public class SupplyHistoryDao {
                 SELECT s.id, s.supplier_id, s.worker_id, s.arrival_date, s.processed_date, s.expected_date, s.product_id, s.amount
                 FROM supplies_history s
                 JOIN suppliers p ON s.supplier_id = p.id
-                WHERE p.name LIKE '%?%';
+                WHERE LOWER(p.name) LIKE LOWER(?);
                 """;
+        String toSearch = "%" +  supplierName + "%";
         return jdbcTemplate.query(
                 sql,
                 new SupplyHistoryMapper(),
-                supplierName
+                toSearch
         );
     }
 }

@@ -32,7 +32,7 @@ public class SupplyHistoryController {
         return supplyHistoryService.getProductsByProductName(productName);
     }
 
-    @GetMapping("/supplier/{supplierId}")
+    @GetMapping("/supplier/{supplierName}")
     public List<SupplyHistory> getSuppliesBySupplier(@PathVariable String supplierName) {
         return supplyHistoryService.getProductsBySupplierId(supplierName);
     }
