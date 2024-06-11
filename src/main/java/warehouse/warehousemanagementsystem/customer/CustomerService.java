@@ -2,6 +2,8 @@ package warehouse.warehousemanagementsystem.customer;
 
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
+import warehouse.warehousemanagementsystem.exception.ConflictException;
+import warehouse.warehousemanagementsystem.exception.DatabaseException;
 
 import java.util.List;
 
@@ -24,13 +26,13 @@ public class CustomerService {
             throw new BadRequestException("All fields are required");
         }
         if (customerDao.getCustomerByEmail(customer.email()).isPresent()) {
-            throw new BadRequestException("Customer with this email already exists");
+            throw new ConflictException("Customer with this email already exists");
         }
         if (customerDao.getCustomerByData(customer).isPresent()) {
-            throw new BadRequestException("Customer already exists");
+            throw new ConflictException("Customer already exists");
         }
         if (customerDao.addCustomer(customer) != 1) {
-            throw new BadRequestException("Failed to add customer");
+            throw new DatabaseException("Failed to add customer");
         }
     }
 }

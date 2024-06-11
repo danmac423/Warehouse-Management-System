@@ -2,6 +2,8 @@ package warehouse.warehousemanagementsystem.supplier;
 
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
+import warehouse.warehousemanagementsystem.exception.ConflictException;
+import warehouse.warehousemanagementsystem.exception.DatabaseException;
 import warehouse.warehousemanagementsystem.exception.NotFoundException;
 
 import java.util.List;
@@ -25,13 +27,13 @@ public class SupplierService {
             throw new BadRequestException("All fields are required");
         }
         if (supplierDao.getSupplierByName(supplier.name()).isPresent()) {
-            throw new BadRequestException("Product with this name already exists");
+            throw new ConflictException("Product with this name already exists");
         }
         if (supplierDao.getSupplierByData(supplier).isPresent()) {
-            throw new BadRequestException("Product already exists");
+            throw new ConflictException("Product already exists");
         }
         if (supplierDao.addSupplier(supplier) != 1) {
-            throw new BadRequestException("Failed to add product");
+            throw new DatabaseException("Failed to add product");
         }
     }
 
@@ -39,15 +41,15 @@ public class SupplierService {
         Optional<Supplier> supplier = supplierDao.getSupplierById(id);
         int result;
         if (supplier.isEmpty()) {
-            throw new IllegalArgumentException("Product not found");
+            throw new BadRequestException("Product not found");
         }
         try {
             result = supplierDao.deleteSupplier(id);
         } catch (Exception e) {
-            throw new IllegalArgumentException("This product is still in use");
+            throw new ConflictException("This product is still in use");
         }
         if (result != 1) {
-            throw new IllegalArgumentException("Failed to delete product");
+            throw new DatabaseException("Failed to delete product");
         }
     }
 
@@ -58,13 +60,13 @@ public class SupplierService {
             throw new BadRequestException("All fields are required");
         }
         if (supplierDao.getSupplierById(supplier.id()).isEmpty()) {
-            throw new BadRequestException("Product not found");
+            throw new NotFoundException("Product not found");
         }
         if (supplierDao.getSupplierByData(supplier).isPresent()) {
-            throw new BadRequestException("Product already exists");
+            throw new ConflictException("Product already exists");
         }
         if (supplierDao.updateSupplier(supplier) != 1) {
-            throw new BadRequestException("Failed to update product");
+            throw new DatabaseException("Failed to update product");
         }
     }
 

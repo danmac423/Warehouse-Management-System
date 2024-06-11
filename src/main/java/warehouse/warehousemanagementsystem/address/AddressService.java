@@ -2,6 +2,9 @@ package warehouse.warehousemanagementsystem.address;
 
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
+import warehouse.warehousemanagementsystem.exception.ConflictException;
+import warehouse.warehousemanagementsystem.exception.DatabaseException;
+import warehouse.warehousemanagementsystem.exception.NotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,10 +30,10 @@ public class AddressService {
             throw new BadRequestException("All fields are required");
         }
         if (addressDao.getAddressByData(address).isPresent()) {
-            throw new BadRequestException("Address already exists");
+            throw new ConflictException("Address already exists");
         }
         if (addressDao.addAddress(address) != 1) {
-            throw new BadRequestException("Failed to add address");
+            throw new DatabaseException("Failed to add address");
         }
     }
 
@@ -38,25 +41,25 @@ public class AddressService {
         Optional<Address> address = addressDao.getAddressById(id);
         int result;
         if (address.isEmpty()) {
-            throw new BadRequestException("Address not found");
+            throw new NotFoundException("Address not found");
         }
         try {
             result = addressDao.deleteAddress(id);
         } catch (Exception e) {
-            throw new BadRequestException("This address is still in use");
+            throw new ConflictException("This address is still in use");
         }
 
         if (result != 1) {
-            throw new BadRequestException("Failed to delete address");
+            throw new DatabaseException("Failed to delete address");
         }
     }
 
     public void updateAddress(Address address) {
         if (addressDao.getAddressById(address.id()).isEmpty()) {
-            throw new BadRequestException("Address not found");
+            throw new NotFoundException("Address not found");
         }
         if (addressDao.getAddressByData(address).isPresent()) {
-            throw new BadRequestException("Address already exists");
+            throw new ConflictException("Address already exists");
         }
         if (address.street().isEmpty()
                 || address.houseNumber().isEmpty()
@@ -66,7 +69,7 @@ public class AddressService {
             throw new BadRequestException("All fields are required");
         }
         if (addressDao.updateAddress(address) != 1) {
-            throw new BadRequestException("Failed to update address");
+            throw new DatabaseException("Failed to update address");
         }
     }
 }
