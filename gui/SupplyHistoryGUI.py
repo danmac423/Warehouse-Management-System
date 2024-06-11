@@ -44,7 +44,7 @@ class SupplyManager(QWidget):
 
         self.supplies_table = QTableWidget()
         self.supplies_table.setColumnCount(9)
-        self.supplies_table.setHorizontalHeaderLabels(['ID', 'supplier ID', 'worker ID', 'Status', 'Arrival Date', 'Processed Date', 'Expected Date', "Product ID", "Amount"])
+        self.supplies_table.setHorizontalHeaderLabels(['ID', 'supplier ID', 'worker ID', 'Arrival Date', 'Processed Date', 'Expected Date', "Product ID", "Amount"])
         self.supplies_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         layout.addWidget(self.supplies_table)
 
@@ -88,7 +88,6 @@ class SupplyManager(QWidget):
                     self.supplies_table.setItem(row_position, 0, QTableWidgetItem(str(supply['id'])))
                     self.supplies_table.setItem(row_position, 1, QTableWidgetItem(str(supply['supplierId'])))
                     self.supplies_table.setItem(row_position, 2, QTableWidgetItem(str(supply['workerId'])))
-                    self.supplies_table.setItem(row_position, 3, QTableWidgetItem(str(supply['status'])))
                     self.supplies_table.setItem(row_position, 4, QTableWidgetItem(str(supply['arrivalDate'])))
                     self.supplies_table.setItem(row_position, 5, QTableWidgetItem(str(supply['processedDate'])))
                     self.supplies_table.setItem(row_position, 6, QTableWidgetItem(str(supply['expectedDate'])))
