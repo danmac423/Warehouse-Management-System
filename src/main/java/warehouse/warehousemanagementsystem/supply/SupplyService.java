@@ -71,7 +71,11 @@ public class SupplyService {
 
     public void unpackSupply(Supply supply) {
         if (!supply.status().equals("arrived")) {
-            throw new BadRequestException("The supply must be underway to acknowledge");
+            throw new BadRequestException("The supply must have to unpack");
+        }
+
+        if (supply.workerId() != (null)) {
+            throw new BadRequestException("The supply must have a worker assigned to unpack");
         }
 
         if (supplyDao.unpackSupply(supply) != 1) {
@@ -81,7 +85,7 @@ public class SupplyService {
 
     public void updateWorker(Supply supply) {
         if (!supply.status().equals("arrived")) {
-            throw new BadRequestException("The supply must be underway to acknowledge");
+            throw new BadRequestException("The supply must have arrived to add the worker");
         }
 
         if (supplyDao.updateWorker(supply) != 1) {
