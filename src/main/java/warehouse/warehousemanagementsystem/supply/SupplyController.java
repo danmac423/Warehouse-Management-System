@@ -18,7 +18,7 @@ public class SupplyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Supply>> getAllOrders() {
+    public ResponseEntity<List<Supply>> getAllSupplies() {
         return new ResponseEntity<>(supplyService.getAllSupplies(), HttpStatus.OK);
     }
 
@@ -35,17 +35,17 @@ public class SupplyController {
     }
 
     @GetMapping("/worker/{workerId}")
-    public List<Supply> getProductsByWorker(@PathVariable Long workerId) {
+    public List<Supply> getSuppliesByWorker(@PathVariable Long workerId) {
         return supplyService.getProductsByWorkerId(workerId);
     }
 
     @GetMapping("/product/{productId}")
-    public List<Supply> getProductsByProduct(@PathVariable Long productId) {
+    public List<Supply> getSuppliesByProduct(@PathVariable Long productId) {
         return supplyService.getProductsByProductId(productId);
     }
 
     @GetMapping("/supplier/{supplierId}")
-    public List<Supply> getProductsBySupplier(@PathVariable Long supplierId) {
+    public List<Supply> getSuppliesBySupplier(@PathVariable Long supplierId) {
         return supplyService.getProductsBySupplierId(supplierId);
     }
 

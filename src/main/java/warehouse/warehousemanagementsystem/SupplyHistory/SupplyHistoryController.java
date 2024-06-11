@@ -18,22 +18,22 @@ public class SupplyHistoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SupplyHistory>> getAllOrders() {
+    public ResponseEntity<List<SupplyHistory>> getAllSupplies() {
         return new ResponseEntity<>(supplyHistoryService.getAllSupplies(), HttpStatus.OK);
     }
 
     @GetMapping("/worker/{workerId}")
-    public List<SupplyHistory> getProductsByWorker(@PathVariable Long workerId) {
+    public List<SupplyHistory> getSuppliesByWorker(@PathVariable Long workerId) {
         return supplyHistoryService.getProductsByWorkerId(workerId);
     }
 
-    @GetMapping("/product/{productId}")
-    public List<SupplyHistory> getProductsByProduct(@PathVariable Long productId) {
-        return supplyHistoryService.getProductsByProductId(productId);
+    @GetMapping("/product/{productName}")
+    public List<SupplyHistory> getSuppliesByProduct(@PathVariable String productName) {
+        return supplyHistoryService.getProductsByProductName(productName);
     }
 
     @GetMapping("/supplier/{supplierId}")
-    public List<SupplyHistory> getProductsBySupplier(@PathVariable Long supplierId) {
-        return supplyHistoryService.getProductsBySupplierId(supplierId);
+    public List<SupplyHistory> getSuppliesBySupplier(@PathVariable String supplierName) {
+        return supplyHistoryService.getProductsBySupplierId(supplierName);
     }
 }

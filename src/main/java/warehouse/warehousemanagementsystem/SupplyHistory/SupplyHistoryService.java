@@ -17,8 +17,8 @@ public class SupplyHistoryService {
 
     public List<SupplyHistory> getProductsByWorkerId(Long workerId) { return supplyHistoryDao.getSupplyByWorker(workerId); }
 
-    public List<SupplyHistory> getProductsByProductId(Long productId) { return supplyHistoryDao.getSupplyByProduct(productId); }
+    public List<SupplyHistory> getProductsByProductName(String productName) { return supplyHistoryDao.getSupplyByProduct(productName); }
 
-    public List<SupplyHistory> getProductsBySupplierId(Long supplierId) { return supplyHistoryDao.getSupplyBySupplier(supplierId); }
+    public List<SupplyHistory> getProductsBySupplierId(String supplierName) { return supplyHistoryDao.getSupplyBySupplier(supplierName); }
 
 }

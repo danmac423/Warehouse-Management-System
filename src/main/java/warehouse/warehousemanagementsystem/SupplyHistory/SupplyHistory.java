@@ -6,7 +6,6 @@ public record SupplyHistory(
         Long id,
         Long supplierId,
         Long workerId,
-        String status,
         Date arrivalDate,
         Date processedDate,
         Date expectedDate,
