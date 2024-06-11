@@ -1,5 +1,6 @@
 package warehouse.warehousemanagementsystem.order;
 
+import java.math.BigDecimal;
 import java.sql.Date;
 
 public record Order(
@@ -8,5 +9,6 @@ public record Order(
         Date dateProcessed,
         Long workerId,
         String status,
-        Date dateReceived) {
+        Date dateReceived,
+        BigDecimal totalPrice) {
 }
