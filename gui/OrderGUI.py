@@ -19,11 +19,6 @@ class OrderManager(QWidget):
         self.customer_id_input = QLineEdit()
         layout.addWidget(self.customer_id_input)
 
-        # self.date_processed_label = QLabel('Date Processed')
-        # layout.addWidget(self.date_processed_label)
-        # self.date_processed_input = QLineEdit()
-        # layout.addWidget(self.date_processed_input)
-
         self.worker_id_label = QLabel('Worker ID')
         layout.addWidget(self.worker_id_label)
         self.worker_id_input = QLineEdit()
@@ -41,11 +36,11 @@ class OrderManager(QWidget):
         self.date_received_input.setDate(QDate.currentDate())
         layout.addWidget(self.date_received_input)
 
-        self.add_button = QPushButton('Add Product')
+        self.add_button = QPushButton('Add Order')
         self.add_button.clicked.connect(self.add_order)
         layout.addWidget(self.add_button)
 
-        self.update_button = QPushButton('Update Product')
+        self.update_button = QPushButton('Update Order')
         self.update_button.clicked.connect(self.update_order)
         layout.addWidget(self.update_button)
 
@@ -58,8 +53,8 @@ class OrderManager(QWidget):
         layout.addWidget(self.pack_button)
 
         self.orders_table = QTableWidget()
-        self.orders_table.setColumnCount(6)
-        self.orders_table.setHorizontalHeaderLabels(['ID', 'Customer ID', 'Date Processed', 'Worker ID', 'Status', 'Date Received'])
+        self.orders_table.setColumnCount(7)
+        self.orders_table.setHorizontalHeaderLabels(['ID', 'Customer ID', 'Date Processed', 'Worker ID', 'Status', 'Date Received', 'Total Price'])
         self.orders_table.setSelectionBehavior(QAbstractItemView.SelectRows)
         layout.addWidget(self.orders_table)
 
@@ -149,10 +144,12 @@ class OrderManager(QWidget):
             return
 
         order_id = self.orders_table.item(selected_row, 0).text()
+        worker_id = self.orders_table.item(selected_row, 3).text()
         status = self.orders_table.item(selected_row, 4).text()
 
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'id': order_id,
+                           'workerId': worker_id,
                             'status': status})
         response = requests.put(f'http://localhost:8080/api/orders/pack', headers=headers, data=data)
 
@@ -179,6 +176,7 @@ class OrderManager(QWidget):
                     self.orders_table.setItem(row_position, 3, QTableWidgetItem(str(order['workerId'])))
                     self.orders_table.setItem(row_position, 4, QTableWidgetItem(str(order['status'])))
                     self.orders_table.setItem(row_position, 5, QTableWidgetItem(str(order['dateReceived'])))
+                    self.orders_table.setItem(row_position, 6, QTableWidgetItem(str(order['totalPrice'])))
             else:
                 QMessageBox.warning(self, 'Error', 'Failed to load orders')
         except Exception as e:

@@ -13,7 +13,8 @@ public class OrderMapper implements RowMapper<Order>{
                 rs.getDate("date_processed"),
                 rs.getLong("worker_id"),
                 rs.getString("status"),
-                rs.getDate("date_received")
+                rs.getDate("date_received"),
+                rs.getBigDecimal("total_price")
         );
     }
 }

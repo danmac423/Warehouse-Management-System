@@ -59,7 +59,7 @@ public class OrderService {
         if (!order.status().equals("received")) {
             throw new BadRequestException("Order must be received before packing");
         }
-        if (order.workerId() == null) {
+        if (order.workerId() == null || order.workerId().equals(0L)) {
             throw new BadRequestException("Order must have a worker assigned before packing");
         }
         if (orderDao.packOrder(order) != 1) {
