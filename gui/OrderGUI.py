@@ -1,5 +1,7 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLineEdit, QPushButton, QLabel, QTableWidget, QTableWidgetItem, QMessageBox, QAbstractItemView
+from PyQt5.QtWidgets import QDateEdit
+from PyQt5.QtCore import QDate
 import requests
 import json
 
@@ -17,10 +19,10 @@ class OrderManager(QWidget):
         self.customer_id_input = QLineEdit()
         layout.addWidget(self.customer_id_input)
 
-        self.date_processed_label = QLabel('Date Processed')
-        layout.addWidget(self.date_processed_label)
-        self.date_processed_input = QLineEdit()
-        layout.addWidget(self.date_processed_input)
+        # self.date_processed_label = QLabel('Date Processed')
+        # layout.addWidget(self.date_processed_label)
+        # self.date_processed_input = QLineEdit()
+        # layout.addWidget(self.date_processed_input)
 
         self.worker_id_label = QLabel('Worker ID')
         layout.addWidget(self.worker_id_label)
@@ -34,7 +36,9 @@ class OrderManager(QWidget):
 
         self.date_received_label = QLabel('Date Received')
         layout.addWidget(self.date_received_label)
-        self.date_received_input = QLineEdit()
+        self.date_received_input = QDateEdit()
+        self.date_received_input.setCalendarPopup(True)
+        self.date_received_input.setDate(QDate.currentDate())
         layout.addWidget(self.date_received_input)
 
         self.add_button = QPushButton('Add Product')
@@ -44,6 +48,14 @@ class OrderManager(QWidget):
         self.update_button = QPushButton('Update Product')
         self.update_button.clicked.connect(self.update_order)
         layout.addWidget(self.update_button)
+
+        self.assign_worker_button = QPushButton('Assign Worker')
+        self.assign_worker_button.clicked.connect(self.assign_worker)
+        layout.addWidget(self.assign_worker_button)
+
+        self.pack_button = QPushButton('Pack Order')
+        self.pack_button.clicked.connect(self.pack_order)
+        layout.addWidget(self.pack_button)
 
         self.orders_table = QTableWidget()
         self.orders_table.setColumnCount(6)
@@ -62,12 +74,10 @@ class OrderManager(QWidget):
 
     def add_order(self):
         customer_id = self.customer_id_input.text()
-        date_processed = self.date_processed_input.text()
         worker_id = self.worker_id_input.text()
-        status = self.status_input.text()
-        date_received = self.date_received_input.text()
+        date_received = self.date_received_input.date().toString('yyyy-MM-dd')
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'customerId': customer_id, 'dateProcessed': date_processed, 'workerId': worker_id, 'status': status, 'dateReceived': date_received})
+        data = json.dumps({'customerId': customer_id, 'workerId': worker_id, 'dateReceived': date_received})
         response = requests.post('http://localhost:8080/api/orders', headers=headers, data=data)
 
         if response.status_code == 201:
@@ -85,13 +95,12 @@ class OrderManager(QWidget):
 
         order_id = self.orders_table.item(selected_row, 0).text()
         customer_id = self.customer_id_input.text()
-        date_processed = self.date_processed_input.text()
         worker_id = self.worker_id_input.text()
-        status = self.status_input.text()
-        date_received = self.date_received_input.text()
+        status = self.orders_table.item(selected_row, 4).text()
+        date_received = self.date_received_input.date().toString('yyyy-MM-dd')
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'id': order_id, 'customerId': customer_id, 'dateProcessed': date_processed, 'workerId': worker_id, 'status': status, 'dateReceived': date_received})
-        response = requests.put(f'http://localhost:8080/api/orders', headers=headers, data=data)
+        data = json.dumps({'id': order_id, 'customerId': customer_id, 'workerId': worker_id, 'status': status, 'dateReceived': date_received})
+        response = requests.put('http://localhost:8080/api/orders', headers=headers, data=data)
 
         if response.status_code == 200:
             QMessageBox.information(self, 'Success', 'Order updated successfully')
@@ -100,23 +109,80 @@ class OrderManager(QWidget):
             body = json.loads(response.text)
             QMessageBox.warning(self, 'Error', body.get('message'))
 
-    def load_orders(self):
-        response = requests.get('http://localhost:8080/api/orders')
+    def assign_worker(self):
+        selected_row = self.orders_table.currentRow()
+        if selected_row == -1:
+            QMessageBox.warning(self, 'Error', 'No order selected')
+            return
+
+        # DOCELOWO WYSWIETLAMY TYLKO TE KTORE SA RECEIVED
+        status = self.orders_table.item(selected_row, 4).text()
+        if status != 'received':
+            QMessageBox.warning(self, 'Error', 'Order must be received')
+            return
+
+        order_id = self.orders_table.item(selected_row, 0).text()
+        worker_id = self.worker_id_input.text()
+
+        headers = {'Content-Type': 'application/json'}
+        data = json.dumps({'id': order_id,
+                            'workerId': worker_id})
+        response = requests.put(f'http://localhost:8080/api/orders/assignWorker', headers=headers, data=data)
 
         if response.status_code == 200:
-            self.orders_table.setRowCount(0)
-            orders = response.json()
-            for order in orders:
-                row_position = self.orders_table.rowCount()
-                self.orders_table.insertRow(row_position)
-                self.orders_table.setItem(row_position, 0, QTableWidgetItem(str(order['id'])))
-                self.orders_table.setItem(row_position, 1, QTableWidgetItem(str(order['customerId'])))
-                self.orders_table.setItem(row_position, 2, QTableWidgetItem(str(order['dateProcessed'])))
-                self.orders_table.setItem(row_position, 3, QTableWidgetItem(str(order['workerId'])))
-                self.orders_table.setItem(row_position, 4, QTableWidgetItem(str(order['status'])))
-                self.orders_table.setItem(row_position, 5, QTableWidgetItem(str(order['dateReceived'])))
+            QMessageBox.information(self, 'Success', 'Worker assigned successfully')
+            self.load_orders()
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to load orders')
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
+
+    def pack_order(self):
+        selected_row = self.orders_table.currentRow()
+        if selected_row == -1:
+            QMessageBox.warning(self, 'Error', 'No order selected')
+            return
+
+        # DOCELOWO WYSWIETLAMY TYLKO TE KTORE SA RECEIVED (czyli chyba wszystkie?)
+        status = self.orders_table.item(selected_row, 4).text()
+        if status != 'received':
+            QMessageBox.warning(self, 'Error', 'Order must be received')
+            return
+
+        order_id = self.orders_table.item(selected_row, 0).text()
+        status = self.orders_table.item(selected_row, 4).text()
+
+        headers = {'Content-Type': 'application/json'}
+        data = json.dumps({'id': order_id,
+                            'status': status})
+        response = requests.put(f'http://localhost:8080/api/orders/pack', headers=headers, data=data)
+
+        if response.status_code == 200:
+            QMessageBox.information(self, 'Success', 'Order packed successfully')
+            self.load_orders()
+        else:
+            body = json.loads(response.text)
+            QMessageBox.warning(self, 'Error', body.get('message'))
+
+    def load_orders(self):
+        try:
+            response = requests.get('http://localhost:8080/api/orders')
+
+            if response.status_code == 200:
+                self.orders_table.setRowCount(0)
+                orders = response.json()
+                for order in orders:
+                    row_position = self.orders_table.rowCount()
+                    self.orders_table.insertRow(row_position)
+                    self.orders_table.setItem(row_position, 0, QTableWidgetItem(str(order['id'])))
+                    self.orders_table.setItem(row_position, 1, QTableWidgetItem(str(order['customerId'])))
+                    self.orders_table.setItem(row_position, 2, QTableWidgetItem(str(order['dateProcessed'])))
+                    self.orders_table.setItem(row_position, 3, QTableWidgetItem(str(order['workerId'])))
+                    self.orders_table.setItem(row_position, 4, QTableWidgetItem(str(order['status'])))
+                    self.orders_table.setItem(row_position, 5, QTableWidgetItem(str(order['dateReceived'])))
+            else:
+                QMessageBox.warning(self, 'Error', 'Failed to load orders')
+        except Exception as e:
+            QMessageBox.warning(self, 'Error', str(e))
 
 
 if __name__ == '__main__':

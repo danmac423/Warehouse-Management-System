@@ -102,4 +102,18 @@ public class ProductDao {
                 categoryId
         );
     }
+
+    public List<ProductInOrder> getProductsByOrder(Long orderId) {
+        var sql = """
+                SELECT products.id, products.name, products.price, categories.name as category_name, products_orders.amount
+                FROM products
+                JOIN products_orders ON products.id = products_orders.product_id JOIN categories ON products.category_id = categories.id
+                WHERE products_orders.order_id = ?
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new ProductInOrderMapper(),
+                orderId
+        );
+    }
 }

@@ -34,9 +34,27 @@ public class OrderController {
         return new ResponseEntity<>("Order updated successfully", HttpStatus.OK);
     }
 
-//    @GetMapping("/worker/{workerId}")
-//    public List<Order> getOrdersByWorker(@PathVariable Long workerId) {
-//        return orderService.getOrdersByWorker(workerId);
-//    }
+    @GetMapping("/worker/{workerId}")
+    public List<Order> getOrdersByWorker(@PathVariable Long workerId) {
+        return orderService.getOrdersByWorker(workerId);
+    }
+
+    @GetMapping("/customer/{customerId}")
+    public List<Order> getOrdersByCustomer(@PathVariable Long customerId) {
+        return orderService.getOrdersByCustomer(customerId);
+    }
+
+    @PutMapping("/pack")
+    public ResponseEntity<String> packOrder(@RequestBody Order order) {
+        orderService.packOrder(order);
+        return new ResponseEntity<>("Order packed successfully", HttpStatus.OK);
+    }
+
+    @PutMapping("/assignWorker")
+    public ResponseEntity<String> assignWorker(@RequestBody Order order) {
+        orderService.assignWorker(order);
+        return new ResponseEntity<>("Worker assigned successfully", HttpStatus.OK);
+    }
+
 
 }

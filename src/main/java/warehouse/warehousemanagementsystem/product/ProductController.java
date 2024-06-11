@@ -40,6 +40,11 @@ public class ProductController {
         return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
     }
 
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<List<ProductInOrder>> getProductsByOrder(@PathVariable Long orderId) {
+        return new ResponseEntity<>(productService.getProductsByOrder(orderId), HttpStatus.OK);
+    }
+
 //    @GetMapping("/category/{categoryId}")
 //    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
 //        return productService.getProductsByCategory(categoryId);
