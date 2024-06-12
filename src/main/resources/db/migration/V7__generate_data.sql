@@ -15,6 +15,7 @@ DECLARE
     work_id2 bigint;
     work_id3 bigint;
     work_id4 bigint;
+    work_id5 bigint;
 
 	supplier_id1 bigint;
     supplier_id2 bigint;
@@ -104,6 +105,10 @@ BEGIN
     INSERT INTO workers (username, password, name, last_name, role)
     VALUES ('ewilliams', 'sunny67', 'Emily', 'Williams', 'WORKER')
     RETURNING id INTO work_id4;
+
+    INSERT INTO workers (username, password, name, last_name, role)
+    VALUES ('admin', '$2a$10$gwSoqd2fIs5xd/alLASivuYQOjNnpzeq0OaF/P9OXQpDyrxk2qbqW', 'Admin', 'Admin', 'ADMIN')
+    RETURNING id INTO work_id5;
 
 	-- Dostawcy od Apple od telefonu
     INSERT INTO suppliers (name, address_id)
