@@ -86,4 +86,8 @@ public class ProductService {
     public List<ProductInOrder> getProductsByOrder(Long orderId) {
         return productDao.getProductsByOrder(orderId);
     }
+
+    public List<ProductInOrder> getProductsByOrderHistory(Long orderHistoryId) {
+        return  productDao.getProductsByOrderHistory(orderHistoryId);
+    }
 }
