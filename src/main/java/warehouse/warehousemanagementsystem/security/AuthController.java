@@ -63,7 +63,11 @@ public class AuthController {
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtGenerator.generateToken(authentication);
-        return new ResponseEntity<>(new AuthResponse(token), HttpStatus.OK);
+
+        Worker worker = workerDao.getWorkerByUsername(loginDto.username()).get();
+        String role = worker.role();
+        Long workerId = worker.id();
+        return new ResponseEntity<>(new AuthResponse(token, role, workerId), HttpStatus.OK);
 
     }
 
