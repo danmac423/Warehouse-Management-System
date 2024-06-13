@@ -36,6 +36,10 @@ public class WorkerService {
         return workerDao.getAllWorkers();
     }
 
+    public Optional<Worker> getWorkerById(Long id){
+        return workerDao.getWorkerById(id);
+    }
+
     public void addWorker(Worker worker) {
         validData(worker);
 
