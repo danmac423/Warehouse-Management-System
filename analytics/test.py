@@ -7,14 +7,20 @@ if __name__ == "__main__":
     fig, ax = plt.subplots(1,1)
     
 
-    order_num_max = analytics.graph_worker_unloaded_orders_per_day('http://localhost:8080/api/ordersHistory/worker/', 
+    order_num_max, date_min, date_max = analytics.graph_worker_unloaded_orders_per_day('http://localhost:8080/api/ordersHistory/worker/', 
                                                                    'http://localhost:8080/api/workers/', 
                                                                    '1', 
                                                                    ax, 
-                                                                #    date_min='10.06.2024', 
-                                                                #    date_max='14.06.2024'
+                                                                   date_min='13.06.2024', 
+                                                                   date_max='13.06.2024',
+                                                                graph_type='line'
                                                                    )
     ax.set_yticks(np.arange(0, order_num_max+1, 1))
+    one_day = np.timedelta64(1, 'D')
+    if date_min == date_max:
+        ax.set_xticks([date_min])
+    else:
+        ax.set_xticks(np.arange(date_min, date_max+one_day, one_day))
     ax.xaxis_date()
     ax.grid(True)
     ax.legend()

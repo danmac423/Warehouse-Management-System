@@ -2,6 +2,7 @@ from typing import List, Tuple
 import requests
 from matplotlib import pyplot as plt
 import numpy as np
+from datetime import datetime as dt
 
 
 
@@ -35,22 +36,13 @@ import numpy as np
 #     pass
 
 # def generate_supplier_list(supplier_url):
-#     pass
-
-def graph_worker_unloaded_orders_per_day(endpoint_url_orders:str, endpoint_url_workers:str, worker_id:str, ax:plt.Axes, date_min:str=None, date_max:str=None) -> int:
-    order_num_by_day = _get_order_num_by_day(endpoint_url_orders, worker_id, date_min=date_min, date_max=date_max)
-    worker_name, worker_surname = _get_worker_name(endpoint_url_workers, worker_id)
-    ax.plot(order_num_by_day.keys(), list(order_num_by_day.values()), '-o', label=worker_name + ' ' + worker_surname)
-
-    return max(list(order_num_by_day.values()))
-    
+#     pass   
 
 
 def _get_order_num_by_day(endpoint_url:str, worker_id:str, date_min:str=None, date_max:str=None) -> dict:
     response = None
     if date_min and date_max:
-        print(endpoint_url+worker_id+'/'+date_min+';'+date_max)
-        response = requests.get(endpoint_url+worker_id+'/'+date_min+';'+date_max)
+        response = requests.get(endpoint_url+worker_id+'/'+date_min+'/'+date_max)
     else:
         response = requests.get(endpoint_url+worker_id)
 
@@ -58,6 +50,7 @@ def _get_order_num_by_day(endpoint_url:str, worker_id:str, date_min:str=None, da
         orders = response.json()
         order_num_by_day = {}
         for order in orders:
+            print(order['dateProcessed'])
             order_date = np.datetime64(order['dateProcessed'])
             order_num_by_day[order_date] = order_num_by_day.get(order_date, 0) + 1
 
@@ -76,7 +69,40 @@ def _get_worker_name(endpoint_url:str, worker_id:str) -> Tuple[str, str]:
     
     raise(Exception(response.text))
 
-    
+def _get_categories_stats(endpoint_url:str) -> dict:
+    response = requests.get(endpoint_url)
+    if response.ok:
+        orders = response.json()
+        for order in orders:
+            pass
+
+
+
+def graph_worker_unloaded_orders_per_day(endpoint_url_orders:str, endpoint_url_workers:str, worker_id:str, ax:plt.Axes, date_min:str=None, date_max:str=None, graph_type:str='line') -> int :
+    order_num_by_day = _get_order_num_by_day(endpoint_url_orders, worker_id, date_min=date_min, date_max=date_max)
+    worker_name, worker_surname = _get_worker_name(endpoint_url_workers, worker_id)
+    plot_func = None
+    if graph_type == 'line':
+        ax.plot(order_num_by_day.keys(), list(order_num_by_day.values()), '-o', label=worker_name + ' ' + worker_surname)
+    else:
+        ax.bar(order_num_by_day.keys(), list(order_num_by_day.values()), label=worker_name + ' ' + worker_surname)
+
+    max_val = 0
+    min_date = None
+    max_date = None
+    try:
+        max_val = max(list(order_num_by_day.values()))
+        min_date = min(list(order_num_by_day.keys()))
+        max_date = max(list(order_num_by_day.keys()))
+    except:
+        if len(order_num_by_day.keys()) == 1:
+            min_date = order_num_by_day.keys[0]
+            max_date = order_num_by_day.keys[0]
+        else:
+            min_date = np.datetime64(dt.today().isoformat())
+            max_date = np.datetime64(dt.today().isoformat())
+
+    return max_val, min_date, max_date   
     
 
 def graph_worker_unloaded_orders(endpoint_url:str, worker_id_list:List[str], ax:plt.Axes, graph_type:str=None):
@@ -86,6 +112,8 @@ def graph_worker_unloaded_orders(endpoint_url:str, worker_id_list:List[str], ax:
 
 def graph_orders_by_category(endpoint_url:str) -> bool:
     pass
+
+
     
 
     
