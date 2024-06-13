@@ -5,8 +5,9 @@ import requests
 import json
 
 class LoginWindow(QWidget):
-    def __init__(self):
+    def __init__(self, globalVariables):
         super().__init__()
+        self.globalVariables = globalVariables
         self.initUI()
 
     def initUI(self):
@@ -39,6 +40,9 @@ class LoginWindow(QWidget):
         self.password_input.setEchoMode(QLineEdit.Password)
         self.password_input.setMaximumWidth(self.width() // 2) 
         form_layout.addWidget(self.password_input)
+        
+        vertical_spacer_between_form_elements = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
+        form_layout.addItem(vertical_spacer_between_form_elements)
 
         self.login_button = QPushButton('Login')
         self.login_button.clicked.connect(self.login)
@@ -55,11 +59,19 @@ class LoginWindow(QWidget):
 
         main_layout.addLayout(form_container)
 
-        vertical_spacer_bottom = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        vertical_spacer_bottom = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
         main_layout.addItem(vertical_spacer_bottom)
 
+        # self.setWindowTitle('Login')
+        
+        self.login_status = QLabel('')
+        self.login_status.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(self.login_status)
+        
+        vertical_spacer_bottom_2 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        main_layout.addItem(vertical_spacer_bottom_2)
+        
         self.setLayout(main_layout)
-        self.setWindowTitle('Login')
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
@@ -77,11 +89,14 @@ class LoginWindow(QWidget):
 
         if response.status_code == 200:
             token = response.json().get('accessToken')
-            self.open_category_manager(token)
+            self.open_manager(token)
+            self.login_status.setText("")
         else:
-            QMessageBox.warning(self, 'Error', 'Failed to login')
 
-    def open_category_manager(self, token):
+            self.login_status.setStyleSheet("QLabel { color: red; }")
+            self.login_status.setText("Failed to login, try again.")
+
+    def open_manager(self, token):
         print(token)
 
 
