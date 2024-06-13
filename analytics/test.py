@@ -11,8 +11,8 @@ if __name__ == "__main__":
                                                                    'http://localhost:8080/api/workers/', 
                                                                    '1', 
                                                                    ax, 
-                                                                   date_min='13.06.2024', 
-                                                                   date_max='13.06.2024',
+                                                                #    date_min='13.06.2024', 
+                                                                #    date_max='13.06.2024',
                                                                 graph_type='line'
                                                                    )
     ax.set_yticks(np.arange(0, order_num_max+1, 1))
