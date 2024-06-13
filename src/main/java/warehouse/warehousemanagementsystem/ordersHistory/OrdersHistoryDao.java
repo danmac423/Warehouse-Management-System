@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 
 @Repository
@@ -34,6 +35,20 @@ public class OrdersHistoryDao {
                 sql,
                 new OrdersHistoryMapper(),
                 workerId
+        );
+    }
+
+    public List<OrdersHistory> getOrderByWorkerWithDates(Long workerId, Date processedDateMin, Date processedDateMax) {
+        var sql = """
+                SELECT * FROM orders_history
+                WHERE worker_id = ? AND date_processed BETWEEN ? and ?;
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new OrdersHistoryMapper(),
+                workerId,
+                processedDateMin,
+                processedDateMax
         );
     }
 
