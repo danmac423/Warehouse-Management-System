@@ -19,6 +19,7 @@ public class ProductDao {
     public List<Product> getAllProducts() {
         var sql = """
                 SELECT * FROM products
+                ORDER BY id
                 """;
         return jdbcTemplate.query(
                 sql,
@@ -95,6 +96,7 @@ public class ProductDao {
         var sql = """
                 SELECT * FROM products
                 WHERE category_id = ?
+                ORDER BY id
                 """;
         return jdbcTemplate.query(
                 sql,
@@ -103,12 +105,41 @@ public class ProductDao {
         );
     }
 
+    public List<Product> getProductsByPrefixSuffix(String prefixSuffix) {
+        var sql = """
+                SELECT * FROM products
+                WHERE LOWER(name) LIKE LOWER(?)
+                ORDER BY id
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new ProductMapper(),
+                "%" + prefixSuffix + "%"
+        );
+    }
+
+    public List<Product> getProductsByCategoryAndPrefixSuffix(Long categoryId, String prefixSuffix) {
+        var sql = """
+                SELECT * FROM products
+                WHERE category_id = ? AND LOWER(name) LIKE LOWER(?)
+                ORDER BY id
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new ProductMapper(),
+                categoryId,
+                "%" + prefixSuffix + "%"
+        );
+    }
+
+
     public List<ProductInOrder> getProductsByOrder(Long orderId) {
         var sql = """
                 SELECT products.id, products.name, products.price, categories.name as category_name, products_orders.amount
                 FROM products
                 JOIN products_orders ON products.id = products_orders.product_id JOIN categories ON products.category_id = categories.id
                 WHERE products_orders.order_id = ?
+                ORDER BY products.id
                 """;
         return jdbcTemplate.query(
                 sql,

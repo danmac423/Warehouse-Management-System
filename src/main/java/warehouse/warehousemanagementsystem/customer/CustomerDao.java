@@ -3,7 +3,6 @@ package warehouse.warehousemanagementsystem.customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +19,7 @@ public class CustomerDao {
     public List<Customer> getAllCustomers() {
         var sql = """
                 SELECT * FROM customers
+                ORDER BY id
                 """;
         return jdbcTemplate.query(
                 sql,

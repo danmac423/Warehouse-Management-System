@@ -4,6 +4,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 **/gui/venv/
+**/gui_daniel/venv/
 **/.DS_Store
 
 ### STS ###

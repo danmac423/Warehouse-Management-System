@@ -39,9 +39,10 @@ public class OrdersHistoryDao {
 
     public List<OrdersHistory> getOrdersByCustomer(String email) {
         var sql = """
-                SELECT * 
+                SELECT *
                 FROM orders_history JOIN customers ON orders_history.customer_id = customers.id
                 WHERE LOWER(customers.email) LIKE LOWER(?)
+                ORDER BY orders_history.id
                 """;
         String toSearch = "%" +  email + "%";
         return jdbcTemplate.query(
