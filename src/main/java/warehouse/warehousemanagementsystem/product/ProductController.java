@@ -45,6 +45,11 @@ public class ProductController {
         return new ResponseEntity<>(productService.getProductsByOrder(orderId), HttpStatus.OK);
     }
 
+    @GetMapping("/orderHistory/{orderHistoryId}")
+    public ResponseEntity<List<ProductInOrder>> getProductByOrderHistory(@PathVariable Long orderHistoryId) {
+        return new ResponseEntity<>(productService.getProductsByOrderHistory(orderHistoryId), HttpStatus.OK);
+    }
+
 //    @GetMapping("/category/{categoryId}")
 //    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
 //        return productService.getProductsByCategory(categoryId);
