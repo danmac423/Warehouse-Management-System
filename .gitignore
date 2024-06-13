@@ -33,3 +33,4 @@ build/
 
 ### VS Code ###
 .vscode/
+analytics/__pycache__/analytics.cpython-310.pyc
