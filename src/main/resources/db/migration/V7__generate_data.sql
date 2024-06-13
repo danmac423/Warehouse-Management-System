@@ -15,6 +15,7 @@ DECLARE
     work_id2 bigint;
     work_id3 bigint;
     work_id4 bigint;
+    work_id5 bigint;
 
 	supplier_id1 bigint;
     supplier_id2 bigint;
@@ -90,20 +91,24 @@ BEGIN
 	RETURNING id INTO addr_id9;
 
 	INSERT INTO workers (username, password, name, last_name, role)
-    VALUES ('jdoe', 'passwordJohn','John', 'Doe', 'WORKER')
+    VALUES ('jdoe', '$2a$10$FCe77RclwMpAgjR5hdr5Eu1J2yi/tH65azbwzQbLg4c3//ctmPeSG','John', 'Doe', 'WORKER')
     RETURNING id INTO work_id1;
 
     INSERT INTO workers (username, password, name, last_name, role)
-    VALUES ('jsmith', 'kitty123','Jane', 'Smith', 'WORKER')
+    VALUES ('jsmith', '$2a$10$lKo.7FvgU14cXA7uS1Ox.eBk3eOjpAGybliUWWKv25o7b1K3CmHyy','Jane', 'Smith', 'WORKER')
     RETURNING id INTO work_id2;
 
     INSERT INTO workers (username, password, name, last_name, role)
-    VALUES ('mjohnson', 'jordan95','Michael', 'Johnson', 'WORKER')
+    VALUES ('mjohnson', '$2a$10$zYLkMZQWvm.fcHCbF8ztVOtQz55Sx2Fyr7BlsmComBa0HVIKx1SZa','Michael', 'Johnson', 'WORKER')
     RETURNING id INTO work_id3;
 
     INSERT INTO workers (username, password, name, last_name, role)
-    VALUES ('ewilliams', 'sunny67', 'Emily', 'Williams', 'WORKER')
+    VALUES ('ewilliams', '$2a$10$ERIS98Fhq6Z.0VGIwr9oNeZcAge.NZHZppDJsPmNllcoS3HwOjRCS', 'Emily', 'Williams', 'WORKER')
     RETURNING id INTO work_id4;
+
+    INSERT INTO workers (username, password, name, last_name, role)
+    VALUES ('admin', '$2a$10$gwSoqd2fIs5xd/alLASivuYQOjNnpzeq0OaF/P9OXQpDyrxk2qbqW', 'Admin', 'Admin', 'ADMIN')
+    RETURNING id INTO work_id5;
 
 	-- Dostawcy od Apple od telefonu
     INSERT INTO suppliers (name, address_id)
