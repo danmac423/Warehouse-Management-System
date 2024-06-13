@@ -41,7 +41,7 @@ public class OrdersHistoryDao {
     public List<OrdersHistory> getOrderByWorkerWithDates(Long workerId, Date processedDateMin, Date processedDateMax) {
         var sql = """
                 SELECT * FROM orders_history
-                WHERE worker_id = ? AND date_processed BETWEEN ? and ?; 
+                WHERE worker_id = ? AND date_processed BETWEEN ? and ?;
                 """;
         return jdbcTemplate.query(
                 sql,
