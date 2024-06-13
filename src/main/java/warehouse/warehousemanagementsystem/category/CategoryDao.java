@@ -22,10 +22,26 @@ public class CategoryDao {
                 SELECT c.id, c.name, COUNT(p.id) AS productCount
                 FROM categories c LEFT JOIN products p ON c.id = p.category_id
                 GROUP BY c.id, c.name
+                ORDER BY c.id
                 """;
         return jdbcTemplate.query(
                 sql,
                 new CategoryMapper()
+        );
+    }
+
+    public List<Category> getCategoriesByPrefixSuffix(String prefixSuffix) {
+        var sql = """
+                SELECT c.id, c.name, COUNT(p.id) AS productCount
+                FROM categories c LEFT JOIN products p ON c.id = p.category_id
+                WHERE LOWER(c.name) LIKE LOWER(?)
+                GROUP BY c.id, c.name
+                ORDER BY c.id
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new CategoryMapper(),
+                "%" + prefixSuffix + "%"
         );
     }
 

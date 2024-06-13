@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.ConflictException;
 import warehouse.warehousemanagementsystem.exception.DatabaseException;
+import warehouse.warehousemanagementsystem.exception.NotFoundException;
 
 import java.util.List;
 
@@ -16,7 +17,11 @@ public class CustomerService {
     }
 
     public List<Customer> getAllCustomers() {
-        return customerDao.getAllCustomers();
+        var customers = customerDao.getAllCustomers();
+        if (customers.isEmpty()) {
+            throw new NotFoundException("No customers found");
+        }
+        return customers;
     }
 
     public void addCustomer(Customer customer) {

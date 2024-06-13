@@ -20,6 +20,7 @@ public class WorkerDao {
     public List<Worker> getAllWorkers() {
         var sql = """
                 SELECT * FROM workers
+                ORDER BY id
                 """;
 
         return jdbcTemplate.query(

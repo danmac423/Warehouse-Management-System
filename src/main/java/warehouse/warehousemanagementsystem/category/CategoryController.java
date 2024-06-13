@@ -24,6 +24,12 @@ public class CategoryController {
         return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
     }
 
+    @GetMapping("/prefixSuffix/{prefixSuffix}")
+//    @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
+    public ResponseEntity<List<Category>> getCategoriesByPrefixSuffix(@PathVariable String prefixSuffix) {
+        return new ResponseEntity<>(categoryService.getCategoriesByPrefixSuffix(prefixSuffix), HttpStatus.OK);
+    }
+
     @PostMapping
 //    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<String> addCategory(@RequestBody Category category) {

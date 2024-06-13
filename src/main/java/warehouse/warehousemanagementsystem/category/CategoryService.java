@@ -19,7 +19,19 @@ public class CategoryService {
     }
 
     public List<Category> getAllCategories() {
-        return categoryDao.getAllCategories();
+        var categories =  categoryDao.getAllCategories();
+        if (categories.isEmpty()) {
+            throw new NotFoundException("No categories found");
+        }
+        return categories;
+    }
+
+    public List<Category> getCategoriesByPrefixSuffix(String prefixSuffix) {
+        var categories = categoryDao.getCategoriesByPrefixSuffix(prefixSuffix);
+        if (categories.isEmpty()) {
+            throw new NotFoundException("No categories found");
+        }
+        return categories;
     }
 
     public void addCategory(Category category) {

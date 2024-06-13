@@ -22,6 +22,23 @@ public class ProductController {
         return new ResponseEntity<>(productService.getAllProducts(), HttpStatus.OK);
     }
 
+    @GetMapping("/category/{categoryId}")
+    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
+        return productService.getProductsByCategory(categoryId);
+    }
+
+    @GetMapping("/prefixSuffix/{prefixSuffix}")
+    public List<Product> getProductsByPrefixSuffix(@PathVariable String prefixSuffix) {
+        return productService.getProductsByPrefixSuffix(prefixSuffix);
+    }
+
+    @GetMapping("/category/{categoryId}/prefixSuffix/{prefixSuffix}")
+    public List<Product> getProductsByCategoryAndPrefixSuffix(@PathVariable Long categoryId, @PathVariable String prefixSuffix) {
+        return productService.getProductsByCategoryAndPrefixSuffix(categoryId, prefixSuffix);
+    }
+
+
+
     @PostMapping
     public ResponseEntity<String> addProduct(@RequestBody Product product) {
         productService.addProduct(product);
@@ -45,8 +62,5 @@ public class ProductController {
         return new ResponseEntity<>(productService.getProductsByOrder(orderId), HttpStatus.OK);
     }
 
-//    @GetMapping("/category/{categoryId}")
-//    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
-//        return productService.getProductsByCategory(categoryId);
-//    }
+
 }

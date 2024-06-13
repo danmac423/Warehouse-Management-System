@@ -19,7 +19,8 @@ public class OrderDao {
         var sql = """
                 SELECT orders.id, orders.customer_id, orders.date_processed, orders.worker_id, orders.status, orders.date_received, COALESCE(SUM(products.price * products_orders.amount)) as total_price
                 FROM orders LEFT JOIN products_orders on orders.id = products_orders.order_id LEFT JOIN products on products_orders.product_id = products.id
-                GROUP BY orders.id;
+                GROUP BY orders.id
+                ORDER BY orders.id
                 """;
         return jdbcTemplate.query(
                 sql,

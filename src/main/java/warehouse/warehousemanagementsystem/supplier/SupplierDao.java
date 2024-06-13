@@ -19,6 +19,7 @@ public class SupplierDao {
     public List<Supplier> getAllSuppliers() {
         var sql = """
                 SELECT * FROM suppliers
+                ORDER BY id
                 """;
         return jdbcTemplate.query(
                 sql,

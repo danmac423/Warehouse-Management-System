@@ -22,6 +22,30 @@ public class ProductService {
         return productDao.getAllProducts();
     }
 
+    public List<Product> getProductsByCategory(Long categoryId) {
+        var products =  productDao.getProductsByCategory(categoryId);
+        if (products.isEmpty()) {
+            throw new NotFoundException("No products found");
+        }
+        return products;
+    }
+
+    public List<Product> getProductsByPrefixSuffix(String prefixSuffix) {
+        var products = productDao.getProductsByPrefixSuffix(prefixSuffix);
+        if (products.isEmpty()) {
+            throw new NotFoundException("No products found");
+        }
+        return products;
+    }
+
+    public List<Product> getProductsByCategoryAndPrefixSuffix(Long categoryId, String prefixSuffix) {
+        var products = productDao.getProductsByCategoryAndPrefixSuffix(categoryId, prefixSuffix);
+        if (products.isEmpty()) {
+            throw new NotFoundException("No products found");
+        }
+        return products;
+    }
+
     public void addProduct(Product product) {
         if (product.name().isEmpty()
             || product.price() == null
@@ -77,10 +101,6 @@ public class ProductService {
         if (productDao.updateProduct(product) != 1) {
             throw new DatabaseException("Failed to update product");
         }
-    }
-
-    public List<Product> getProductsByCategory(Long categoryId) {
-        return productDao.getProductsByCategory(categoryId);
     }
 
     public List<ProductInOrder> getProductsByOrder(Long orderId) {

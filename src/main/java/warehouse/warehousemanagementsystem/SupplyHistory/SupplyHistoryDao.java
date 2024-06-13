@@ -17,7 +17,8 @@ public class SupplyHistoryDao {
 
     public List<SupplyHistory> getAllSupplies() {
         var sql = """
-                SELECT * FROM supplies_history;
+                SELECT * FROM supplies_history
+                ORDER BY id
                 """;
         return jdbcTemplate.query(
                 sql,
