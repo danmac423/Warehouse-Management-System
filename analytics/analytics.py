@@ -37,17 +37,23 @@ import numpy as np
 # def generate_supplier_list(supplier_url):
 #     pass
 
-def graph_worker_unloaded_orders_per_day(endpoint_url_orders:str, endpoint_url_workers:str, worker_id:str, ax:plt.Axes) -> int:
-    order_num_by_day = _get_order_num_by_day(endpoint_url_orders, worker_id)
+def graph_worker_unloaded_orders_per_day(endpoint_url_orders:str, endpoint_url_workers:str, worker_id:str, ax:plt.Axes, date_min:str=None, date_max:str=None) -> int:
+    order_num_by_day = _get_order_num_by_day(endpoint_url_orders, worker_id, date_min=date_min, date_max=date_max)
     worker_name, worker_surname = _get_worker_name(endpoint_url_workers, worker_id)
-    ax.plot(order_num_by_day.keys(), list(order_num_by_day.values()), 'o', label=worker_name + ' ' + worker_surname)
+    ax.plot(order_num_by_day.keys(), list(order_num_by_day.values()), '-o', label=worker_name + ' ' + worker_surname)
 
     return max(list(order_num_by_day.values()))
     
 
 
-def _get_order_num_by_day(endpoint_url:str, worker_id:str) -> dict:
-    response = requests.get(endpoint_url+worker_id)
+def _get_order_num_by_day(endpoint_url:str, worker_id:str, date_min:str=None, date_max:str=None) -> dict:
+    response = None
+    if date_min and date_max:
+        print(endpoint_url+worker_id+'/'+date_min+';'+date_max)
+        response = requests.get(endpoint_url+worker_id+'/'+date_min+';'+date_max)
+    else:
+        response = requests.get(endpoint_url+worker_id)
+
     if response.ok:
         orders = response.json()
         order_num_by_day = {}
@@ -57,7 +63,7 @@ def _get_order_num_by_day(endpoint_url:str, worker_id:str) -> dict:
 
         return order_num_by_day
     
-    raise(Exception(response.status_code))
+    raise(Exception(response.text))
 
 def _get_worker_name(endpoint_url:str, worker_id:str) -> Tuple[str, str]:
     response = requests.get(endpoint_url+worker_id)
@@ -68,7 +74,7 @@ def _get_worker_name(endpoint_url:str, worker_id:str) -> Tuple[str, str]:
         
         return name, last_name 
     
-    raise(Exception(response.status_code))
+    raise(Exception(response.text))
 
     
     
