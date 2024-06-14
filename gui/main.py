@@ -74,6 +74,8 @@ class MainWindow(QMainWindow):
 
     def resizeEvent(self, event):
         self.globalVariables.window_size = (self.width(), self.height())
+        
+    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
