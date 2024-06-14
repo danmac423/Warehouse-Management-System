@@ -69,7 +69,7 @@ def _get_worker_name(endpoint_url:str, worker_id:str) -> Tuple[str, str]:
     raise(Exception(response.text))
 
 def _get_order_product_list(endpoint_url:str, order_id:str):
-    response = requests.get(endpoint_url+order_id)
+    response = requests.get(endpoint_url+str(order_id))
     if response.ok:
         product_list = response.json()
         return product_list
@@ -85,8 +85,9 @@ def _get_categories_stats(orders_endpoint_url:str, product_list_url:str) -> dict
             order_id = order['id']
             product_list = _get_order_product_list(product_list_url, order_id)
             for product in product_list:
-                category = product['categoryId']
-                categories_stats[category] = categories_stats.get(category, 0) + 1
+                print(product)
+                category = product['categoryName']
+                categories_stats[category] = categories_stats.get(category, 0) + int(product['amount'])
 
         return categories_stats
     
@@ -126,9 +127,10 @@ def graph_worker_unloaded_orders(endpoint_url:str, worker_id_list:List[str], ax:
 
 
 
-def graph_orders_by_category(orders_endpoint_url:str, product_list_url:str) -> bool:
+def graph_orders_by_category(orders_endpoint_url:str, product_list_url:str, ax:plt.Axes) -> bool:
     categories_stats = _get_categories_stats(orders_endpoint_url, product_list_url)
-
+    ax.pie(list(categories_stats.values()), labels=list(categories_stats.keys()), normalize=True)
+    return True
 
     
 

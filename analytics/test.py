@@ -24,5 +24,9 @@ if __name__ == "__main__":
     ax.xaxis_date()
     ax.grid(True)
     ax.legend()
+
+    fig, ax = plt.subplots(1,1)
+    analytics.graph_orders_by_category('http://localhost:8080/api/ordersHistory', 'http://localhost:8080/api/products/orderHistory/', ax)
+
     plt.show()
 
