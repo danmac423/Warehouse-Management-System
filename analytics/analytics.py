@@ -42,8 +42,8 @@ from datetime import datetime as dt
 def _get_order_num_by_day(endpoint_url:str, worker_id:str, date_min:str=None, date_max:str=None) -> dict:
     response = None
     if date_min and date_max:
-        date_min = dt.isoformat(dt.strptime(date_min,  '%d/%m/%Y %H:%M:%S'), timespec='microseconds')
-        date_max = dt.isoformat(dt.strptime(date_max,  '%d/%m/%Y %H:%M:%S'), timespec='microseconds')
+        date_min = dt.isoformat(dt.strptime(date_min,  '%Y-%m-%d'), timespec='microseconds')
+        date_max = dt.isoformat(dt.strptime(date_max,  '%Y-%m-%d').replace(hour=23, minute=59, second=59), timespec='microseconds')
         response = requests.get(endpoint_url + worker_id + '/' + date_min +'+00:00' + '/' + date_max + '+00:00')
     else:
         response = requests.get(endpoint_url+worker_id)
