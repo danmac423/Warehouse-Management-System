@@ -42,7 +42,9 @@ from datetime import datetime as dt
 def _get_order_num_by_day(endpoint_url:str, worker_id:str, date_min:str=None, date_max:str=None) -> dict:
     response = None
     if date_min and date_max:
-        response = requests.get(endpoint_url+worker_id+'/'+date_min+'/'+date_max)
+        date_min = dt.isoformat(dt.strptime(date_min,  '%d/%m/%Y %H:%M:%S'), timespec='microseconds')
+        date_max = dt.isoformat(dt.strptime(date_max,  '%d/%m/%Y %H:%M:%S'), timespec='microseconds')
+        response = requests.get(endpoint_url + worker_id + '/' + date_min +'+00:00' + '/' + date_max + '+00:00')
     else:
         response = requests.get(endpoint_url+worker_id)
 
@@ -50,7 +52,8 @@ def _get_order_num_by_day(endpoint_url:str, worker_id:str, date_min:str=None, da
         orders = response.json()
         order_num_by_day = {}
         for order in orders:
-            order_date = np.datetime64(order['dateProcessed'])
+            print(order)
+            order_date = np.datetime64(order['dateProcessed'][:10])
             order_num_by_day[order_date] = order_num_by_day.get(order_date, 0) + 1
 
         return order_num_by_day
@@ -114,7 +117,7 @@ def graph_worker_unloaded_orders_per_day(endpoint_url_orders:str, endpoint_url_w
     except:
         if len(order_num_by_day.keys()) == 1:
             min_date = order_num_by_day.keys[0]
-            max_date = order_num_by_day.keys[0]
+            max_date = order_num_by_day.keys[0] 
         else:
             min_date = np.datetime64(dt.today().isoformat())
             max_date = np.datetime64(dt.today().isoformat())
