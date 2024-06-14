@@ -32,10 +32,10 @@ public class OrdersHistoryController {
         return ordersHistoryService.getOrdersByWorker(workerId);
     }
 
-    @GetMapping("/worker/{workerId}/{processedDateMin};{processedDateMax}")
+    @GetMapping("/worker/{workerId}/{processedDateMin}/{processedDateMax}")
     public List<OrdersHistory> getOrdersByWorkerWithDates(@PathVariable Long workerId,
-                                                          @DateTimeFormat(pattern = "dd.MM.yyyy") @PathVariable Date processedDateMin,
-                                                          @DateTimeFormat(pattern = "dd.MM.yyyy") @PathVariable Date processedDateMax) {
+                                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMin,
+                                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMax) {
         return ordersHistoryService.getOrderByWorkerWithDates(workerId, processedDateMin, processedDateMax);
     }
 

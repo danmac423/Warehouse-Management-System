@@ -43,6 +43,7 @@ public class OrdersHistoryDao {
                 SELECT * FROM orders_history
                 WHERE worker_id = ? AND date_processed BETWEEN ? and ?;
                 """;
+
         return jdbcTemplate.query(
                 sql,
                 new OrdersHistoryMapper(),

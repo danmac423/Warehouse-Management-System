@@ -10,9 +10,9 @@ public class OrdersHistoryMapper implements RowMapper<OrdersHistory> {
         return new OrdersHistory(
                 rs.getLong("id"),
                 rs.getLong("customer_id"),
-                rs.getDate("date_processed"),
+                rs.getTimestamp("date_processed"),
                 rs.getLong("worker_id"),
-                rs.getDate("date_received")
+                rs.getTimestamp("date_received")
         );
     }
 }
