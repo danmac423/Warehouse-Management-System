@@ -42,7 +42,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<String> addProduct(@RequestBody Product product) {
         productService.addProduct(product);
-        return new ResponseEntity<>("Product added successfully", HttpStatus.OK);
+        return new ResponseEntity<>("Product added successfully", HttpStatus.CREATED);
     }
 
     @DeleteMapping("{id}")
