@@ -18,7 +18,7 @@ public class ProductDao {
 
     public List<Product> getAllProducts() {
         var sql = """
-                SELECT p.*, c.name as categoryName FROM products p JOIN categories c ON p.category_id = c.id
+                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 ORDER BY id
                 """;
         return jdbcTemplate.query(
@@ -29,7 +29,7 @@ public class ProductDao {
 
     public Optional<Product> getProductById(Long id) {
         var sql = """
-                SELECT p.*, c.name as categoryName FROM products p JOIN categories c ON p.category_id = c.id
+                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE p.id = ?
                 """;
         return jdbcTemplate.query(
@@ -41,7 +41,7 @@ public class ProductDao {
 
     public Optional<Product> getProductByName(Product product) {
         var sql = """
-                SELECT p.*, c.name as categoryName FROM products p JOIN categories c ON p.category_id = c.id
+                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE p.name = ?
                 """;
         return jdbcTemplate.query(
@@ -94,7 +94,7 @@ public class ProductDao {
 
     public List<Product> getProductsByCategory(Long categoryId) {
         var sql = """
-                SELECT p.*, c.name as categoryName FROM products p JOIN categories c ON p.category_id = c.id
+                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE p.category_id = ?
                 ORDER BY p.id
                 """;
@@ -107,7 +107,7 @@ public class ProductDao {
 
     public List<Product> getProductsByPrefixSuffix(String prefixSuffix) {
         var sql = """
-                SELECT p.*, c.name as categoryName FROM products p JOIN categories c ON p.category_id = c.id
+                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE LOWER(p.name) LIKE LOWER(?)
                 ORDER BY p.id
                 """;
@@ -120,7 +120,7 @@ public class ProductDao {
 
     public List<Product> getProductsByCategoryAndPrefixSuffix(Long categoryId, String prefixSuffix) {
         var sql = """
-                SELECT p.*, c.name as categoryName FROM products p JOIN categories c ON p.category_id = c.id
+                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE p.category_id = ? AND LOWER(p.name) LIKE LOWER(?)
                 ORDER BY id
                 """;

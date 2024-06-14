@@ -12,6 +12,7 @@ public class ProductMapper implements RowMapper<Product> {
                 rs.getString("name"),
                 rs.getBigDecimal("price"),
                 rs.getLong("category_id"),
+                rs.getString("category_name"),
                 rs.getInt("stock")
         );
     }
