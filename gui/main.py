@@ -5,12 +5,19 @@ import shutil
 import atexit
 from PySide6.QtWidgets import   QApplication, QMainWindow, QVBoxLayout, QHBoxLayout,\
                                 QWidget, QStackedWidget, QFrame, QPushButton
+
+from GlobalVariables import GlobalVariables
+from SideBarWidget import SideBarWidget
+from ToolBarWidget import ToolBarWidget
+
+from loginGUI import LoginWindow
 from DashboardPage import DashboardPage
 from ProductPage import ProductPage
-from SideBarWidget import SideBarWidget
-from loginGUI import LoginWindow
-from ToolBarWidget import ToolBarWidget
-from GlobalVariables import GlobalVariables
+from CategoriesPage import CategoriesPage
+from WorkerPage import WorkerPage
+from OrdersPage import OrderPage
+
+
 
 
 class MainWindow(QMainWindow):
@@ -22,13 +29,17 @@ class MainWindow(QMainWindow):
         self.central_layout = QHBoxLayout()
 
         self.setWindowTitle("Warehouse Application")
-        self.setMinimumSize(1024, 600)
+        # self.setMinimumSize(1024, 600)
+        self.setMinimumSize(1280, 860)
 
         self.globalVariables = GlobalVariables()
 
         self.login_widget = LoginWindow(self.globalVariables)
         self.dashboard_page = DashboardPage(self.globalVariables)
         self.product_page = ProductPage(self.globalVariables)
+        self.categories_page = CategoriesPage(self.globalVariables)
+        self.worker_page = WorkerPage(self.globalVariables)
+        self.order_page = OrderPage(self.globalVariables)
 
         self.stacked_widget = QStackedWidget()
         self.stacked_widget_init()
@@ -51,9 +62,13 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(toolBarWidget)
 
     def stacked_widget_init(self):
-        self.stacked_widget.addWidget(self.login_widget)
         self.stacked_widget.addWidget(self.dashboard_page)
         self.stacked_widget.addWidget(self.product_page)
+        self.stacked_widget.addWidget(self.categories_page)
+        self.stacked_widget.addWidget(self.worker_page)
+        self.stacked_widget.addWidget(self.order_page)
+        
+        self.stacked_widget.addWidget(self.login_widget)
 
         self.stacked_widget.setCurrentIndex(0)
 
@@ -63,14 +78,14 @@ class MainWindow(QMainWindow):
     def change_view(self, view):
         self.stacked_widget.setCurrentIndex(view)
 
-        if view == 0:
-            self.globalVariables.signals.dashboard_view_clicked.emit()
-        elif view == 1:
-            self.globalVariables.signals.workers_view_clicked.emit()
-        elif view == 2:
-            self.globalVariables.signals.orders_view_clicked.emit()
-        elif view == 3:
-            self.globalVariables.signals.suppliers_view_clicked.emit()
+        # if view == 0:
+        #     self.globalVariables.signals.dashboard_view_clicked.emit()
+        # elif view == 1:
+        #     self.globalVariables.signals.workers_view_clicked.emit()
+        # elif view == 2:
+        #     self.globalVariables.signals.orders_view_clicked.emit()
+        # elif view == 3:
+        #     self.globalVariables.signals.suppliers_view_clicked.emit()
 
     def resizeEvent(self, event):
         self.globalVariables.window_size = (self.width(), self.height())
