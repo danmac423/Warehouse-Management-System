@@ -30,16 +30,16 @@ public class ProductService {
         return products;
     }
 
-    public List<Product> getProductsByPrefixSuffix(String prefixSuffix) {
-        var products = productDao.getProductsByPrefixSuffix(prefixSuffix);
+    public List<Product> getProductsBySubstring(String substring) {
+        var products = productDao.getProductsBySubstring(substring);
         if (products.isEmpty()) {
             throw new NotFoundException("No products found");
         }
         return products;
     }
 
-    public List<Product> getProductsByCategoryAndPrefixSuffix(Long categoryId, String prefixSuffix) {
-        var products = productDao.getProductsByCategoryAndPrefixSuffix(categoryId, prefixSuffix);
+    public List<Product> getProductsByCategoryAndSubstring(Long categoryId, String substring) {
+        var products = productDao.getProductsByCategoryAndSubstring(categoryId, substring);
         if (products.isEmpty()) {
             throw new NotFoundException("No products found");
         }

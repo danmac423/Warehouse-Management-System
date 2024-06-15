@@ -105,7 +105,7 @@ public class ProductDao {
         );
     }
 
-    public List<Product> getProductsByPrefixSuffix(String prefixSuffix) {
+    public List<Product> getProductsBySubstring(String substring) {
         var sql = """
                 SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE LOWER(p.name) LIKE LOWER(?)
@@ -114,11 +114,11 @@ public class ProductDao {
         return jdbcTemplate.query(
                 sql,
                 new ProductMapper(),
-                "%" + prefixSuffix + "%"
+                "%" + substring + "%"
         );
     }
 
-    public List<Product> getProductsByCategoryAndPrefixSuffix(Long categoryId, String prefixSuffix) {
+    public List<Product> getProductsByCategoryAndSubstring(Long categoryId, String substring) {
         var sql = """
                 SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE p.category_id = ? AND LOWER(p.name) LIKE LOWER(?)
@@ -128,7 +128,7 @@ public class ProductDao {
                 sql,
                 new ProductMapper(),
                 categoryId,
-                "%" + prefixSuffix + "%"
+                "%" + substring + "%"
         );
     }
 

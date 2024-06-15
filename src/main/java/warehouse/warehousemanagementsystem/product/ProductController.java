@@ -27,14 +27,14 @@ public class ProductController {
         return productService.getProductsByCategory(categoryId);
     }
 
-    @GetMapping("/prefixSuffix/{prefixSuffix}")
-    public List<Product> getProductsByPrefixSuffix(@PathVariable String prefixSuffix) {
-        return productService.getProductsByPrefixSuffix(prefixSuffix);
+    @GetMapping("/substring/{substring}")
+    public List<Product> getProductsBySubstring(@PathVariable String substring) {
+        return productService.getProductsBySubstring(substring);
     }
 
-    @GetMapping("/category/{categoryId}/prefixSuffix/{prefixSuffix}")
-    public List<Product> getProductsByCategoryAndPrefixSuffix(@PathVariable Long categoryId, @PathVariable String prefixSuffix) {
-        return productService.getProductsByCategoryAndPrefixSuffix(categoryId, prefixSuffix);
+    @GetMapping("/category/{categoryId}/substring/{substring}")
+    public List<Product> getProductsByCategoryAndSubstring(@PathVariable Long categoryId, @PathVariable String substring) {
+        return productService.getProductsByCategoryAndSubstring(categoryId, substring);
     }
 
 

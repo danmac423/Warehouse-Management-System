@@ -28,6 +28,52 @@ public class OrderDao {
         );
     }
 
+    public List<Order> getOrdersByWorkerUsernameSubstring(String usernameSubstring) {
+        var sql = """
+                SELECT orders.id, orders.customer_id, orders.date_processed, orders.worker_id, orders.status, orders.date_received, COALESCE(SUM(products.price * products_orders.amount)) as total_price
+                FROM orders LEFT JOIN products_orders on orders.id = products_orders.order_id LEFT JOIN products on products_orders.product_id = products.id
+                WHERE worker_id = (SELECT id FROM workers WHERE LOWER(username) = LOWER(?))
+                GROUP BY orders.id
+                ORDER BY orders.id
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new OrderMapper(),
+                "%" + usernameSubstring + "%"
+        );
+    }
+
+    public List<Order> getOrdersByCustomerEmailSubstring(String emailSubstring) {
+        var sql = """
+                SELECT orders.id, orders.customer_id, orders.date_processed, orders.worker_id, orders.status, orders.date_received, COALESCE(SUM(products.price * products_orders.amount)) as total_price
+                FROM orders LEFT JOIN products_orders on orders.id = products_orders.order_id LEFT JOIN products on products_orders.product_id = products.id
+                WHERE customer_id = (SELECT id FROM customers WHERE LOWER(email) = LOWER(?))
+                GROUP BY orders.id
+                ORDER BY orders.id
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new OrderMapper(),
+                "%" + emailSubstring + "%"
+        );
+    }
+
+    public List<Order> getOrdersByCustomerEmailWorkerUsernameSubstring(String emailSubstring, String usernameSubstring) {
+        var sql = """
+                SELECT orders.id, orders.customer_id, orders.date_processed, orders.worker_id, orders.status, orders.date_received, COALESCE(SUM(products.price * products_orders.amount)) as total_price
+                FROM orders LEFT JOIN products_orders on orders.id = products_orders.order_id LEFT JOIN products on products_orders.product_id = products.id
+                WHERE customer_id = (SELECT id FROM customers WHERE LOWER(email) = LOWER(?)) AND worker_id = (SELECT id FROM workers WHERE LOWER(username) = LOWER(?))
+                GROUP BY orders.id
+                ORDER BY orders.id
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new OrderMapper(),
+                "%" + emailSubstring + "%",
+                "%" + usernameSubstring + "%"
+        );
+    }
+
     public int addOrder(Order order) {
         var sql = """
                 INSERT INTO orders (customer_id, date_processed, worker_id, status, date_received)

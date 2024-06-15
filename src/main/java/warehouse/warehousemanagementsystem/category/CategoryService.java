@@ -26,8 +26,8 @@ public class CategoryService {
         return categories;
     }
 
-    public List<Category> getCategoriesByPrefixSuffix(String prefixSuffix) {
-        var categories = categoryDao.getCategoriesByPrefixSuffix(prefixSuffix);
+    public List<Category> getCategoriesBySubstring(String substring) {
+        var categories = categoryDao.getCategoriesBySubstring(substring);
         if (categories.isEmpty()) {
             throw new NotFoundException("No categories found");
         }

@@ -3,6 +3,7 @@ package warehouse.warehousemanagementsystem.order;
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.DatabaseException;
+import warehouse.warehousemanagementsystem.exception.NotFoundException;
 
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,30 @@ public class OrderService {
 
     public List<Order> getAllOrders() {
         return orderDao.getAllOrders();
+    }
+
+    public List<Order> getOrdersByWorkerUsernameSubstring(String usernameSubstring) {
+        var orders =  orderDao.getOrdersByWorkerUsernameSubstring(usernameSubstring);
+        if (orders.isEmpty()) {
+            throw new NotFoundException("No orders found");
+        }
+        return orders;
+    }
+
+    public List<Order> getOrdersByCustomerEmailSubstring(String emailSubstring) {
+        var orders =  orderDao.getOrdersByCustomerEmailSubstring(emailSubstring);
+        if (orders.isEmpty()) {
+            throw new NotFoundException("No orders found");
+        }
+        return orders;
+    }
+
+    public List<Order> getOrdersByCustomerEmailWorkerUsernameSubstring(String emailSubstring, String usernameSubstring) {
+        var orders =  orderDao.getOrdersByCustomerEmailWorkerUsernameSubstring(emailSubstring, usernameSubstring);
+        if (orders.isEmpty()) {
+            throw new NotFoundException("No orders found");
+        }
+        return orders;
     }
 
     public void addOrder(Order order) {

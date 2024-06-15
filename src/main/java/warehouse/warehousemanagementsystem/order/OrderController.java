@@ -22,6 +22,21 @@ public class OrderController {
         return new ResponseEntity<>(orderService.getAllOrders(), HttpStatus.OK);
     }
 
+    @GetMapping("/workerUsername/{usernameSubstring}")
+    public ResponseEntity<List<Order>> getOrdersByWorkerUsernameSubstring(@PathVariable String usernameSubstring) {
+        return new ResponseEntity<>(orderService.getOrdersByWorkerUsernameSubstring(usernameSubstring), HttpStatus.OK);
+    }
+
+    @GetMapping("/customerEmail/{emailSubstring}")
+    public ResponseEntity<List<Order>> getOrdersByCustomerEmailSubstring(@PathVariable String emailSubstring) {
+        return new ResponseEntity<>(orderService.getOrdersByCustomerEmailSubstring(emailSubstring), HttpStatus.OK);
+    }
+
+    @GetMapping("/customerEmail/{emailSubstring}/WorkerUsername/{usernameSubstring}")
+    public ResponseEntity<List<Order>> getOrdersByCustomerEmailWorkerUsernameSubstring(@PathVariable String emailSubstring, @PathVariable String usernameSubstring) {
+        return new ResponseEntity<>(orderService.getOrdersByCustomerEmailWorkerUsernameSubstring(emailSubstring, usernameSubstring), HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<String> addOrder(@RequestBody Order order) {
         orderService.addOrder(order);

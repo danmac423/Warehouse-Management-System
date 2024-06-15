@@ -24,10 +24,10 @@ public class CategoryController {
         return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
     }
 
-    @GetMapping("/prefixSuffix/{prefixSuffix}")
+    @GetMapping("/substring/{substring}")
 //    @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
-    public ResponseEntity<List<Category>> getCategoriesByPrefixSuffix(@PathVariable String prefixSuffix) {
-        return new ResponseEntity<>(categoryService.getCategoriesByPrefixSuffix(prefixSuffix), HttpStatus.OK);
+    public ResponseEntity<List<Category>> getCategoriesBySubstring(@PathVariable String substring) {
+        return new ResponseEntity<>(categoryService.getCategoriesBySubstring(substring), HttpStatus.OK);
     }
 
     @PostMapping
