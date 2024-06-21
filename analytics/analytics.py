@@ -39,8 +39,7 @@ from calendar import monthrange
 # def generate_supplier_list(supplier_url):
 #     pass   
 
-
-def _get_order_num_by_day(endpoint_url:str, worker_id:str, date_min:str=None, date_max:str=None) -> dict:
+def _get_order_num_by_day(endpoint_url:str, worker_id:str, date_min:str=None, date_max:str=None, show_empty:bool=False) -> dict:
     response = None
     if date_min and date_max:
         date_min = dt.strptime(date_min,  '%Y-%m-%d').isoformat(timespec='microseconds')
@@ -53,14 +52,18 @@ def _get_order_num_by_day(endpoint_url:str, worker_id:str, date_min:str=None, da
         orders = response.json()
         order_num_by_day = {}
         for order in orders:
+            print(order)
             order_date = np.datetime64(order['dateProcessed'][:10])
             order_num_by_day[order_date] = order_num_by_day.get(order_date, 0) + 1
+        
+        if show_empty:
+            _add_empty_dates(order_num_by_day, 'D')
 
         return order_num_by_day
     
     raise(Exception(response.text))
 
-def _get_order_num_by_month(endpoint_url:str, worker_id:str, date_min:str=None, date_max:str=None) -> dict:
+def _get_order_num_by_month(endpoint_url:str, worker_id:str, date_min:str=None, date_max:str=None, show_empty:bool=False) -> dict:
     response = None
     if date_min and date_max:
         date_min = dt.strptime(date_min,  '%Y-%m').isoformat(timespec='microseconds')
@@ -78,9 +81,19 @@ def _get_order_num_by_month(endpoint_url:str, worker_id:str, date_min:str=None, 
             order_month = np.datetime64(order['dateProcessed'][:7])
             order_num_by_month[order_month] = order_num_by_month.get(order_month, 0) + 1
         
+        if show_empty:
+            _add_empty_dates(order_num_by_month, 'M')
+        
         return order_num_by_month
 
     raise(Exception(response.text))
+
+def _add_empty_dates(dated_data:dict, step:str) -> None:
+    for date in np.arange(min(dated_data), max(dated_data), np.timedelta64(1, step)):
+        if date not in dated_data.keys():
+            dated_data[date] = 0
+    
+    return 
 
         
 
@@ -112,7 +125,6 @@ def _get_categories_stats(orders_endpoint_url:str, product_list_url:str) -> dict
             order_id = order['id']
             product_list = _get_order_product_list(product_list_url, order_id)
             for product in product_list:
-                print(product)
                 category = product['categoryName']
                 categories_stats[category] = categories_stats.get(category, 0) + int(product['amount'])
 
@@ -121,40 +133,39 @@ def _get_categories_stats(orders_endpoint_url:str, product_list_url:str) -> dict
     raise(Exception(response.text))
 
 def graph_worker_unloaded_orders(endpoint_url_orders:str, endpoint_url_workers:str, worker_id_list:List[str], per:str, ax:plt.Axes, 
-                                         date_min:str=None, date_max:str=None, graph_type:str='line') -> None :
+                                         date_min:str=None, date_max:str=None, graph_type:str='line', avg:bool=False, show_empty:bool=False) -> None :
     
     get_func = None
     if per == 'month':
         get_func = _get_order_num_by_month
         ax.set_xlabel('Month')
-        if date_min and date_max:
-            date_min_datetime = np.datetime64(date_min)
-            date_max_datetime = np.datetime64(date_max)
-
-            one_month = np.timedelta64(1, 'M')
-            ax.set_xticks(np.arange(date_min_datetime-one_month, date_max_datetime+one_month, one_month))
 
     else:
         get_func = _get_order_num_by_day
         ax.set_xlabel('Date')
-        if date_min and date_max:
-            date_min_datetime = np.datetime64(date_min)
-            date_max_datetime = np.datetime64(date_max)
-
-            one_day = np.timedelta64(1, 'D')
-            ax.set_xticks(np.arange(date_min_datetime-one_day, date_max_datetime+one_day, one_day))
-
+            
     ax.grid(True)
     ax.set_ylabel('No. of unpacked orders')
     
     max_num_orders = 0
+    date_min_x = np.datetime64(dt.today().isoformat())
+    date_max_x = np.datetime64(dt.today().isoformat())
+
+    averages = {}
+
     for worker_id in worker_id_list:
         worker_name, worker_surname = _get_worker_name(endpoint_url_workers, worker_id)
 
-        order_nums = get_func(endpoint_url_orders, worker_id, date_min=date_min, date_max=date_max)
+        order_nums = get_func(endpoint_url_orders, worker_id, date_min=date_min, date_max=date_max, show_empty=show_empty)
+
+        for date in order_nums.keys():
+            averages[date] = averages.get(date, 0) + order_nums[date]
 
         x = list(order_nums.keys())
         y = list(order_nums.values())
+
+        if len(x) > 0:
+            x, y = zip(*sorted(zip(x, y)))
 
         if graph_type == 'line':
             ax.plot(x, y, '-o', label=worker_name + ' ' + worker_surname)
@@ -162,9 +173,36 @@ def graph_worker_unloaded_orders(endpoint_url_orders:str, endpoint_url_workers:s
             ax.bar(x, y, label=worker_name + ' ' + worker_surname)
 
         try:
+            date_min_x = min(min(x), date_min_x)
+            date_max_x = max(max(x), date_max_x)
             max_num_orders = max(max(y), max_num_orders)
         except:
             pass
+    
+    if avg:
+        num_workers = len(worker_id_list)
+        averages = {k:v/num_workers for k,v in averages.items()}
+
+        x = list(averages.keys())
+        y = list(averages.values())
+
+        if len(x) > 0:
+            x, y = zip(*sorted(zip(x, y)))
+
+        if graph_type == 'line':
+            ax.plot(x, y, '-o', label='Average')
+        else:
+            ax.bar(x, y, label='Average')
+
+
+    if per == 'month' and date_min_x != date_max_x:
+        one_month = np.timedelta64(1, 'M').astype('<m8[us]')
+        ax.set_xticks(np.arange(date_min_x-one_month, date_max_x+one_month, one_month))
+    
+    elif per == 'day' and date_min_x  != date_max_x:
+        one_day = np.timedelta64(1, 'D').astype('<m8[us]')
+        ax.set_xticks(np.arange(date_min_x-one_day, date_max_x+one_day, one_day))
+
     
     ax.set_yticks(np.arange(0, max_num_orders+1, 1))
     ax.legend()
