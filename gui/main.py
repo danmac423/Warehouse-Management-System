@@ -10,7 +10,7 @@ from GlobalVariables import GlobalVariables
 from SideBarWidget import SideBarWidget
 from ToolBarWidget import ToolBarWidget
 
-from loginGUI import LoginWindow
+from LoginPage import LoginWindow
 from DashboardPage import DashboardPage
 from ProductPage import ProductPage
 from CategoriesPage import CategoriesPage
