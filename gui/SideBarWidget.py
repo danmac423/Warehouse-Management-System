@@ -74,38 +74,47 @@ class SideBarWidget(QFrame):
         
     def dashboard_clicked(self):
         self.globalVariables.signals.active_view_changed.emit(0)
+        self.globalVariables.signals.dashboard_view_clicked.emit()
         self.highlight_button(self.switch_to_dashboard_page)
 
     def products_clicked(self):
         self.globalVariables.signals.active_view_changed.emit(1)
+        self.globalVariables.signals.products_view_clicked.emit()
         self.highlight_button(self.switch_to_products_page)
     
     def categories_clicked(self):
         self.globalVariables.signals.active_view_changed.emit(2)
+        self.globalVariables.signals.categories_view_clicked.emit()
         self.highlight_button(self.switch_to_categories_page)
         
     def workers_clicked(self):
         self.globalVariables.signals.active_view_changed.emit(3)
+        self.globalVariables.signals.workers_view_clicked.emit()
         self.highlight_button(self.switch_to_workers_page)
 
     def orders_clicked(self):
         self.globalVariables.signals.active_view_changed.emit(4)
+        self.globalVariables.signals.orders_view_clicked.emit()
         self.highlight_button(self.switch_to_orders_page)
     
     def supplies_clicked(self):
-        self.globalVariables.signals.active_view_changed.emit(6)
+        self.globalVariables.signals.active_view_changed.emit(5)
+        self.globalVariables.signals.supplies_view_clicked.emit()
         self.highlight_button(self.switch_to_supplies_page)
 
     def suppliers_clicked(self):
-        self.globalVariables.signals.active_view_changed.emit(5)
+        self.globalVariables.signals.active_view_changed.emit(6)
+        self.globalVariables.signals.suppliers_view_clicked.emit()
         self.highlight_button(self.switch_to_suppliers_page)
     
     def orders_history_clicked(self):
         self.globalVariables.signals.active_view_changed.emit(7)
+        self.globalVariables.signals.order_history_view_clicked.emit()
         self.highlight_button(self.switch_to_orders_history_page)
         
     def supplies_history_clicked(self):
         self.globalVariables.signals.active_view_changed.emit(8)
+        self.globalVariables.signals.supplies_history_view_clicked.emit()
         self.highlight_button(self.switch_to_supplies_history_page)
 
     def highlight_button(self, button):

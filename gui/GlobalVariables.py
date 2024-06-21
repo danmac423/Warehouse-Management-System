@@ -10,9 +10,15 @@ class Signals(QObject):
     active_view_changed = Signal(int)
     
     dashboard_view_clicked = Signal()
+    products_view_clicked = Signal()
+    categories_view_clicked = Signal()
     workers_view_clicked = Signal()
     orders_view_clicked = Signal()
+    supplies_view_clicked = Signal()
     suppliers_view_clicked = Signal()
+    order_history_view_clicked = Signal()
+    supplies_history_view_clicked = Signal()
+    
     
     window_size_changed = Signal(tuple)
     
