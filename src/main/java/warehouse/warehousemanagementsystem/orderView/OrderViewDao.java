@@ -23,7 +23,7 @@ public class OrderViewDao {
                     orders.date_processed,
                     orders.status,
                     orders.date_received,
-                    worker.username,
+                    workers.username,
                     COALESCE(SUM(product.price * products_orders.amount), 0) AS total_price
                 FROM
                     orders
