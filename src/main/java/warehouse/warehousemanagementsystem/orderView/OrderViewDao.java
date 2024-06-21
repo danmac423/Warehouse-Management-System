@@ -37,7 +37,7 @@ public class OrderViewDao {
                     workers ON orders.worker_id = workers.id
                 GROUP BY
                     orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, orders.status, orders.date_received
+                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
                 ORDER BY
                     orders.id;
                 """;
@@ -71,10 +71,10 @@ public class OrderViewDao {
                     customers customer ON orders.customer_id = customer.id
                 LEFT JOIN
                     workers ON orders.worker_id = workers.id
-                WHERE worker_id = (SELECT id FROM workers WHERE LOWER(username) = LOWER(?))
+                WHERE worker_id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
                 GROUP BY
                     orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, orders.status, orders.date_received
+                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
                 ORDER BY
                     orders.id;
                 """;
@@ -109,10 +109,10 @@ public class OrderViewDao {
                     customers customer ON orders.customer_id = customer.id
                 LEFT JOIN
                     workers ON orders.worker_id = workers.id
-                WHERE customer_id = (SELECT id FROM customers WHERE LOWER(email) = LOWER(?))
+                WHERE customer_id IN (SELECT id FROM customers WHERE LOWER(customers.email) like LOWER((?)))
                 GROUP BY
                     orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, orders.status, orders.date_received
+                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
                 ORDER BY
                     orders.id;
                 """;
@@ -147,10 +147,11 @@ public class OrderViewDao {
                     customers customer ON orders.customer_id = customer.id
                 LEFT JOIN
                     workers ON orders.worker_id = workers.id
-                WHERE customer_id = (SELECT id FROM customers WHERE LOWER(email) = LOWER(?))
+                WHERE customer_id IN (SELECT id FROM customers WHERE LOWER(email) LIKE LOWER(?)) AND
+                    worker_id IN (SELECT id FROM workers WHERE LOWER(workers.username) LIKE LOWER((?)))
                 GROUP BY
                     orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, orders.status, orders.date_received
+                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
                 ORDER BY
                     orders.id;
                 """;
@@ -186,10 +187,10 @@ public class OrderViewDao {
                     customers customer ON orders.customer_id = customer.id
                 LEFT JOIN
                     workers ON orders.worker_id = workers.id
-                WHERE worker_id = ?
+                WHERE orders.worker_id = ?
                 GROUP BY
                     orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, orders.status, orders.date_received
+                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
                 ORDER BY
                     orders.id;
                 """;
@@ -227,7 +228,7 @@ public class OrderViewDao {
                 WHERE customer_id = ?
                 GROUP BY
                     orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, orders.status, orders.date_received
+                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
                 ORDER BY
                     orders.id;
                 """;
