@@ -36,17 +36,17 @@ public class SupplyController {
 
     @GetMapping("/worker/{workerId}")
     public List<Supply> getSuppliesByWorker(@PathVariable Long workerId) {
-        return supplyService.getProductsByWorkerId(workerId);
+        return supplyService.getSuppliesByWorkerId(workerId);
     }
 
     @GetMapping("/product/{productId}")
     public List<Supply> getSuppliesByProduct(@PathVariable Long productId) {
-        return supplyService.getProductsByProductId(productId);
+        return supplyService.getSuppliesByProductId(productId);
     }
 
     @GetMapping("/supplier/{supplierId}")
     public List<Supply> getSuppliesBySupplier(@PathVariable Long supplierId) {
-        return supplyService.getProductsBySupplierId(supplierId);
+        return supplyService.getSuppliesBySupplierId(supplierId);
     }
 
     @PutMapping("/acknowledge")
@@ -67,4 +67,28 @@ public class SupplyController {
         return new ResponseEntity<>("Worker updated successfully", HttpStatus.OK);
     }
 
+    @GetMapping("/formated")
+    public ResponseEntity<List<SupplyView>> getAllSuppliesViews() {
+        return new ResponseEntity<>(supplyService.getAllSuppliesViews(), HttpStatus.OK);
+    }
+
+    @GetMapping("/formated/username/{username}")
+    public ResponseEntity<List<SupplyView>> getSuppliesViewsByWorkerUsername(@PathVariable String username) {
+        return new ResponseEntity<>(supplyService.getSuppliesViewsByWorkerUsername(username), HttpStatus.OK);
+    }
+
+    @GetMapping("/formated/supplier/{name}")
+    public ResponseEntity<List<SupplyView>> getSuppliesViewsBySupplierName(@PathVariable String name) {
+        return new ResponseEntity<>(supplyService.getSuppliesViewsBySupplierName(name), HttpStatus.OK);
+    }
+
+    @GetMapping("/formated/supplier/{name}/username/{username}")
+    public ResponseEntity<List<SupplyView>> getSuppliesViewsBySupplierNameAndUsername(@PathVariable String name, @PathVariable String username) {
+        return new ResponseEntity<>(supplyService.getSuppliesViewsBySupplierNameWorkerUsername(name, username), HttpStatus.OK);
+    }
+
+    @GetMapping("/formated/status/{status}")
+    public ResponseEntity<List<SupplyView>> getSuppliesViewsByStatus(@PathVariable String status) {
+        return new ResponseEntity<>(supplyService.getSuppliesViewsByStatus(status), HttpStatus.OK);
+    }
 }

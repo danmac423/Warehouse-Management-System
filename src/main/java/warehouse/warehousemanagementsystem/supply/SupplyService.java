@@ -1,5 +1,6 @@
 package warehouse.warehousemanagementsystem.supply;
 
+import jdk.jshell.Snippet;
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.DatabaseException;
@@ -54,11 +55,11 @@ public class SupplyService {
             throw new DatabaseException("Failed to update supply");
         }
     }
-    public List<Supply> getProductsByWorkerId(Long workerId) { return supplyDao.getSupplyByWorker(workerId); }
+    public List<Supply> getSuppliesByWorkerId(Long workerId) { return supplyDao.getSupplyByWorker(workerId); }
 
-    public List<Supply> getProductsByProductId(Long productId) { return supplyDao.getSupplyByProduct(productId); }
+    public List<Supply> getSuppliesByProductId(Long productId) { return supplyDao.getSupplyByProduct(productId); }
 
-    public List<Supply> getProductsBySupplierId(Long supplierId) { return supplyDao.getSupplyBySupplier(supplierId); }
+    public List<Supply> getSuppliesBySupplierId(Long supplierId) { return supplyDao.getSupplyBySupplier(supplierId); }
 
     public void acknowledgeSupply(Supply supply) {
         if (!supply.status().equals("underway")) {
@@ -93,4 +94,16 @@ public class SupplyService {
             throw new DatabaseException("Failed to acknowledge supply");
         }
     }
+
+    public List<SupplyView> getAllSuppliesViews() { return supplyDao.getAllSuppliesViews(); }
+
+    public List<SupplyView> getSuppliesViewsByWorkerUsername(String username) { return supplyDao.getAllSuppliesViewsByWorkerUsername(username); }
+
+    public List<SupplyView> getSuppliesViewsBySupplierName(String name) { return supplyDao.getAllSuppliesViewsBySupplierName(name); }
+
+    public List<SupplyView> getSuppliesViewsBySupplierNameWorkerUsername(String name, String username) {
+        return supplyDao.getAllSuppliesViewsBySupplierNameAndUsername(name, username);
+    }
+
+    public List<SupplyView> getSuppliesViewsByStatus(String status) { return supplyDao.getSuppliesViewsByStatus(status); }
 }

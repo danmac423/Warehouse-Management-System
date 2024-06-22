@@ -48,4 +48,9 @@ public class OrderViewController {
         return orderService.getOrdersViewsByCustomer(customerId);
     }
 
+    @GetMapping("/orderId/{orderId}")
+    public List<OrderView> getOrdersByOrderId(@PathVariable Long orderId) {
+        return orderService.getOrdersViewsByCustomer(orderId);
+    }
+
 }

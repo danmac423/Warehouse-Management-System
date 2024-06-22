@@ -3,6 +3,8 @@ package warehouse.warehousemanagementsystem.SupplyHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import warehouse.warehousemanagementsystem.supply.SupplyView;
+import warehouse.warehousemanagementsystem.supply.SupplyViewMapper;
 
 import java.util.List;
 
@@ -67,4 +69,148 @@ public class SupplyHistoryDao {
                 toSearch
         );
     }
+    public List<SupplyHistoryView> getAllSuppliesHistViews() {
+        var sql = """
+                SELECT
+                    supplies_history.id,
+                    supplier.id AS supplier_id,
+                    supplier.name AS supplier_name,
+                    worker.id AS worker_id,
+                    worker.username,
+                    supplies_history.arrival_date,
+                    supplies_history.expected_date,
+					supplies_history.processed_date,
+                    supplies_history.product_id,
+                    product.name AS product_name,
+                    supplies_history.amount
+                FROM
+                    supplies_history
+                LEFT JOIN
+                    workers worker ON worker.id = supplies_history.worker_id
+                LEFT JOIN
+                    products product ON supplies_history.product_id = product.id
+                LEFT JOIN
+                    suppliers supplier ON supplies_history.supplier_id = supplier.id
+                GROUP BY
+                    supplies_history.id, supplier.id, supplier.name, worker.id, worker.username,
+                    supplies_history.arrival_date, supplies_history.expected_date,
+					supplies_history, supplies_history.product_id, product.name, supplies_history.amount
+                ORDER BY
+                    supplies_history.id;""";
+        return jdbcTemplate.query(
+                sql,
+                new SupplyHistoryViewMapper()
+        );
+    }
+
+    public List<SupplyHistoryView> getAllSuppliesHistViewsByWorkerUsername(String username) {
+        var sql = """
+                SELECT
+                    supplies_history.id,
+                    supplier.id AS supplier_id,
+                    supplier.name AS supplier_name,
+                    worker.id AS worker_id,
+                    worker.username,
+                    supplies_history.arrival_date,
+                    supplies_history.expected_date,
+					supplies_history.processed_date,
+                    supplies_history.product_id,
+                    product.name AS product_name,
+                    supplies_history.amount
+                FROM
+                    supplies_history
+                LEFT JOIN
+                    workers worker ON worker.id = supplies_history.worker_id
+                LEFT JOIN
+                    products product ON supplies_history.product_id = product.id
+                LEFT JOIN
+                    suppliers supplier ON supplies_history.supplier_id = supplier.id
+                WHERE worker.id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
+                GROUP BY
+                    supplies_history.id, supplier.id, supplier.name, worker.id, worker.username,
+                    supplies_history.arrival_date, supplies_history.expected_date,
+					supplies_history, supplies_history.product_id, product.name, supplies_history.amount
+                ORDER BY
+                    supplies_history.id;""";
+        return jdbcTemplate.query(
+                sql,
+                new SupplyHistoryViewMapper(),
+                "%" + username + "%"
+        );
+    }
+
+    public List<SupplyHistoryView> getAllSuppliesViewsHistBySupplierName(String name) {
+        var sql = """
+                SELECT
+                    supplies_history.id,
+                    supplier.id AS supplier_id,
+                    supplier.name AS supplier_name,
+                    worker.id AS worker_id,
+                    worker.username,
+                    supplies_history.arrival_date,
+                    supplies_history.expected_date,
+					supplies_history.processed_date,
+                    supplies_history.product_id,
+                    product.name AS product_name,
+                    supplies_history.amount
+                FROM
+                    supplies_history
+                LEFT JOIN
+                    workers worker ON worker.id = supplies_history.worker_id
+                LEFT JOIN
+                    products product ON supplies_history.product_id = product.id
+                LEFT JOIN
+                    suppliers supplier ON supplies_history.supplier_id = supplier.id
+                WHERE supplier.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?)))
+                GROUP BY
+                    supplies_history.id, supplier.id, supplier.name, worker.id, worker.username,
+                    supplies_history.arrival_date, supplies_history.expected_date,
+					supplies_history, supplies_history.product_id, product.name, supplies_history.amount
+                ORDER BY
+                    supplies_history.id;""";
+        return jdbcTemplate.query(
+                sql,
+                new SupplyHistoryViewMapper(),
+                "%" + name + "%"
+        );
+    }
+
+    public List<SupplyHistoryView> getSuppliesHistViewsBySupplierNameWorkerUsername(String name, String username) {
+        var sql = """
+                SELECT
+                    supplies_history.id,
+                    supplier.id AS supplier_id,
+                    supplier.name AS supplier_name,
+                    worker.id AS worker_id,
+                    worker.username,
+                    supplies_history.arrival_date,
+                    supplies_history.expected_date,
+					supplies_history.processed_date,
+                    supplies_history.product_id,
+                    product.name AS product_name,
+                    supplies_history.amount
+                FROM
+                    supplies_history
+                LEFT JOIN
+                    workers worker ON worker.id = supplies_history.worker_id
+                LEFT JOIN
+                    products product ON supplies_history.product_id = product.id
+                LEFT JOIN
+                    suppliers supplier ON supplies_history.supplier_id = supplier.id
+                WHERE supplier.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?))) AND
+                    worker.id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
+                GROUP BY
+                    supplies_history.id, supplier.id, supplier.name, worker.id, worker.username,
+                    supplies_history.arrival_date, supplies_history.expected_date,
+					supplies_history, supplies_history.product_id, product.name, supplies_history.amount
+                ORDER BY
+                    supplies_history.id;""";
+        return jdbcTemplate.query(
+                sql,
+                new SupplyHistoryViewMapper(),
+                "%" + name + "%",
+                "%" + username + "%"
+        );
+    }
+
 }
