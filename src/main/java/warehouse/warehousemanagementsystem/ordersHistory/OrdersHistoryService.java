@@ -1,6 +1,8 @@
 package warehouse.warehousemanagementsystem.ordersHistory;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import warehouse.warehousemanagementsystem.exception.NotFoundException;
 
 import java.util.List;
 
@@ -17,7 +19,11 @@ public class OrdersHistoryService {
     }
 
     public OrdersHistory getOrderById(Long orderId) {
-        return ordersHistoryDao.getOrderById(orderId);
+        try {
+            return ordersHistoryDao.getOrderById(orderId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NotFoundException("Order not found");
+        }
     }
 
     public List<OrdersHistory> getOrdersByWorker(Long workerId) {
