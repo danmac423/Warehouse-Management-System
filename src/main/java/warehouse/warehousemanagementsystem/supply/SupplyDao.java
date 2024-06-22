@@ -271,4 +271,39 @@ public class SupplyDao {
                 "%" + username + "%"
         );
     }
+
+    public List<SupplyView> getSuppliesViewsByStatus(String status) {
+        var sql = """
+                SELECT
+                    supplies.id,
+                    supplier.id AS supplier_id,
+                    supplier.name AS supplier_name,
+                    worker.id AS worker_id,
+                    worker.username,
+                    supplies.status,
+                    supplies.arrival_date,
+                    supplies.expected_date,
+                    supplies.product_id,
+                    product.name AS product_name,
+                    supplies.amount
+                FROM
+                    supplies
+                LEFT JOIN
+                    workers worker ON worker.id = supplies.worker_id
+                LEFT JOIN
+                    products product ON supplies.product_id = product.id
+                LEFT JOIN
+                    suppliers supplier ON supplies.supplier_id = supplier.id
+                WHERE supplies.status = ?
+                GROUP BY
+                    supplies.id, supplier.id, supplier.name, worker.id, worker.username,
+                    supplies.status, supplies.arrival_date, supplies.expected_date, supplies.product_id, product.name, supplies.amount
+                ORDER BY
+                    supplies.id;""";
+        return jdbcTemplate.query(
+                sql,
+                new SupplyViewMapper(),
+                status
+        );
+    }
 }

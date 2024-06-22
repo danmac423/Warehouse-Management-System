@@ -1,5 +1,6 @@
 package warehouse.warehousemanagementsystem.supply;
 
+import jdk.jshell.Snippet;
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.DatabaseException;
@@ -103,4 +104,6 @@ public class SupplyService {
     public List<SupplyView> getSuppliesViewsBySupplierNameWorkerUsername(String name, String username) {
         return supplyDao.getAllSuppliesViewsBySupplierNameAndUsername(name, username);
     }
+
+    public List<SupplyView> getSuppliesViewsByStatus(String status) { return supplyDao.getSuppliesViewsByStatus(status); }
 }

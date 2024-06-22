@@ -86,4 +86,9 @@ public class SupplyController {
     public ResponseEntity<List<SupplyView>> getSuppliesViewsBySupplierNameAndUsername(@PathVariable String name, @PathVariable String username) {
         return new ResponseEntity<>(supplyService.getSuppliesViewsBySupplierNameWorkerUsername(name, username), HttpStatus.OK);
     }
+
+    @GetMapping("/formated/status/{status}")
+    public ResponseEntity<List<SupplyView>> getSuppliesViewsByStatus(@PathVariable String status) {
+        return new ResponseEntity<>(supplyService.getSuppliesViewsByStatus(status), HttpStatus.OK);
+    }
 }
