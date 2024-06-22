@@ -36,4 +36,24 @@ public class SupplyHistoryController {
     public List<SupplyHistory> getSuppliesBySupplier(@PathVariable String supplierName) {
         return supplyHistoryService.getProductsBySupplierId(supplierName);
     }
+
+    @GetMapping("/formated")
+    public ResponseEntity<List<SupplyHistoryView>> getAllSuppliesHistViews() {
+        return new ResponseEntity<>(supplyHistoryService.getAllSuppliesHistViews(), HttpStatus.OK);
+    }
+
+    @GetMapping("/formated/username/{username}")
+    public ResponseEntity<List<SupplyHistoryView>> getSuppliesHistViewByUsername(@PathVariable String username) {
+        return new ResponseEntity<>(supplyHistoryService.getSuppliesHistViewsByWorkerUsername(username), HttpStatus.OK);
+    }
+
+    @GetMapping("/formated/supplier/{name}")
+    public ResponseEntity<List<SupplyHistoryView>> getSuppliesHistViewBySupplierName(@PathVariable String name) {
+        return new ResponseEntity<>(supplyHistoryService.getSuppliesHistViewsBySupplierName(name), HttpStatus.OK);
+    }
+
+    @GetMapping("/formated/supplier/{name}/username/{username}")
+    public ResponseEntity<List<SupplyHistoryView>> getSuppliesHistViewsBySupplierNameWorkerUsername(@PathVariable String name, @PathVariable String username) {
+        return new ResponseEntity<>(supplyHistoryService.getSuppliesHistViewsBySupplierNameWorkerUsername(name, username    ), HttpStatus.OK);
+    }
 }
