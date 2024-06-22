@@ -18,6 +18,8 @@ from WorkerPage import WorkerPage
 from OrdersPage import OrderPage
 from SuppliesPage import SuppliesPage
 from SuppliersPage import SuppliersPage
+from OrderHistoryPage import OrderHistoryPage
+from SuppliesHistory import SuppliesHistoryPage
 
 
 
@@ -44,6 +46,8 @@ class MainWindow(QMainWindow):
         self.order_page = OrderPage(self.globalVariables)
         self.supplies_page = SuppliesPage(self.globalVariables)
         self.suppliers_page = SuppliersPage(self.globalVariables)
+        self.orders_history_page = OrderHistoryPage(self.globalVariables)
+        self.supplies_history_page = SuppliesHistoryPage(self.globalVariables)
 
         self.stacked_widget = QStackedWidget()
         self.stacked_widget_init()
@@ -73,6 +77,8 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.order_page)
         self.stacked_widget.addWidget(self.supplies_page)
         self.stacked_widget.addWidget(self.suppliers_page)
+        self.stacked_widget.addWidget(self.orders_history_page)
+        self.stacked_widget.addWidget(self.supplies_history_page)
         
         self.stacked_widget.addWidget(self.login_widget)
 
