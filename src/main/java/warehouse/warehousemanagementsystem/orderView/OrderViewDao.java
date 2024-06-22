@@ -238,5 +238,43 @@ public class OrderViewDao {
                 customerId
         );
     }
+    public List<OrderView> getOrdersViewsByOrderId(Long orderId) {
+        var sql = """
+                SELECT
+                    orders.id,
+                    orders.customer_id,
+                    customer.name AS customer_name,
+                    customer.last_name,
+                    customer.email,
+                    orders.date_processed,
+                    orders.worker_id,
+                	workers.username,
+                    orders.status,
+                    orders.date_received,
+                    COALESCE(SUM(product.price * products_orders.amount), 0) AS total_price
+                FROM
+                    orders
+                LEFT JOIN
+                    products_orders ON orders.id = products_orders.order_id
+                LEFT JOIN
+                    products product ON products_orders.product_id = product.id
+                LEFT JOIN
+                    customers customer ON orders.customer_id = customer.id
+                LEFT JOIN
+                    workers ON orders.worker_id = workers.id
+                WHERE id = ?
+                GROUP BY
+                    orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
+                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
+                ORDER BY
+                    orders.id;
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new OrderViewMapper(),
+                orderId
+        );
+    }
+
 
 }

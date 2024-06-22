@@ -54,4 +54,6 @@ public class OrderViewService {
         return orderVDao.getOrdersViewsByCustomer(customerId);
     }
 
+    public List<OrderView> getordersViewsByOrderId(Long orderId) { return orderVDao.getOrdersViewsByOrderId(orderId); }
+
 }
