@@ -40,4 +40,13 @@ public class SupplierController {
         return new ResponseEntity<>("Supplier updated successfully", HttpStatus.OK);
     }
 
+    @GetMapping("/formated")
+    public ResponseEntity<List<SupplierView>> getAllSuppliersViews() {
+        return new ResponseEntity<>(supplierService.getAllSuppliersViews(), HttpStatus.OK);
+    }
+
+    @GetMapping("/formated/supplierName/{name}")
+    public ResponseEntity<List<SupplierView>> getSuppliersViewsByName(@PathVariable String name) {
+        return new ResponseEntity<>(supplierService.getSuppliersViewsByName(name), HttpStatus.OK);
+    }
 }
