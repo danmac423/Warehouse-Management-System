@@ -79,5 +79,7 @@ public class WorkerService {
         }
     }
 
-
+    public List<Worker> getWorkerByUsername(String username) {
+        return workerDao.getWorkersByUsername(username);
+    }
 }
