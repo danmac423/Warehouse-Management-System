@@ -3,10 +3,6 @@ package warehouse.warehousemanagementsystem.ordersHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import warehouse.warehousemanagementsystem.orderView.OrderView;
-import warehouse.warehousemanagementsystem.orderView.OrderViewGeneral;
-import warehouse.warehousemanagementsystem.orderView.OrderViewGeneralMapper;
-import warehouse.warehousemanagementsystem.orderView.OrderViewMapper;
 
 import java.util.List;
 
@@ -59,6 +55,18 @@ public class OrdersHistoryDao {
         return jdbcTemplate.query(
                 sql,
                 new OrdersHistoryMapper()
+        );
+    }
+
+    public OrdersHistory getOrderById(Long orderId) {
+        var sql = """
+                SELECT * FROM orders_history
+                WHERE id = ?;
+                """;
+        return jdbcTemplate.queryForObject(
+                sql,
+                new OrdersHistoryMapper(),
+                orderId
         );
     }
 
