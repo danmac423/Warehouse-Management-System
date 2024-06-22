@@ -9,10 +9,44 @@ import java.util.List;
 @Repository
 public class OrderViewDao {
     private final JdbcTemplate jdbcTemplate;
+    private final String sqlPreffix;
+    private final String sqlSuffix;
 
     @Autowired
     public OrderViewDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        sqlPreffix = """
+                SELECT
+                    orders.id,
+                    orders.customer_id,
+                    customer.name AS customer_name,
+                    customer.last_name,
+                    customer.email,
+                    orders.date_processed,
+                    orders.worker_id,
+                	workers.username,
+                    orders.status,
+                    orders.date_received,
+                    COALESCE(SUM(product.price * products_orders.amount), 0) AS total_price
+                FROM
+                    orders
+                LEFT JOIN
+                    products_orders ON orders.id = products_orders.order_id
+                LEFT JOIN
+                    products product ON products_orders.product_id = product.id
+                LEFT JOIN
+                    customers customer ON orders.customer_id = customer.id
+                LEFT JOIN
+                    workers ON orders.worker_id = workers.id
+                """;
+        sqlSuffix = """
+                GROUP BY
+                    orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
+                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
+                ORDER BY
+                    orders.id;
+                """;
+
     }
 
     public List<OrderViewGeneral> getAllOrdersViews() {
@@ -48,36 +82,9 @@ public class OrderViewDao {
     }
 
     public List<OrderView> getOrdersViewsByWorkerUsernameSubstring(String usernameSubstring) {
-        var sql = """
-                SELECT
-                    orders.id,
-                    orders.customer_id,
-                    customer.name AS customer_name,
-                    customer.last_name,
-                    customer.email,
-                    orders.date_processed,
-                    orders.worker_id,
-                	workers.username,
-                    orders.status,
-                    orders.date_received,
-                    COALESCE(SUM(product.price * products_orders.amount), 0) AS total_price
-                FROM
-                    orders
-                LEFT JOIN
-                    products_orders ON orders.id = products_orders.order_id
-                LEFT JOIN
-                    products product ON products_orders.product_id = product.id
-                LEFT JOIN
-                    customers customer ON orders.customer_id = customer.id
-                LEFT JOIN
-                    workers ON orders.worker_id = workers.id
+        var sql = sqlPreffix.concat("""
                 WHERE worker_id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
-                GROUP BY
-                    orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
-                ORDER BY
-                    orders.id;
-                """;
+                """).concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new OrderViewMapper(),
@@ -86,36 +93,9 @@ public class OrderViewDao {
     }
 
     public List<OrderView> getOrdersViewsByCustomerEmailSubstring(String emailSubstring) {
-        var sql = """
-                SELECT
-                    orders.id,
-                    orders.customer_id,
-                    customer.name AS customer_name,
-                    customer.last_name,
-                    customer.email,
-                    orders.date_processed,
-                    orders.worker_id,
-                	workers.username,
-                    orders.status,
-                    orders.date_received,
-                    COALESCE(SUM(product.price * products_orders.amount), 0) AS total_price
-                FROM
-                    orders
-                LEFT JOIN
-                    products_orders ON orders.id = products_orders.order_id
-                LEFT JOIN
-                    products product ON products_orders.product_id = product.id
-                LEFT JOIN
-                    customers customer ON orders.customer_id = customer.id
-                LEFT JOIN
-                    workers ON orders.worker_id = workers.id
-                WHERE customer_id IN (SELECT id FROM customers WHERE LOWER(customers.email) like LOWER((?)))
-                GROUP BY
-                    orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
-                ORDER BY
-                    orders.id;
-                """;
+        var sql = sqlPreffix.concat("""
+                WHERE customer_id IN (SELECT customer_id FROM customers WHERE LOWER(customers.email) like LOWER((?)))
+                """).concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new OrderViewMapper(),
@@ -124,37 +104,10 @@ public class OrderViewDao {
     }
 
     public List<OrderView> getOrdersViewsByCustomerEmailWorkerUsernameSubstring(String emailSubstring, String usernameSubstring) {
-        var sql = """
-                SELECT
-                    orders.id,
-                    orders.customer_id,
-                    customer.name AS customer_name,
-                    customer.last_name,
-                    customer.email,
-                    orders.date_processed,
-                    orders.worker_id,
-                	workers.username,
-                    orders.status,
-                    orders.date_received,
-                    COALESCE(SUM(product.price * products_orders.amount), 0) AS total_price
-                FROM
-                    orders
-                LEFT JOIN
-                    products_orders ON orders.id = products_orders.order_id
-                LEFT JOIN
-                    products product ON products_orders.product_id = product.id
-                LEFT JOIN
-                    customers customer ON orders.customer_id = customer.id
-                LEFT JOIN
-                    workers ON orders.worker_id = workers.id
+        var sql = sqlPreffix.concat("""
                 WHERE customer_id IN (SELECT id FROM customers WHERE LOWER(email) LIKE LOWER(?)) AND
                     worker_id IN (SELECT id FROM workers WHERE LOWER(workers.username) LIKE LOWER((?)))
-                GROUP BY
-                    orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
-                ORDER BY
-                    orders.id;
-                """;
+                """).concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new OrderViewMapper(),
@@ -164,36 +117,9 @@ public class OrderViewDao {
     }
 
     public List<OrderView> getOrdersViewsByWorker(Long workerId) {
-        var sql = """
-                SELECT
-                    orders.id,
-                    orders.customer_id,
-                    customer.name AS customer_name,
-                    customer.last_name,
-                    customer.email,
-                    orders.date_processed,
-                    orders.worker_id,
-                	workers.username,
-                    orders.status,
-                    orders.date_received,
-                    COALESCE(SUM(product.price * products_orders.amount), 0) AS total_price
-                FROM
-                    orders
-                LEFT JOIN
-                    products_orders ON orders.id = products_orders.order_id
-                LEFT JOIN
-                    products product ON products_orders.product_id = product.id
-                LEFT JOIN
-                    customers customer ON orders.customer_id = customer.id
-                LEFT JOIN
-                    workers ON orders.worker_id = workers.id
+        var sql = sqlPreffix.concat("""
                 WHERE orders.worker_id = ?
-                GROUP BY
-                    orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
-                ORDER BY
-                    orders.id;
-                """;
+                """).concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new OrderViewMapper(),
@@ -202,36 +128,9 @@ public class OrderViewDao {
     }
 
     public List<OrderView> getOrdersViewsByCustomer(Long customerId) {
-        var sql = """
-                SELECT
-                    orders.id,
-                    orders.customer_id,
-                    customer.name AS customer_name,
-                    customer.last_name,
-                    customer.email,
-                    orders.date_processed,
-                    orders.worker_id,
-                	workers.username,
-                    orders.status,
-                    orders.date_received,
-                    COALESCE(SUM(product.price * products_orders.amount), 0) AS total_price
-                FROM
-                    orders
-                LEFT JOIN
-                    products_orders ON orders.id = products_orders.order_id
-                LEFT JOIN
-                    products product ON products_orders.product_id = product.id
-                LEFT JOIN
-                    customers customer ON orders.customer_id = customer.id
-                LEFT JOIN
-                    workers ON orders.worker_id = workers.id
-                WHERE customer_id = ?
-                GROUP BY
-                    orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
-                ORDER BY
-                    orders.id;
-                """;
+        var sql = sqlPreffix.concat("""
+                WHERE orders.customer_id = ?
+                """).concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new OrderViewMapper(),
@@ -239,36 +138,9 @@ public class OrderViewDao {
         );
     }
     public List<OrderView> getOrdersViewsByOrderId(Long orderId) {
-        var sql = """
-                SELECT
-                    orders.id,
-                    orders.customer_id,
-                    customer.name AS customer_name,
-                    customer.last_name,
-                    customer.email,
-                    orders.date_processed,
-                    orders.worker_id,
-                	workers.username,
-                    orders.status,
-                    orders.date_received,
-                    COALESCE(SUM(product.price * products_orders.amount), 0) AS total_price
-                FROM
-                    orders
-                LEFT JOIN
-                    products_orders ON orders.id = products_orders.order_id
-                LEFT JOIN
-                    products product ON products_orders.product_id = product.id
-                LEFT JOIN
-                    customers customer ON orders.customer_id = customer.id
-                LEFT JOIN
-                    workers ON orders.worker_id = workers.id
+        var sql = sqlPreffix.concat("""
                 WHERE id = ?
-                GROUP BY
-                    orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
-                ORDER BY
-                    orders.id;
-                """;
+                """).concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new OrderViewMapper(),
