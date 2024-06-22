@@ -21,6 +21,10 @@ public class AddressService {
         return addressDao.getAllAddresses();
     }
 
+    public Address getAddressByData(Address address) {
+        return addressDao.getAddressByData(address).orElseThrow(() -> new NotFoundException("Address not found"));
+    }
+
     public void addAddress(Address address) {
         if (address.street().isEmpty()
                 || address.houseNumber().isEmpty()
