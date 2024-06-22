@@ -20,10 +20,12 @@ class OrderPage(QWidget):
         action_widget = QWidget()
         action_layout = QGridLayout()
         action_widget.setLayout(action_layout)
-        action_widget.setMinimumHeight(150)
-        action_widget.setMaximumHeight(250)
+        action_widget.setMinimumHeight(200)
+        action_widget.setMaximumHeight(300)
         action_layout.addWidget(self.search_widget, 0, 0)
-        action_layout.addWidget(self.add_widget, 0, 1)
+        action_layout.addWidget(self.more_widget, 0, 1)
+        action_layout.setColumnStretch(0, 2)
+        action_layout.setColumnStretch(1, 3)
         
         layout.addWidget(action_widget)
         layout.addWidget(self.orders_widget)
@@ -36,7 +38,7 @@ class OrderPage(QWidget):
     
     def _setup_ui(self):
         
-        self._init_add_box()
+        self._init_more_box()
         self._init_search_box()
         self._init_console() 
         
@@ -74,16 +76,7 @@ class OrderPage(QWidget):
         serach_layout.addWidget(search_button, 1, 0)
         self.search_widget.setLayout(serach_layout)
         serach_layout.setAlignment(Qt.AlignTop)
-        
-        # self.search_bar = QLineEdit(self)
-        # self.search_bar.setPlaceholderText("Search by order name")
-        # self.search_bar.textChanged.connect(lambda text: self.filter_table_by_name(text))
-        
-        # self.category_dropdown = QComboBox(self)
-        # self.category_dropdown.currentIndexChanged.connect(lambda index: self.filter_table_by_category(self.category_dropdown.itemData(index)))
-        
-        # self.serach_layout.addWidget(self.category_dropdown,0,0)
-        # self.serach_layout.addWidget(self.search_bar, 1,0)        
+         
     
     def _init_console(self):
         self.console_box = QGroupBox("Last operation status:")
@@ -105,27 +98,31 @@ class OrderPage(QWidget):
     def _init_signals(self):
         self.globalVariables.signals.orders_view_clicked.connect(lambda: self.load_orders())
     
-    def _init_add_box(self): # _init_more_box
+    def _init_more_box(self): 
         form = QWidget()
         form1 = QWidget()
         form2 = QWidget()
         
-        self.order_id = QLineEdit()
+        self.order_id = QLineEdit(readOnly = True)
+        self.order_id.setText("23112")
+        self.order_id.clear()
+        self.order_id.setText("dsads")
+        self.products = QLineEdit(readOnly = True)
+         
         
-        self.customer_id = QLineEdit()
-        self.customer_name = QLineEdit()
+        self.customer_id = QLineEdit(readOnly = True)
+        self.customer_name = QLineEdit(readOnly = True)
         
+        self.date_processed = QLineEdit(readOnly = True)
+        self.worker_username = QLineEdit(readOnly = True)
+        self.worker_id = QLineEdit(readOnly = True)
         
-        self.date_processed = QLineEdit()
-        self.worker_username = QLineEdit()
-        self.worker_id = QLineEdit()
-        self.products = QLineEdit()
-        self.status = QLineEdit()
-        self.date_received = QLineEdit()
-        self.total_price = QLineEdit()
+        self.status = QLineEdit(readOnly = True)
+        self.date_received = QLineEdit(readOnly = True)
+        self.total_price = QLineEdit(readOnly = True)
         
-        self.customer_email = QLineEdit()
-        self.customer_lastname = QLineEdit()
+        self.customer_email = QLineEdit(readOnly = True)
+        self.customer_lastname = QLineEdit(readOnly = True)
         
         form_layout = QFormLayout()
         form_layout.addRow(QLabel("Order ID:"), self.order_id)
@@ -147,48 +144,37 @@ class OrderPage(QWidget):
         form_layout2.addRow(QLabel("Date processed:"), self.date_processed)
         form_layout2.addRow(QLabel("Total price:"), self.total_price)
         
+        self.more_list = [
+            self.order_id,
+            self.products,
+            self.customer_id,
+            self.customer_name,
+            self.worker_id,
+            self.date_received,
+            self.status,
+            self.customer_email,
+            self.customer_lastname,
+            self.worker_username,
+            self.date_processed,
+            self.total_price
+        ]
+        
         form.setLayout(form_layout)
         form1.setLayout(form_layout1)
         form2.setLayout(form_layout2)
         
 
-        # # Create the form layout
-        # form_layout = QFormLayout()
+        more_layout = QGridLayout()
+        more_layout.addWidget(form, 0, 0 ,1, 2)
+        more_layout.addWidget(form1, 1,0, 1, 1)
+        more_layout.addWidget(form2, 1,1, 1, 1)
+        more_layout.setColumnStretch(0, 1)
+        more_layout.setColumnStretch(1, 1)
 
-        # # Create the input fields
-        # self.customer_id = QLineEdit()
-        # self.worker_id = QLineEdit()
-        # self.status = QComboBox()
-        # self.status.addItems(["processed","received"])
+        self.more_widget = QGroupBox('More info')
+        self.more_widget.setLayout(more_layout)
+        more_layout.setAlignment(Qt.AlignTop)
         
-        # self.date_received_input = QDateEdit()
-        # self.date_received_input.setCalendarPopup(True)
-        # self.date_received_input.setDate(QDate.currentDate())
-        
-
-        # # Add the input fields to the form layout
-        # form_layout.addRow(QLabel('Customer ID:'), self.customer_id)
-        # form_layout.addRow(QLabel('Worker ID:'), self.worker_id)
-        # form_layout.addRow(QLabel('Status:'), self.status)
-        # form_layout.addRow(QLabel('Date Received:'), self.date_received_input)
-
-        # # Set the layout for the QGroupBox
-        # form.setLayout(form_layout)
-        # form_layout.setAlignment(Qt.AlignTop)
-
-        # # Create the submit button
-        # submit_button = QPushButton('Add Order')
-        # submit_button.clicked.connect(self.add_order)
-
-        # Create the main layout
-        add_layout = QGridLayout()
-        add_layout.addWidget(form, 0,0)
-        add_layout.addWidget(form1, 1,0)
-        add_layout.addWidget(form2, 1,1)
-        # add_layout.addWidget(submit_button, 1, 0)
-        self.add_widget = QGroupBox('More info')
-        self.add_widget.setLayout(add_layout)
-        add_layout.setAlignment(Qt.AlignTop)
         
         
     def _init_table(self):
@@ -197,8 +183,8 @@ class OrderPage(QWidget):
         self.table_scrollArea.setMinimumHeight(120)
         self.table_scrollArea.setMaximumHeight(300)
         
-        self.table.setColumnCount(8)
-        self.table.setHorizontalHeaderLabels(['ID', 'Customer ID', 'Date Processed', 'Worker ID', 'Status', 'Data Received', 'Total Price', 'Edit'])
+        self.table.setColumnCount(9)
+        self.table.setHorizontalHeaderLabels(['ID', 'Customer email', 'Worker', 'Data Received', 'Status', 'Item Count', 'Total Price', 'Assign', 'More'])
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch) 
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
@@ -207,66 +193,22 @@ class OrderPage(QWidget):
         self.table.horizontalHeader().setSectionResizeMode(5, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(6, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(7, QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(8, QHeaderView.Stretch)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
         
      
-    
-    def filter_table_by_category(self, cat_id):
-        print(f"--------order_page_filter_cat: {cat_id}")
-        if cat_id == "ALL":
-            self.load_orders()
-        else:
-            response = requests.get(f'http://localhost:8080/api/orders/category/{cat_id}')
-            if response.status_code == 200:
-                orders = response.json(orders)
-                self.populate_table(orders)
-                self.writeToConsole("orders filtered sucessfully")
-            else:
-                body = json.loads(response.text)
-                mess = body.get('message')
-                self.writeToConsole(f'Error: {mess}')
-    
-    
-    def filter_table_by_name(self, name):
-        print(f"--------order_page_filter_name: {name}")
-        response = requests.get(f'http://localhost:8080/api/orders/prefixSuffix/{name}')
-        if response.status_code == 200:
-            orders = response.json(orders)
-            self.populate_table(orders)
-            self.writeToConsole("Orders filtered sucessfully")
-        else:
-            body = json.loads(response.text)
-            mess = body.get('message')
-            self.writeToConsole(f'Error: {mess}')
-    
-            
-    def add_order(self):
-        
-        customer_id = self.customer_id.text()
-        worker_id = self.worker_id.text()
-        date_received = self.date_received_input.date().toString('yyyy-MM-dd')
-
-        headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'customerId': customer_id, 'workerId': worker_id, 'dateReceived': date_received})
-        
-        response = requests.post('http://localhost:8080/api/orders', headers=headers, data=data)
-        print(response.status_code)
-        if response.status_code == 201: #Change later to 201
-            self.load_orders()
-            self.writeToConsole('Order added successfully')
-        else:
-            body = json.loads(response.text)
-            mess = body.get('message')
-            self.writeToConsole(f'Error: {mess}')
 
     def filter_order(self):
         emailSubstring = self.search_customer_email.text()
         usernameSubstring = self.search_worker_username.text()
+        print(f"customerEmail/{emailSubstring}")
+        print(f"WorkerUsername/{usernameSubstring}")
         response = requests.get(f'http://localhost:8080/api/orders/customerEmail/{emailSubstring}/WorkerUsername/{usernameSubstring}')
+        print(response.status_code)
         if response.status_code == 200:
-            orders = response.json(orders)
+            orders = response.json()
             self.populate_table(orders)
             self.writeToConsole("Orders filtered sucessfully")
         else:
@@ -286,17 +228,17 @@ class OrderPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 0, item)
             
-            item =   QTableWidgetItem(str(order['customerId']))
+            item =   QTableWidgetItem(str(order['email']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 1, item)
             
-            item =  QTableWidgetItem(str(order['dateProcessed']))
+            item =  QTableWidgetItem(str(order['username']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 2, item)
             
-            item =  QTableWidgetItem(str(order['workerId']))
+            item =  QTableWidgetItem(str(order['dateReceived']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 3, item)
@@ -306,7 +248,8 @@ class OrderPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 4, item)
             
-            item =  QTableWidgetItem(str(order['dateReceived']))
+            item = QTableWidgetItem("niema")
+            # item =  QTableWidgetItem(str(order['itemCount']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 5, item)
@@ -316,9 +259,13 @@ class OrderPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 6, item)
             
-            edit_button = QPushButton('Edit')
+            edit_button = QPushButton('Assign')
             edit_button.clicked.connect(partial(self.edit_order, row_position))
             self.table.setCellWidget(row_position, 7, edit_button)
+            
+            more_button = QPushButton('More')
+            more_button.clicked.connect(partial(self.show_more, row_position))
+            self.table.setCellWidget(row_position, 8, more_button)
             
             # delete_button = QPushButton('Delete')
             # # delete_button.clicked.connect(lambda: self.delete_order(row_position))
@@ -327,7 +274,7 @@ class OrderPage(QWidget):
         
 
     def load_orders(self):
-        response = requests.get('http://localhost:8080/api/orders')
+        response = requests.get('http://localhost:8080/api/ordersViews')
 
         if response.status_code == 200:
             # self.update_categories()
@@ -346,17 +293,32 @@ class OrderPage(QWidget):
         print(row_position)
         self.select_row(row_position)
         
-        item = self.table.item(row_position, 5)
+        item = self.table.item(row_position, 2)
         
         workers_to_assign = QComboBox()
         workers_to_assign.addItems(self.worker_list()) # get all possible workers
-        # self.worker_list()
-        # workers_to_assign.setCurrentText(item.text())
-        self.table.setCellWidget(row_position, 5, workers_to_assign)
+        if item.text():
+            workers_to_assign.setCurrentText(item.text())
+        self.table.setCellWidget(row_position, 2, workers_to_assign)
+        
+        
+        assign_button = QPushButton('Update')
+        assign_button.clicked.connect(partial(self.assign_order, row_position))
         
         revert_button = QPushButton('Revert')
         revert_button.clicked.connect(partial(self.revert_edit, row_position))
-        self.table.setCellWidget(row_position, 7, revert_button)
+        
+        edit_widget = QWidget()
+        edit_layout = QGridLayout()
+        edit_widget.setLayout(edit_layout)
+        edit_layout.addWidget(revert_button, 0, 0)
+        edit_layout.addWidget(assign_button, 0 ,1)
+        edit_layout.setColumnStretch(0, 1)
+        edit_layout.setColumnStretch(1, 1)
+        edit_layout.setRowStretch(0, 1)
+        edit_layout.setContentsMargins(0, 0, 0, 0)
+        edit_layout.setSpacing(0)
+        self.table.setCellWidget(row_position, 7, edit_widget)
         
         # for col in range(7):
         #     item = self.table.item(row_position, col)
@@ -400,7 +362,8 @@ class OrderPage(QWidget):
 
         if response.status_code == 200:
             workers = response.json()
-            workers_list = [f"{item['username']}, id: {item['id']}" for item in workers]
+            workers_list = [worker['username'] for worker in workers]
+            # workers_list = [f"{item['username']}, id: {item['id']}" for item in workers]
             return workers_list
         else:
             body = json.loads(response.text)
@@ -457,5 +420,56 @@ class OrderPage(QWidget):
         self.table.clearSelection()
         self.table.setSelectionMode(QTableWidget.NoSelection)
         
+    def clear_more_list(self):
+        for item in self.more_list:
+            item.clear()
+    
+    def show_more(self, rowposition):
+        print("in Development")
+        pass
+    
+        # order_id = self.table.item(rowposition, 0).text() 
+        # response = requests.get('http://localhost:8080/api/ordersViews')
+
+        # if response.status_code == 200:
+        #     self.writeToConsole(f"More info for order {order_id}")
+        #     self.table.clearContents()
+        #     self.table.setRowCount(0)
+        #     orders = response.json()
+        #     # self.populate_more_info(self.get_dict_by_id(orders, order_id))
+        #     self.populate_more_info(orders[0])
+            
+        # else:
+        #     body = json.loads(response.text)
+        #     mess = body.get('message')
+        #     self.writeToConsole(f'Error: {mess}')
+        
+        
+    
+    def populate_more_info(self, order):
+        print("dassssssssss")
+        print(order)
+        self.clear_more_list()
+        self.order_id = order['id']
+        # self.products = order['']
+        self.customer_id = order['customerId']
+        self.customer_name = order['name']
+        self.worker_id = order['workerId']
+        self.date_received = order['dateReceived']
+        self.status = order['status']
+        self.customer_email = order['email']
+        self.customer_lastname = order['surname']
+        self.worker_username = order['username']
+        self.date_processed = order['dateProcessed']
+        self.total_price = order['totalPrice']
+        
+    def get_dict_by_id(self, data, search_id):
+        for item in data:
+            if item['id'] == search_id:
+                return item
+        return None 
+    
+    def assign_order(self):
+        pass
    
      
