@@ -16,6 +16,10 @@ public class OrdersHistoryService {
         return ordersHistoryDao.getAllOrders();
     }
 
+    public OrdersHistory getOrderById(Long orderId) {
+        return ordersHistoryDao.getOrderById(orderId);
+    }
+
     public List<OrdersHistory> getOrdersByWorker(Long workerId) {
         return ordersHistoryDao.getOrdersByWorker(workerId);
     }
