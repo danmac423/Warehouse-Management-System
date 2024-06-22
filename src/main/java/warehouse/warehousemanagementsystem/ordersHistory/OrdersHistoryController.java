@@ -54,4 +54,9 @@ public class OrdersHistoryController {
     public List<OrdersHistoryView> getOrderViewByUsernameAndEmail(@PathVariable String email, @PathVariable String username) {
         return ordersHistoryService.getOrdersViewByEmailAndUsername(email, username);
     }
+
+    @GetMapping("/formated/orderId/{orderId}")
+    public List<OrdersHistoryView> getOrderViewByOrderId(@PathVariable Long orderId) {
+        return ordersHistoryService.getOrdersViewByOrderId(orderId);
+    }
 }
