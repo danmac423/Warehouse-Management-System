@@ -257,7 +257,7 @@ public class SupplyDao {
                     products product ON supplies.product_id = product.id
                 LEFT JOIN
                     suppliers supplier ON supplies.supplier_id = supplier.id
-                WHERE supplier.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?)))
+                WHERE supplier.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?))) AND
                     worker.id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
                 GROUP BY
                     supplies.id, supplier.id, supplier.name, worker.id, worker.username,
