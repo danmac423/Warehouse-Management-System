@@ -39,4 +39,8 @@ public class OrdersHistoryService {
     public List<OrdersHistoryView> getOrdersViewByEmailAndUsername(String email, String username) {
         return ordersHistoryDao.getOrdersHistViewsByCustomerEmailWorkerUsernameSubstring(email, username);
     }
+
+    public List<OrdersHistoryView> getOrdersViewByOrderId(Long orderId) {
+        return ordersHistoryDao.getOrdersHistViewsByOrderId(orderId);
+    }
 }

@@ -205,7 +205,7 @@ public class OrdersHistoryDao {
         );
     }
 
-    public List<OrderView> getOrdersHistViewsByWorker(Long workerId) {
+    public List<OrdersHistoryView> getOrdersHistViewsByOrderId(Long orderId) {
         var sql = """
                 SELECT
                     orders_history.id,
@@ -228,7 +228,7 @@ public class OrdersHistoryDao {
                     customers customer ON orders_history.customer_id = customer.id
                 LEFT JOIN
                     workers ON orders_history.worker_id = workers.id
-                WHERE worker_id = ?
+                WHERE orders_history.id = ?
                 GROUP BY
                     orders_history.id, orders_history.customer_id, customer.name, customer.last_name, customer.email,
                     orders_history.date_processed, orders_history.worker_id, workers.username, orders_history.date_received
@@ -237,8 +237,8 @@ public class OrdersHistoryDao {
                 """;
         return jdbcTemplate.query(
                 sql,
-                new OrderViewMapper(),
-                workerId
+                new OrdersHistoryViewMapper(),
+                orderId
         );
 
     }
