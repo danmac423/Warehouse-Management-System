@@ -70,4 +70,10 @@ public class SupplierService {
         }
     }
 
+    public List<SupplierView> getAllSuppliersViews() { return supplierDao.getAllSuppliersViews(); }
+
+    public List<SupplierView> getSuppliersViewsByName(String name) {
+        return supplierDao.getSuppliersViewsByName(name);
+    }
+
 }
