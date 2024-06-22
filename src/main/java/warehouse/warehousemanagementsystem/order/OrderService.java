@@ -97,4 +97,8 @@ public class OrderService {
             throw new DatabaseException("Failed to assign worker");
         }
     }
+    public List<Order> getAllOrdersViews() {
+        return orderDao.getAllOrders();
+    }
+
 }

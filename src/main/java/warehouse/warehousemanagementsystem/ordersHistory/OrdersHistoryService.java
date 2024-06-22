@@ -23,4 +23,16 @@ public class OrdersHistoryService {
     public List<OrdersHistory> getOrdersByCustomer(String email) {
         return ordersHistoryDao.getOrdersByCustomer(email);
     }
+
+    public List<OrdersHistoryView> getOrdersViewByUsernameSubstr (String usernameSubstr) {
+        return ordersHistoryDao.getOrdersHistViewsByWorkerUsernameSubstring(usernameSubstr);
+    }
+
+    public List<OrdersHistoryView> getOrdersViewByEmail (String email) {
+        return ordersHistoryDao.getOrdersHistViewsByCustomerEmailSubstring(email);
+    }
+
+    public List<OrdersHistoryView> getOrdersViewByEmailAndUsername(String email, String username) {
+        return ordersHistoryDao.getOrdersHistViewsByCustomerEmailWorkerUsernameSubstring(email, username);
+    }
 }
