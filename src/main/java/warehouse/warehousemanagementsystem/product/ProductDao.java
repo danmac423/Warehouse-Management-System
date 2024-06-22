@@ -147,4 +147,19 @@ public class ProductDao {
                 orderId
         );
     }
+
+    public List<ProductInOrder> getProductsByOrderHistory(Long orderId) {
+        var sql = """
+                SELECT products.id, products.name, products.price, categories.name as category_name, products_orders_history.amount
+                FROM products
+                JOIN products_orders_history ON products.id = products_orders_history.product_id JOIN categories ON products.category_id = categories.id
+                WHERE products_orders_history.order_id = ?
+                ORDER BY products.id
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new ProductInOrderMapper(),
+                orderId
+        );
+    }
 }
