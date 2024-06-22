@@ -183,15 +183,24 @@ class CategoriesPage(QWidget):
     
     def filter_table_by_name(self, name):
         print(name)
-        response = requests.get(f'http://localhost:8080/api/categories/prefixSuffix/{name}')
-        if response.status_code == 200:
-            categories = response.json(categories)
-            self.populate_table(categories)
-            self.writeToConsole("Categories filtered sucessfully")
+        if name:
+            response = requests.get(f'http://localhost:8080/api/categories/substring/{name}')
+            print(response.status_code)
+            if response.status_code == 200:
+                categories = response.json()
+                self.populate_table(categories)
+                self.writeToConsole("Categories filtered sucessfully")
+            else:
+                if response.status_code == 404:
+                    self.writeToConsole(f'Error: No categories found under \'{name}\'')
+                    self.table.clearContents()
+                    self.table.setRowCount(0)
+                else: 
+                    body = json.loads(response.text)
+                    mess = body.get('message')
+                    self.writeToConsole(f'Error: {mess}')
         else:
-            body = json.loads(response.text)
-            mess = body.get('message')
-            self.writeToConsole(f'Error: {mess}')
+            self.load_categories()
     
             
     def add_category(self):

@@ -160,7 +160,7 @@ class ProductPage(QWidget):
         else:
             response = requests.get(f'http://localhost:8080/api/products/category/{cat_id}')
             if response.status_code == 200:
-                products = response.json(products)
+                products = response.json()
                 self.populate_table(products)
                 self.writeToConsole("Products filtered sucessfully")
             else:
@@ -181,16 +181,23 @@ class ProductPage(QWidget):
     
     def filter_table_by_name(self, name):
         print(f"--------product_page_filter_name: {name}")
-        response = requests.get(f'http://localhost:8080/api/products/prefixSuffix/{name}')
-        if response.status_code == 200:
-            products = response.json(products)
-            self.populate_table(products)
-            self.writeToConsole("Products filtered sucessfully")
+        if name:
+            response = requests.get(f'http://localhost:8080/api/products/substring/{name}')
+            if response.status_code == 200:
+                products = response.json()
+                self.populate_table(products)
+                self.writeToConsole("Products filtered sucessfully")
+            else:
+                if response.status_code == 404:
+                    self.writeToConsole(f'Error: No products found under \'{name}\'')
+                    self.table.clearContents()
+                    self.table.setRowCount(0)
+                else: 
+                    body = json.loads(response.text)
+                    mess = body.get('message')
+                    self.writeToConsole(f'Error: {mess}')
         else:
-            body = json.loads(response.text)
-            mess = body.get('message')
-            self.writeToConsole(f'Error: {mess}')
-    
+            self.load_products()    
             
     def add_product(self):
 
@@ -202,7 +209,7 @@ class ProductPage(QWidget):
         data = json.dumps({'name': name, 'price': price, 'categoryId': category_id, 'stock': stock})
         response = requests.post('http://localhost:8080/api/products', headers=headers, data=data)
         print(response.status_code)
-        if response.status_code == 200: #Change later to 201
+        if response.status_code == 201: 
             self.load_products()
             self.writeToConsole('Product added successfully')
         else:

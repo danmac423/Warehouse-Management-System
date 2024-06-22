@@ -105,42 +105,88 @@ class OrderPage(QWidget):
     def _init_signals(self):
         self.globalVariables.signals.orders_view_clicked.connect(lambda: self.load_orders())
     
-    def _init_add_box(self):
+    def _init_add_box(self): # _init_more_box
         form = QWidget()
-
-        # Create the form layout
-        form_layout = QFormLayout()
-
-        # Create the input fields
+        form1 = QWidget()
+        form2 = QWidget()
+        
+        self.order_id = QLineEdit()
+        
         self.customer_id = QLineEdit()
+        self.customer_name = QLineEdit()
+        
+        
+        self.date_processed = QLineEdit()
+        self.worker_username = QLineEdit()
         self.worker_id = QLineEdit()
-        self.status = QComboBox()
-        self.status.addItems(["processed","received"])
+        self.products = QLineEdit()
+        self.status = QLineEdit()
+        self.date_received = QLineEdit()
+        self.total_price = QLineEdit()
         
-        self.date_received_input = QDateEdit()
-        self.date_received_input.setCalendarPopup(True)
-        self.date_received_input.setDate(QDate.currentDate())
+        self.customer_email = QLineEdit()
+        self.customer_lastname = QLineEdit()
         
-
-        # Add the input fields to the form layout
-        form_layout.addRow(QLabel('Customer ID:'), self.customer_id)
-        form_layout.addRow(QLabel('Worker ID:'), self.worker_id)
-        form_layout.addRow(QLabel('Status:'), self.status)
-        form_layout.addRow(QLabel('Date Received:'), self.date_received_input)
-
-        # Set the layout for the QGroupBox
+        form_layout = QFormLayout()
+        form_layout.addRow(QLabel("Order ID:"), self.order_id)
+        form_layout.addRow(QLabel("Products:"), self.products)
+        
+        form_layout1 = QFormLayout()
+        
+        form_layout1.addRow(QLabel("Customer ID:"), self.customer_id)
+        form_layout1.addRow(QLabel("Customer name:"), self.customer_name)
+        form_layout1.addRow(QLabel("Worker ID:"), self.worker_id)
+        form_layout1.addRow(QLabel("Date Recieved:"), self.date_received)
+        form_layout1.addRow(QLabel("Status:"), self.status)
+        
+        
+        form_layout2 = QFormLayout()
+        form_layout2.addRow(QLabel("Customer email:"), self.customer_email)
+        form_layout2.addRow(QLabel("Customer lastname:"), self.customer_lastname)
+        form_layout2.addRow(QLabel("Worker username:"), self.worker_username)
+        form_layout2.addRow(QLabel("Date processed:"), self.date_processed)
+        form_layout2.addRow(QLabel("Total price:"), self.total_price)
+        
         form.setLayout(form_layout)
-        form_layout.setAlignment(Qt.AlignTop)
+        form1.setLayout(form_layout1)
+        form2.setLayout(form_layout2)
+        
 
-        # Create the submit button
-        submit_button = QPushButton('Add Order')
-        submit_button.clicked.connect(self.add_order)
+        # # Create the form layout
+        # form_layout = QFormLayout()
+
+        # # Create the input fields
+        # self.customer_id = QLineEdit()
+        # self.worker_id = QLineEdit()
+        # self.status = QComboBox()
+        # self.status.addItems(["processed","received"])
+        
+        # self.date_received_input = QDateEdit()
+        # self.date_received_input.setCalendarPopup(True)
+        # self.date_received_input.setDate(QDate.currentDate())
+        
+
+        # # Add the input fields to the form layout
+        # form_layout.addRow(QLabel('Customer ID:'), self.customer_id)
+        # form_layout.addRow(QLabel('Worker ID:'), self.worker_id)
+        # form_layout.addRow(QLabel('Status:'), self.status)
+        # form_layout.addRow(QLabel('Date Received:'), self.date_received_input)
+
+        # # Set the layout for the QGroupBox
+        # form.setLayout(form_layout)
+        # form_layout.setAlignment(Qt.AlignTop)
+
+        # # Create the submit button
+        # submit_button = QPushButton('Add Order')
+        # submit_button.clicked.connect(self.add_order)
 
         # Create the main layout
         add_layout = QGridLayout()
         add_layout.addWidget(form, 0,0)
-        add_layout.addWidget(submit_button, 1, 0)
-        self.add_widget = QGroupBox('Add Order')
+        add_layout.addWidget(form1, 1,0)
+        add_layout.addWidget(form2, 1,1)
+        # add_layout.addWidget(submit_button, 1, 0)
+        self.add_widget = QGroupBox('More info')
         self.add_widget.setLayout(add_layout)
         add_layout.setAlignment(Qt.AlignTop)
         
@@ -299,44 +345,70 @@ class OrderPage(QWidget):
     def edit_order(self, row_position):
         print(row_position)
         self.select_row(row_position)
-        for col in range(7):
-            item = self.table.item(row_position, col)
-            item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
-            
-            
-        item = self.table.item(row_position, 4)
-        edit_status = QComboBox()
-        edit_status.addItems(["processed","received"])
-        edit_status.setCurrentText(item.text())
-        self.table.setCellWidget(row_position, 4, edit_status)
         
         item = self.table.item(row_position, 5)
-        edit_date_received = QDateEdit()
-        edit_date_received.setCalendarPopup(True)
-        if item.text():
-            edit_date_received.setDate(QDate.fromString(item.text(), Qt.ISODate))
-        self.table.setCellWidget(row_position, 5, edit_date_received)
         
-        
-        edit_widget = QWidget()
-        edit_layout = QGridLayout()
-        edit_widget.setLayout(edit_layout)
-        
-        update_button = QPushButton('Update')
-        update_button.clicked.connect(partial(self.update_order, row_position))
+        workers_to_assign = QComboBox()
+        workers_to_assign.addItems(self.worker_list()) # get all possible workers
+        # self.worker_list()
+        # workers_to_assign.setCurrentText(item.text())
+        self.table.setCellWidget(row_position, 5, workers_to_assign)
         
         revert_button = QPushButton('Revert')
         revert_button.clicked.connect(partial(self.revert_edit, row_position))
+        self.table.setCellWidget(row_position, 7, revert_button)
         
-        edit_layout.addWidget(revert_button, 0, 0)
-        edit_layout.addWidget(update_button, 0 ,1)
-        edit_layout.setColumnStretch(0, 1)
-        edit_layout.setColumnStretch(1, 1)
-        edit_layout.setRowStretch(0, 1)
-        edit_layout.setContentsMargins(0, 0, 0, 0)
-        edit_layout.setSpacing(0)
-        self.table.setCellWidget(row_position, 7, edit_widget)
+        # for col in range(7):
+        #     item = self.table.item(row_position, col)
+        #     item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
+            
+            
+        # item = self.table.item(row_position, 4)
+        # edit_status = QComboBox()
+        # edit_status.addItems(["processed","received"])
+        # edit_status.setCurrentText(item.text())
+        # self.table.setCellWidget(row_position, 4, edit_status)
         
+        # item = self.table.item(row_position, 5)
+        # edit_date_received = QDateEdit()
+        # edit_date_received.setCalendarPopup(True)
+        # if item.text():
+        #     edit_date_received.setDate(QDate.fromString(item.text(), Qt.ISODate))
+        # self.table.setCellWidget(row_position, 5, edit_date_received)
+        
+        
+        # edit_widget = QWidget()
+        # edit_layout = QGridLayout()
+        # edit_widget.setLayout(edit_layout)
+        
+        # update_button = QPushButton('Update')
+        # update_button.clicked.connect(partial(self.update_order, row_position))
+        
+        # revert_button = QPushButton('Revert')
+        # revert_button.clicked.connect(partial(self.revert_edit, row_position))
+        
+        # edit_layout.addWidget(revert_button, 0, 0)
+        # edit_layout.addWidget(update_button, 0 ,1)
+        # edit_layout.setColumnStretch(0, 1)
+        # edit_layout.setColumnStretch(1, 1)
+        # edit_layout.setRowStretch(0, 1)
+        # edit_layout.setContentsMargins(0, 0, 0, 0)
+        # edit_layout.setSpacing(0)
+        # self.table.setCellWidget(row_position, 7, edit_widget)
+    def worker_list(self):
+        response = requests.get('http://localhost:8080/api/workers')
+
+        if response.status_code == 200:
+            workers = response.json()
+            workers_list = [f"{item['username']}, id: {item['id']}" for item in workers]
+            return workers_list
+        else:
+            body = json.loads(response.text)
+            mess = body.get('message')
+            self.writeToConsole(f'Error: {mess}')
+            return None
+        
+    
     def select_row(self, row):
         self.table.setSelectionMode(QTableWidget.SingleSelection)
         self.table.selectRow(row)
