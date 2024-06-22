@@ -131,7 +131,6 @@ class ProductPage(QWidget):
         # self.add_widget.setMaximumHeight(200)
         add_layout.setAlignment(Qt.AlignTop)
         
-        
     def _init_table(self):
         self.table_scrollArea.setWidget(self.table)
         self.table_scrollArea.setWidgetResizable(True)
@@ -150,9 +149,6 @@ class ProductPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
-        
-     
-    
     def filter_table_by_category(self, cat_id):
         print(f"--------product_page_filter_cat: {cat_id}")
         if cat_id == "ALL":
@@ -200,7 +196,6 @@ class ProductPage(QWidget):
             self.load_products()    
             
     def add_product(self):
-
         name = self.product_name.text()
         price = self.price.text()
         category_id = self.category.currentData()

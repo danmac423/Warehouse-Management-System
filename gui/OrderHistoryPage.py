@@ -180,9 +180,7 @@ class OrderHistoryPage(QWidget):
         self.more_widget = QGroupBox('More info')
         self.more_widget.setLayout(more_layout)
         more_layout.setAlignment(Qt.AlignTop)
-        
-        
-        
+          
     def _init_table(self):
         self.table_scrollArea.setWidget(self.table)
         self.table_scrollArea.setWidgetResizable(True)
@@ -205,15 +203,21 @@ class OrderHistoryPage(QWidget):
         emailSubstring = self.search_customer_email.text()
         usernameSubstring = self.search_worker_username.text()
         
-        print(f"customerEmail/{emailSubstring}")
-        print(f"WorkerUsername/{usernameSubstring}")
+        if emailSubstring and usernameSubstring:
+            response = requests.get(f'http://localhost:8080/api/ordersHistory/formated/email/{emailSubstring}/username/{usernameSubstring}')
+        elif emailSubstring:
+            response = requests.get(f'http://localhost:8080/api/ordersHistory/formated/email/{emailSubstring}')
+        elif usernameSubstring:
+            response = requests.get(f'http://localhost:8080/api/ordersHistory/formated/username/{usernameSubstring}')
+        else:
+            self.load_ordersHistory()
+            return
         
-        response = requests.get(f'http://localhost:8080/api/ordersHistory/formated/email/{emailSubstring}/username/{usernameSubstring}')
         print(response.status_code)
         if response.status_code == 200:
             ordersHistory = response.json()
             self.populate_table(ordersHistory)
-            self.writeToConsole("ordersHistory filtered sucessfully")
+            self.writeToConsole(f"Orders history filtered by email: \'{emailSubstring}\' and worker: \'{usernameSubstring}\'")
         else:
             body = json.loads(response.text)
             mess = body.get('message')
@@ -255,8 +259,6 @@ class OrderHistoryPage(QWidget):
             more_button.clicked.connect(partial(self.show_more, row_position))
             self.table.setCellWidget(row_position, 5, more_button)
 
-        
-
     def load_ordersHistory(self):
         response = requests.get('http://localhost:8080/api/ordersHistory/formated')
         print(response.status_code)
@@ -272,8 +274,7 @@ class OrderHistoryPage(QWidget):
             body = json.loads(response.text)
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
-                    
-        
+                            
     def clear_more_list(self):
         self.more_widget.setTitle("More info")
         for item in self.more_list:
@@ -297,7 +298,6 @@ class OrderHistoryPage(QWidget):
             mess2 = body2.get('message')
             self.writeToConsole(f'Error: {mess} and {mess2}')
         
-    
     def populate_more_info(self, order, products):
         self.clear_more_list()
         self.more_widget.setTitle(f"More info on Order ID: {order['id']}")

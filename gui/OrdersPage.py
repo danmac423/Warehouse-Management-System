@@ -210,16 +210,30 @@ class OrderPage(QWidget):
         print(f"customerEmail/{emailSubstring}")
         print(f"WorkerUsername/{usernameSubstring}")
         
-        response = requests.get(f'http://localhost:8080/api/orders/customerEmail/{emailSubstring}/WorkerUsername/{usernameSubstring}')
+        if emailSubstring and usernameSubstring:
+            response = requests.get(f'http://localhost:8080/api/ordersViews/customerEmail/{emailSubstring}/workerUsername/{usernameSubstring}')
+        elif emailSubstring:
+            response = requests.get(f'http://localhost:8080/api/ordersViews/customerEmail/{emailSubstring}')
+        elif usernameSubstring:
+            response = requests.get(f'http://localhost:8080/api/ordersViews/workerUsername/{usernameSubstring}')
+        else:
+            self.load_orders()
+            return
+
         print(response.status_code)
         if response.status_code == 200:
             orders = response.json()
             self.populate_table(orders)
-            self.writeToConsole("Orders filtered sucessfully")
+            self.writeToConsole(f"Orders filtered by email: \'{emailSubstring}\' and worker: \'{usernameSubstring}\'")
         else:
-            body = json.loads(response.text)
-            mess = body.get('message')
-            self.writeToConsole(f'Error: {mess}')
+            if response.status_code == 404:
+                self.writeToConsole(f"No orders found under email: \'{emailSubstring}\' and worker: \'{usernameSubstring}\'")
+                self.table.clearContents()
+                self.table.setRowCount(0)
+            else: 
+                body = json.loads(response.text)
+                mess = body.get('message')
+                self.writeToConsole(f'Error: {mess}')
     
     def populate_table(self, orders):
         self.table.clearContents()

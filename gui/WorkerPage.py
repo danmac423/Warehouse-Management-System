@@ -40,9 +40,13 @@ class WorkerPage(QWidget):
         self._init_console()
         
         self.search_widget = QGroupBox("Search workers")
+        self.search_bar = QLineEdit(self)
+        self.search_bar.setPlaceholderText("Search workers by username")
+        self.search_bar.textChanged.connect(lambda text: self.filter_table_by_name(text))
         # self.search_widget.setMinimumHeight(50)
         # self.search_widget.setMaximumHeight(100)
         self.serach_layout = QGridLayout(self.search_widget)
+        self.serach_layout.addWidget(self.search_bar)
         self.serach_layout.setAlignment(Qt.AlignTop)
     
         
@@ -143,7 +147,6 @@ class WorkerPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
-
     
             
     def add_worker(self):
@@ -215,7 +218,25 @@ class WorkerPage(QWidget):
             delete_button = QPushButton('Delete')
             delete_button.clicked.connect(partial(self.delete_worker, row_position))
             self.table.setCellWidget(row_position, 7, delete_button)
-        
+    
+    def filter_table_by_name(self, name):
+        if name:
+            response = requests.get(f'http://localhost:8080/api/workers/username/{name}')
+            if response.status_code == 200:
+                workers = response.json()
+                self.populate_table(workers)
+                self.writeToConsole(f"Workers filtered by \'{name}\'")
+            else:
+                if response.status_code == 404:
+                    self.writeToConsole(f'Error: No workers found under \'{name}\'')
+                    self.table.clearContents()
+                    self.table.setRowCount(0)
+                else: 
+                    body = json.loads(response.text)
+                    mess = body.get('message')
+                    self.writeToConsole(f'Error: {mess}')
+        else:
+            self.load_workers()            
 
     def load_workers(self):
         response = requests.get('http://localhost:8080/api/workers')

@@ -166,12 +166,21 @@ class SuppliesPage(QWidget):
         supplierSubstring = self.search_supplier_name.text()
         usernameSubstring = self.search_worker_username.text()
         
-        response = requests.get(f'http://localhost:8080/api/supplies/formated/supplier/{supplierSubstring}/username/{usernameSubstring}')
+        if supplierSubstring and usernameSubstring:
+            response = requests.get(f'http://localhost:8080/api/supplies/formated/supplier/{supplierSubstring}/username/{usernameSubstring}')
+        elif supplierSubstring:
+            response = requests.get(f'http://localhost:8080/api/supplies/formated/supplier/{supplierSubstring}')
+        elif usernameSubstring:
+            response = requests.get(f'http://localhost:8080/api/supplies/formated/username/{usernameSubstring}')
+        else:
+            self.load_supplies()
+            return
+        
         print(response.status_code)
         if response.status_code == 200:
             supplies = response.json()
             self.populate_table(supplies)
-            self.writeToConsole("supplies filtered sucessfully")
+            self.writeToConsole(f"Supplies filtered by supplier: \'{supplierSubstring}\' and worker: \'{usernameSubstring}\'")
         else:
             body = json.loads(response.text)
             mess = body.get('message')
@@ -396,6 +405,7 @@ class SuppliesPage(QWidget):
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
             return None
+    
     
     # def update_supply(self, row_position):
         

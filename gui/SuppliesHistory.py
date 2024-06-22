@@ -133,7 +133,7 @@ class SuppliesHistoryPage(QWidget):
         if response.status_code == 200:
             supplies = response.json()
             self.populate_table(supplies)
-            self.writeToConsole("supplies filtered sucessfully")
+            self.writeToConsole(f"Supplies history filtered by supplier: \'{supplierSubstring}\' and worker: \'{usernameSubstring}\'")
         else:
             body = json.loads(response.text)
             mess = body.get('message')
