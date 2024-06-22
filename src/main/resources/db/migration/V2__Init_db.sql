@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS public.products
 (
     id bigserial NOT NULL,
-    name character(100) NOT NULL,
+    name character varying(100) NOT NULL,
     price numeric(7, 2) NOT NULL DEFAULT 0,
     category_id bigserial NOT NULL,
     stock integer NOT NULL DEFAULT 0,
