@@ -95,5 +95,19 @@ public class WorkerDao {
                 .stream().findFirst();
     }
 
+    public List<Worker> getWorkersByUsername(String username) {
+        var sql = """
+                SELECT *
+                FROM workers
+                WHERE username LIKE ? AND
+                    role != 'ADMIN'
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new WorkerMapper(),
+                "%" + username + "%"
+        );
+    }
+
 
 }

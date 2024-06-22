@@ -33,7 +33,7 @@ public class OrderViewController {
         return new ResponseEntity<>(orderService.getOrdersByCustomerEmailSubstring(emailSubstring), HttpStatus.OK);
     }
 
-    @GetMapping("/customerEmail/{emailSubstring}/WorkerUsername/{usernameSubstring}")
+    @GetMapping("/customerEmail/{emailSubstring}/workerUsername/{usernameSubstring}")
     public ResponseEntity<List<OrderView>> getOrdersByCustomerEmailWorkerUsernameSubstring(@PathVariable String emailSubstring, @PathVariable String usernameSubstring) {
         return new ResponseEntity<>(orderService.getOrdersByCustomerEmailWorkerUsernameSubstring(emailSubstring, usernameSubstring), HttpStatus.OK);
     }

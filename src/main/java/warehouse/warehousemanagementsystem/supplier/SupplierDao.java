@@ -100,4 +100,59 @@ public class SupplierDao {
                 supplier.id()
         );
     }
+
+    public List<SupplierView> getAllSuppliersViews() {
+        var sql = """
+                SELECT
+                    suppliers.id,
+                    suppliers.name,
+                    addresses.id AS address_id,
+                    addresses.street,
+                    addresses.house_nr,
+                    addresses.postal_code,
+                    addresses.city,
+                	addresses.country
+                FROM
+                    suppliers
+                LEFT JOIN
+                    addresses ON addresses.id = suppliers.address_id
+                GROUP BY
+                    suppliers.id, suppliers.name, addresses.id, addresses.street, addresses.house_nr,
+                	addresses.postal_code, addresses.city, addresses.country
+                ORDER BY
+                    suppliers.id;""";
+        return jdbcTemplate.query(
+                sql,
+                new SupplierViewMapper()
+        );
+    }
+
+
+    public List<SupplierView> getSuppliersViewsByName(String name) {
+        var sql = """
+                SELECT
+                    suppliers.id,
+                    suppliers.name,
+                    addresses.id AS address_id,
+                    addresses.street,
+                    addresses.house_nr,
+                    addresses.postal_code,
+                    addresses.city,
+                	addresses.country
+                FROM
+                    suppliers
+                LEFT JOIN
+                    addresses ON addresses.id = suppliers.address_id
+                WHERE suppliers.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?)))
+                GROUP BY
+                    suppliers.id, suppliers.name, addresses.id, addresses.street, addresses.house_nr,
+                	addresses.postal_code, addresses.city, addresses.country
+                ORDER BY
+                    suppliers.id;""";
+        return jdbcTemplate.query(
+                sql,
+                new SupplierViewMapper(),
+                "%" + name + "%"
+        );
+    }
 }

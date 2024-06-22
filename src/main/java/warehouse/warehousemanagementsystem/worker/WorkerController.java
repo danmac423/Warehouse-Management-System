@@ -41,4 +41,10 @@ public class WorkerController {
         return new ResponseEntity<>("Worker updated successfully", HttpStatus.OK);
     }
 
+    @GetMapping("/username/{username}")
+    public ResponseEntity<List<Worker>> getWorkersByUsername(@PathVariable String username) {
+        return new ResponseEntity<>(workerService.getWorkerByUsername(username), HttpStatus.OK);
+    }
+
+
 }

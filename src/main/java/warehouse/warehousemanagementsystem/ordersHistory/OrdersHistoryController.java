@@ -35,6 +35,11 @@ public class OrdersHistoryController {
         return ordersHistoryService.getOrdersByCustomer(email);
     }
 
+    @GetMapping("/formated")
+    public List<OrdersHistoryView> getOrdersViews() {
+        return ordersHistoryService.getAllOrdersViews();
+    }
+
     @GetMapping("/formated/email/{email}")
     public List<OrdersHistoryView> getOrdersViewByCustomer(@PathVariable String email) {
         return ordersHistoryService.getOrdersViewByEmail(email);
@@ -48,5 +53,10 @@ public class OrdersHistoryController {
     @GetMapping("/formated/email/{email}/username/{username}")
     public List<OrdersHistoryView> getOrderViewByUsernameAndEmail(@PathVariable String email, @PathVariable String username) {
         return ordersHistoryService.getOrdersViewByEmailAndUsername(email, username);
+    }
+
+    @GetMapping("/formated/orderId/{orderId}")
+    public List<OrdersHistoryView> getOrderViewByOrderId(@PathVariable Long orderId) {
+        return ordersHistoryService.getOrdersViewByOrderId(orderId);
     }
 }
