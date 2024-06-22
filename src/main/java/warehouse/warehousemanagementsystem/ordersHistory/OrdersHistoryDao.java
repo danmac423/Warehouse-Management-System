@@ -57,35 +57,38 @@ public class OrdersHistoryDao {
     }
 
     // zapytac czy musze robic kolejny view
-    public List<OrderViewGeneral> getAllOrdersViews() {
+    public List<OrdersHistoryView> getAllOrdersViews() {
         var sql = """
                 SELECT
-                    orders.id,
+                    orders_history.id,
+                    orders_history.customer_id,
+                    customer.name AS customer_name,
+                    customer.last_name,
                     customer.email,
-                    orders.date_processed,
-                    orders.status,
-                    orders.date_received,
-                    workers.username,
-                    COALESCE(SUM(product.price * products_orders.amount), 0) AS total_price
+                    orders_history.date_processed,
+                    orders_history.worker_id,
+                	workers.username,
+                    orders_history.date_received,
+                    COALESCE(SUM(product.price * products_orders_history.amount), 0) AS total_price
                 FROM
-                    orders
+                    orders_history
                 LEFT JOIN
-                    products_orders ON orders.id = products_orders.order_id
+                    products_orders_history ON orders_history.id = products_orders_history.order_id
                 LEFT JOIN
-                    products product ON products_orders.product_id = product.id
+                    products product ON products_orders_history.product_id = product.id
                 LEFT JOIN
-                    customers customer ON orders.customer_id = customer.id
+                    customers customer ON orders_history.customer_id = customer.id
                 LEFT JOIN
-                    workers ON orders.worker_id = workers.id
+                    workers ON orders_history.worker_id = workers.id
                 GROUP BY
-                    orders.id, orders.customer_id, customer.name, customer.last_name, customer.email,
-                    orders.date_processed, orders.worker_id, workers.username, orders.status, orders.date_received
+                    orders_history.id, orders_history.customer_id, customer.name, customer.last_name, customer.email,
+                    orders_history.date_processed, orders_history.worker_id, workers.username, orders_history.date_received
                 ORDER BY
-                    orders.id;
+                    orders_history.id;
                 """;
         return jdbcTemplate.query(
                 sql,
-                new OrderViewGeneralMapper()
+                new OrdersHistoryViewMapper()
         );
     }
 
@@ -112,7 +115,6 @@ public class OrdersHistoryDao {
                     customers customer ON orders_history.customer_id = customer.id
                 LEFT JOIN
                     workers ON orders_history.worker_id = workers.id
-                WHERE worker_id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
                 GROUP BY
                     orders_history.id, orders_history.customer_id, customer.name, customer.last_name, customer.email,
                     orders_history.date_processed, orders_history.worker_id, workers.username, orders_history.date_received

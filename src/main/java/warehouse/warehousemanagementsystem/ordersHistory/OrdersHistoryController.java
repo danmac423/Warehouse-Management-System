@@ -35,6 +35,11 @@ public class OrdersHistoryController {
         return ordersHistoryService.getOrdersByCustomer(email);
     }
 
+    @GetMapping("/formated")
+    public List<OrdersHistoryView> getOrdersViews() {
+        return ordersHistoryService.getAllOrdersViews();
+    }
+
     @GetMapping("/formated/email/{email}")
     public List<OrdersHistoryView> getOrdersViewByCustomer(@PathVariable String email) {
         return ordersHistoryService.getOrdersViewByEmail(email);
