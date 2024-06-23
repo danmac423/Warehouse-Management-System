@@ -24,8 +24,8 @@ public class SupplierService {
         this.addressDao = addressDao;
     }
 
-    public List<Supplier> getAllSupplies() {
-        return supplierDao.getAllSuppliers();
+    public List<Supplier> getSupplies(String supplierName, String country, String city) {
+        return supplierDao.getSuppliers(supplierName, country, city);
     }
 
     @Transactional
@@ -72,10 +72,6 @@ public class SupplierService {
         if (result != 1) {
             throw new DatabaseException("Failed to delete supplier");
         }
-    }
-
-    public List<Supplier> getSuppliersByName(String name) {
-        return supplierDao.getSuppliersByName(name);
     }
 
     @Transactional

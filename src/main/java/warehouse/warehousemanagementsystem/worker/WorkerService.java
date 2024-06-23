@@ -32,8 +32,8 @@ public class WorkerService {
         }
     }
 
-    public List<Worker> getAllWorkers() {
-        return workerDao.getAllWorkers();
+    public List<Worker> getWorkers(String username, String role) {
+        return workerDao.getWorkers(username, role);
     }
 
     public void addWorker(Worker worker) {
@@ -79,7 +79,4 @@ public class WorkerService {
         }
     }
 
-    public List<Worker> getWorkersByUsername(String username) {
-        return workerDao.getWorkersByUsername(username);
-    }
 }

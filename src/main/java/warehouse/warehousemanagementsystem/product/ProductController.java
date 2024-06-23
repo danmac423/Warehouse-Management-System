@@ -18,25 +18,12 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return ResponseEntity.status(HttpStatus.OK).body(productService.getAllProducts());
+    public ResponseEntity<List<Product>> getProducts(
+            @RequestParam(required = false) String productName,
+            @RequestParam(required = false) Long categoryId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(productService.getProducts(productName, categoryId));
     }
-
-    @GetMapping("/categoryId/{categoryId}")
-    public List<Product> getProductsByCategoryId(@PathVariable Long categoryId) {
-        return productService.getProductsByCategoryId(categoryId);
-    }
-
-    @GetMapping("/productName/{productName}")
-    public List<Product> getProductsByProductCame(@PathVariable String productName) {
-        return productService.getProductsByProductName(productName);
-    }
-
-    @GetMapping("/categoryId/{categoryId}/productName/{productName}")
-    public List<Product> getProductsByCategoryIdAndProductName(@PathVariable Long categoryId, @PathVariable String productName) {
-        return productService.getProductsByCategoryIdAndProductName(categoryId, productName);
-    }
-
 
 
     @PostMapping

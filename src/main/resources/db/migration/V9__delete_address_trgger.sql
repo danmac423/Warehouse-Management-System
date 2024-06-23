@@ -4,7 +4,7 @@ AS
 $$
 BEGIN
     DELETE FROM addresses 
-    WHERE id = OLD.id;  
+    WHERE id = OLD.address_id;
     
     RETURN OLD;  
 END;

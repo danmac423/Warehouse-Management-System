@@ -16,15 +16,31 @@ public class SupplierDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Supplier> getAllSuppliers() {
+    public List<Supplier> getSuppliers(String supplierName, String country, String city) {
+        if (supplierName == null) {
+            supplierName = "";
+        }
+        if (country == null) {
+            country = "";
+        }
+        if (city == null) {
+            city = "";
+        }
         var sql = """
                     SELECT suppliers.id AS supplier_id, suppliers.name, addresses.id AS address_id, addresses.street, addresses.house_nr, addresses.postal_code, addresses.city, addresses.country
                     FROM suppliers LEFT JOIN addresses ON addresses.id = suppliers.address_id
+                    WHERE
+                       LOWER(suppliers.name) LIKE LOWER(?) AND
+                       LOWER(addresses.country) LIKE LOWER(?) AND
+                       LOWER(addresses.city) LIKE LOWER(?)
                     ORDER BY suppliers.id
-               """;
+              """;
         return jdbcTemplate.query(
                 sql,
                 new SupplierMapper()
+                , "%" + supplierName + "%"
+                , "%" + country + "%"
+                , "%" + city + "%"
         );
     }
 
@@ -93,19 +109,6 @@ public class SupplierDao {
         );
     }
 
-    public List<Supplier> getSuppliersByName(String name) {
-        var sql = """
-                SELECT suppliers.id AS supplier_id, suppliers.name, addresses.id AS address_id, addresses.street, addresses.house_nr, addresses.postal_code, addresses.city, addresses.country
-                FROM suppliers LEFT JOIN addresses ON addresses.id = suppliers.address_id
-                WHERE LOWER(suppliers.name) like LOWER(?)
-                ORDER BY suppliers.id
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new SupplierMapper(),
-                "%" + name + "%"
-        );
-    }
 
     public Supplier updateSupplier(Supplier supplier) {
         var sql = """
