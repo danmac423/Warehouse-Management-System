@@ -17,15 +17,24 @@ public class WorkerDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Worker> getAllWorkers() {
+    public List<Worker> getWorkers(String username, String role) {
+        if (username == null) {
+            username = "";
+        }
+        if (role == null) {
+            role = "";
+        }
         var sql = """
                 SELECT * FROM workers
+                WHERE LOWER(username) LIKE LOWER(?) AND LOWER(role) LIKE LOWER(?)
                 ORDER BY id
                 """;
 
         return jdbcTemplate.query(
                 sql,
-                new WorkerMapper()
+                new WorkerMapper(),
+                "%" + username + "%",
+                "%" + role + "%"
         );
     }
 
@@ -93,20 +102,6 @@ public class WorkerDao {
 
         return jdbcTemplate.query(sql, new WorkerMapper(), username)
                 .stream().findFirst();
-    }
-
-    public List<Worker> getWorkersByUsername(String username) {
-        var sql = """
-                SELECT *
-                FROM workers
-                WHERE username LIKE ?
-                ORDER BY id
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new WorkerMapper(),
-                "%" + username + "%"
-        );
     }
 
 

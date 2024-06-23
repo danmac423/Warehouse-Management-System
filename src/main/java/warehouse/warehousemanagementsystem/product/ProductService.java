@@ -24,34 +24,10 @@ public class ProductService {
         this.categoryDao = categoryDao;
     }
 
-    public List<Product> getAllProducts() {
-        return productDao.getAllProducts();
+    public List<Product> getProducts(String productName, Long categoryId) {
+        return productDao.getProducts(productName, categoryId);
     }
 
-
-    public List<Product> getProductsByCategoryId(Long categoryId) {
-        var products =  productDao.getProductsByCategoryId(categoryId);
-        if (products.isEmpty()) {
-            throw new NotFoundException("No products found");
-        }
-        return products;
-    }
-
-    public List<Product> getProductsByProductName(String productName) {
-        var products = productDao.getProductsByProductName(productName);
-        if (products.isEmpty()) {
-            throw new NotFoundException("No products found");
-        }
-        return products;
-    }
-
-    public List<Product> getProductsByCategoryIdAndProductName(Long categoryId, String substring) {
-        var products = productDao.getProductsByCategoryIdAndProductName(categoryId, substring);
-        if (products.isEmpty()) {
-            throw new NotFoundException("No products found");
-        }
-        return products;
-    }
 
     public Product addProduct(Product product) {
 

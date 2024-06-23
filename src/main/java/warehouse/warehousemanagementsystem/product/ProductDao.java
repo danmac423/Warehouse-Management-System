@@ -16,7 +16,13 @@ public class ProductDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Product> getAllProducts() {
+    public List<Product> getProducts(String productName, Long categoryId) {
+        if (productName == null) {
+            productName = "";
+        }
+        if (categoryId == null) {
+            categoryId = 0L;
+        }
         var sql = """
                 SELECT
                     products.id AS product_id,
@@ -32,12 +38,17 @@ public class ProductDao {
                     categories
                     ON
                         products.category_id = categories.id
+                WHERE LOWER(products.name) LIKE LOWER(?) AND
+                        (products.category_id = ? OR ? = 0)
                 ORDER BY
                 products.id;
                 """;
         return jdbcTemplate.query(
                 sql,
                 new ProductMapper()
+                , "%" + productName + "%"
+                , categoryId
+                , categoryId
         );
     }
 
@@ -135,84 +146,6 @@ public class ProductDao {
         return getProductById(product.id()).get();
     }
 
-    public List<Product> getProductsByCategoryId(Long categoryId) {
-        var sql = """
-                SELECT
-                    products.id AS product_id,
-                    products.name AS product_name,
-                    products.price AS product_price,
-                    products.stock AS product_stock,
-                    categories.id AS category_id,
-                    categories.name AS category_name,
-                    (SELECT COUNT(*) FROM products p WHERE p.category_id = categories.id) AS product_count
-                FROM
-                    products
-                        LEFT JOIN
-                    categories
-                    ON
-                        products.category_id = categories.id
-                WHERE products.category_id = ?
-                ORDER BY products.id
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new ProductMapper(),
-                categoryId
-        );
-    }
-
-    public List<Product> getProductsByProductName(String substring) {
-        var sql = """
-                SELECT
-                    products.id AS product_id,
-                    products.name AS product_name,
-                    products.price AS product_price,
-                    products.stock AS product_stock,
-                    categories.id AS category_id,
-                    categories.name AS category_name,
-                    (SELECT COUNT(*) FROM products p WHERE p.category_id = categories.id) AS product_count
-                FROM
-                    products
-                        LEFT JOIN
-                    categories
-                    ON
-                        products.category_id = categories.id
-                WHERE LOWER(products.name) LIKE LOWER(?)
-                ORDER BY products.id
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new ProductMapper(),
-                "%" + substring + "%"
-        );
-    }
-
-    public List<Product> getProductsByCategoryIdAndProductName(Long categoryId, String substring) {
-        var sql = """
-                SELECT
-                    products.id AS product_id,
-                    products.name AS product_name,
-                    products.price AS product_price,
-                    products.stock AS product_stock,
-                    categories.id AS category_id,
-                    categories.name AS category_name,
-                    (SELECT COUNT(*) FROM products p WHERE p.category_id = categories.id) AS product_count
-                FROM
-                    products
-                        LEFT JOIN
-                    categories
-                    ON
-                        products.category_id = categories.id
-                WHERE products.category_id = ? AND LOWER(products.name) LIKE LOWER(?)
-                ORDER BY products.id
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new ProductMapper(),
-                categoryId,
-                "%" + substring + "%"
-        );
-    }
 
 //
 //    public List<ProductInOrder> getProductsByOrder(Long orderId) {
