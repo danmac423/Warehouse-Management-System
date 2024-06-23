@@ -2,6 +2,7 @@ package warehouse.warehousemanagementsystem.supply;
 
 import org.springframework.jdbc.core.RowMapper;
 import warehouse.warehousemanagementsystem.address.Address;
+import warehouse.warehousemanagementsystem.category.Category;
 import warehouse.warehousemanagementsystem.product.Product;
 import warehouse.warehousemanagementsystem.supplier.Supplier;
 import warehouse.warehousemanagementsystem.worker.Worker;
@@ -27,21 +28,31 @@ public class SupplyMapper implements RowMapper<Supply>{
                 address
         );
 
-        Worker worker = new Worker(
-                rs.getLong("worker_id"),
-                rs.getString("username"),
-                rs.getString("password"),
-                rs.getString("worker_name"),
-                rs.getString("worker_last_name"),
-                rs.getString("role")
+        Worker worker;
+        if (rs.getInt("worker_id") != 0) {
+            worker = new Worker(
+                    rs.getLong("worker_id"),
+                    rs.getString("username"),
+                    rs.getString("password"),
+                    rs.getString("worker_name"),
+                    rs.getString("worker_last_name"),
+                    rs.getString("role")
+            );
+        } else {
+            worker = null;
+        }
+
+        Category category = new Category(
+                rs.getLong("category_id"),
+                rs.getString("category_name"),
+                rs.getInt("product_count")
         );
 
         Product product = new Product(
                 rs.getLong("product_id"),
                 rs.getString("product_name"),
                 rs.getBigDecimal("price"),
-                rs.getLong("category_id"),
-                rs.getString("category_name"),
+                category,
                 rs.getInt("stock")
         );
 

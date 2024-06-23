@@ -1,6 +1,9 @@
 package warehouse.warehousemanagementsystem.product;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import warehouse.warehousemanagementsystem.category.Category;
+import warehouse.warehousemanagementsystem.category.CategoryDao;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.ConflictException;
 import warehouse.warehousemanagementsystem.exception.DatabaseException;
@@ -13,14 +16,18 @@ import java.util.Optional;
 @Service
 public class ProductService {
     private final ProductDao productDao;
+    private final CategoryDao categoryDao;
 
-    public ProductService(ProductDao productDao) {
+    @Autowired
+    public ProductService(ProductDao productDao, CategoryDao categoryDao) {
         this.productDao = productDao;
+        this.categoryDao = categoryDao;
     }
 
     public List<Product> getAllProducts() {
         return productDao.getAllProducts();
     }
+
 
     public List<Product> getProductsByCategoryId(Long categoryId) {
         var products =  productDao.getProductsByCategoryId(categoryId);
@@ -30,8 +37,8 @@ public class ProductService {
         return products;
     }
 
-    public List<Product> getProductsByProductName(String substring) {
-        var products = productDao.getProductsByProductName(substring);
+    public List<Product> getProductsByProductName(String productName) {
+        var products = productDao.getProductsByProductName(productName);
         if (products.isEmpty()) {
             throw new NotFoundException("No products found");
         }
@@ -46,12 +53,19 @@ public class ProductService {
         return products;
     }
 
-    public void addProduct(Product product) {
+    public Product addProduct(Product product) {
+
+        Category category = product.category();
         if (product.name().isEmpty()
             || product.price() == null
-            || product.categoryId() == null) {
+            || category.id() == null) {
             throw new BadRequestException("All fields are required");
         }
+
+        if (categoryDao.getCategoryById(category.id()).isEmpty()) {
+            throw new NotFoundException("Category not found");
+        }
+
         if (product.stock() < 0) {
             throw new BadRequestException("Stock cannot be negative");
         }
@@ -61,9 +75,8 @@ public class ProductService {
         if (productDao.getProductByName(product).isPresent()) {
             throw new ConflictException("Product with this name already exists");
         }
-        if (productDao.addProduct(product) != 1) {
-            throw new DatabaseException("Failed to add product");
-        }
+
+        return productDao.addProduct(product);
     }
 
     public void deleteProduct(Long id) {
@@ -82,12 +95,17 @@ public class ProductService {
         }
     }
 
-    public void updateProduct(Product product) {
+    public Product updateProduct(Product product) {
+        Category category = product.category();
         Product currentProduct = productDao.getProductById(product.id()).orElseThrow(() -> new NotFoundException("Product not found"));
         if (product.name().isEmpty()
                 || product.price() == null
-                || product.categoryId() == null) {
+                || product.stock() == 0
+                || category.id() == null) {
             throw new BadRequestException("All fields are required");
+        }
+        if (categoryDao.getCategoryById(category.id()).isEmpty()) {
+            throw new NotFoundException("Category not found");
         }
         if (product.stock() < 0) {
             throw new BadRequestException("Stock cannot be negative");
@@ -98,14 +116,12 @@ public class ProductService {
         if (productDao.getProductByName(product).isPresent() && !currentProduct.name().startsWith(product.name())) {
             throw new ConflictException("Product with this name already exists");
         }
-        if (productDao.updateProduct(product) != 1) {
-            throw new DatabaseException("Failed to update product");
-        }
+        return productDao.updateProduct(product);
     }
-
-    public List<ProductInOrder> getProductsByOrder(Long orderId) {
-        return productDao.getProductsByOrder(orderId);
-    }
-
-    public List<ProductInOrder> getProductsByOrderHistory(Long orderId) { return productDao.getProductsByOrderHistory(orderId); }
+//
+//    public List<ProductInOrder> getProductsByOrder(Long orderId) {
+//        return productDao.getProductsByOrder(orderId);
+//    }
+//
+//    public List<ProductInOrder> getProductsByOrderHistory(Long orderId) { return productDao.getProductsByOrderHistory(orderId); }
 }
