@@ -119,7 +119,7 @@ class SuppliesPage(QWidget):
         
         self.table.setColumnCount(11)
          # ['ID', 'Supplier name', 'Worker', 'Status', 'Expected', 'Arrival', 'Product ID', 'Amount', 'Confirm', 'Assign', 'Delete']
-        self.table.setHorizontalHeaderLabels(['ID', 'Supplier name', 'Worker', 'Status', 'Expected', 'Arrival', 'Product', 'Amount', 'Confirm', 'Assign', 'Delete'])
+        self.table.setHorizontalHeaderLabels(['ID', 'Supplier name', 'Worker', 'Status', 'Expected', 'Arrival', 'Product', 'Amount', 'Confirm Arrival', 'Assign', 'Delete'])
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch) 
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
@@ -234,7 +234,7 @@ class SuppliesPage(QWidget):
             self.table.setItem(row_position, 7, item)
             
             confirm_button = QPushButton('Confirm')
-            confirm_button.clicked.connect(partial(self.confirm_supply, row_position))
+            confirm_button.clicked.connect(partial(self.edit_confirm_supply, row_position))
             self.table.setCellWidget(row_position, 8, confirm_button)
             
             assign_button = QPushButton('Assign')
@@ -317,40 +317,41 @@ class SuppliesPage(QWidget):
         self.writeToConsole("Reverted edit")
         
     def confirm_supply(self, row_position):
-        pass
+        supply_id = self.table.item(row_position, 0).text() 
+        status = self.table.item(row_position, 3).text() 
+        
+        headers = {'Content-Type': 'application/json'}
+        data = json.dumps({'id': supply_id, 'status': status})
+        response = requests.put('http://localhost:8080/api/supplies/acknowledge', headers=headers, data=data)
+
+        if response.status_code == 200:
+            self.load_supplies()
+            self.writeToConsole(f'Confirmation of arrival supply id: {supply_id} successfully done')
+        else:
+            body = json.loads(response.text)
+            mess = body.get('message')
+            self.writeToConsole(f'Error: {mess}')
     
-    # def edit_confirm_supply(self, row_position):
-    #     self.select_row(row_position)
+    def edit_confirm_supply(self, row_position):
+        self.select_row(row_position)
+            
+        confirm_button = QPushButton('Confirm')
+        confirm_button.clicked.connect(lambda: self.confirm_supply(row_position))
         
-    #     item = self.table.item(row_position, 2)
+        revert_button = QPushButton('Revert')
+        revert_button.clicked.connect(partial(self.revert_edit, row_position))
         
-    #     workers_to_assign = QComboBox()
-    #     workers = self.worker_list()
-        
-    #     for worker in workers:
-    #         workers_to_assign.addItem(worker[0], worker[1]) # get all possible workers
-        
-    #     if item.text():
-    #         workers_to_assign.setCurrentText(item.text())
-    #     self.table.setCellWidget(row_position, 2, workers_to_assign)
-        
-    #     assign_button = QPushButton('Update')
-    #     assign_button.clicked.connect(lambda: self.assign_supply(row_position, workers_to_assign.currentData()))
-        
-    #     revert_button = QPushButton('Revert')
-    #     revert_button.clicked.connect(partial(self.revert_edit, row_position))
-        
-    #     edit_widget = QWidget()
-    #     edit_layout = QGridLayout()
-    #     edit_widget.setLayout(edit_layout)
-    #     edit_layout.addWidget(revert_button, 0, 0)
-    #     edit_layout.addWidget(assign_button, 0 ,1)
-    #     edit_layout.setColumnStretch(0, 1)
-    #     edit_layout.setColumnStretch(1, 1)
-    #     edit_layout.setRowStretch(0, 1)
-    #     edit_layout.setContentsMargins(0, 0, 0, 0)
-    #     edit_layout.setSpacing(0)
-    #     self.table.setCellWidget(row_position, 8, edit_widget)
+        edit_widget = QWidget()
+        edit_layout = QGridLayout()
+        edit_widget.setLayout(edit_layout)
+        edit_layout.addWidget(revert_button, 0, 0)
+        edit_layout.addWidget(confirm_button, 0 ,1)
+        edit_layout.setColumnStretch(0, 1)
+        edit_layout.setColumnStretch(1, 1)
+        edit_layout.setRowStretch(0, 1)
+        edit_layout.setContentsMargins(0, 0, 0, 0)
+        edit_layout.setSpacing(0)
+        self.table.setCellWidget(row_position, 8, edit_widget)
         
     
     def assign_supply(self, row_position, worker_id):
