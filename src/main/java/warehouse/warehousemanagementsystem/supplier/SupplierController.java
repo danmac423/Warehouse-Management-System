@@ -19,34 +19,29 @@ public class SupplierController {
 
     @GetMapping
     public ResponseEntity<List<Supplier>> getAllSuppliers() {
-        return new ResponseEntity<>(supplierService.getAllSupplies(), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body(supplierService.getAllSupplies());
+    }
+
+    @GetMapping("/supplierName/{name}")
+    public ResponseEntity<List<Supplier>> getSuppliersByName(@PathVariable String name) {
+        return ResponseEntity.status(HttpStatus.OK).body(supplierService.getSuppliersByName(name));
     }
 
     @PostMapping
-    public ResponseEntity<String> addSupplier(@RequestBody Supplier supplier) {
-        supplierService.addSupplier(supplier);
-        return new ResponseEntity<>("Supplier added successfully", HttpStatus.CREATED);
+    public ResponseEntity<Supplier> addSupplier(@RequestBody Supplier supplier) {
+        Supplier newSupplier = supplierService.addSupplierAndAddress(supplier);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newSupplier);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteSupplier(@PathVariable Long id) {
         supplierService.deleteSupplier(id);
-        return new ResponseEntity<>("Supplier deleted successfully", HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body("Supplier deleted successfully");
     }
 
     @PutMapping
-    public ResponseEntity<String> updateProduct(@RequestBody Supplier supplier) {
-        supplierService.updateSupplier(supplier);
-        return new ResponseEntity<>("Supplier updated successfully", HttpStatus.OK);
-    }
-
-    @GetMapping("/formated")
-    public ResponseEntity<List<SupplierView>> getAllSuppliersViews() {
-        return new ResponseEntity<>(supplierService.getAllSuppliersViews(), HttpStatus.OK);
-    }
-
-    @GetMapping("/formated/supplierName/{name}")
-    public ResponseEntity<List<SupplierView>> getSuppliersViewsByName(@PathVariable String name) {
-        return new ResponseEntity<>(supplierService.getSuppliersViewsByName(name), HttpStatus.OK);
+    public ResponseEntity<Supplier> updateProduct(@RequestBody Supplier supplier) {
+        Supplier updatedSupplier = supplierService.updateSupplier(supplier);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedSupplier);
     }
 }

@@ -18,9 +18,10 @@ public class SupplierDao {
 
     public List<Supplier> getAllSuppliers() {
         var sql = """
-                SELECT * FROM suppliers
-                ORDER BY id
-                """;
+                    SELECT suppliers.id AS supplier_id, suppliers.name, addresses.id AS address_id, addresses.street, addresses.house_nr, addresses.postal_code, addresses.city, addresses.country
+                    FROM suppliers LEFT JOIN addresses ON addresses.id = suppliers.address_id
+                    ORDER BY suppliers.id
+               """;
         return jdbcTemplate.query(
                 sql,
                 new SupplierMapper()
@@ -29,8 +30,9 @@ public class SupplierDao {
 
     public Optional<Supplier> getSupplierById(Long id) {
         var sql = """
-                SELECT * FROM suppliers
-                WHERE id = ?
+                SELECT suppliers.id AS supplier_id, suppliers.name, addresses.id AS address_id, addresses.street, addresses.house_nr, addresses.postal_code, addresses.city, addresses.country
+                FROM suppliers LEFT JOIN addresses ON addresses.id = suppliers.address_id
+                WHERE suppliers.id = ?
                 """;
         return jdbcTemplate.query(
                 sql,
@@ -41,7 +43,8 @@ public class SupplierDao {
 
     public Optional<Supplier> getSupplierByName(String name) {
         var sql = """
-                SELECT * FROM suppliers
+                SELECT suppliers.id AS supplier_id, suppliers.name, addresses.id AS address_id, addresses.street, addresses.house_nr, addresses.postal_code, addresses.city, addresses.country
+                FROM suppliers LEFT JOIN addresses ON addresses.id = suppliers.address_id
                 WHERE name = ?
                 """;
         return jdbcTemplate.query(
@@ -51,29 +54,32 @@ public class SupplierDao {
         ).stream().findFirst();
     }
 
-    public Optional<Supplier> getSupplierByData(Supplier supplier) {
-        var sql = """
-                SELECT * FROM suppliers
-                WHERE name = ? AND address_id = ?
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new SupplierMapper(),
-                supplier.name(),
-                supplier.addressId()
-        ).stream().findFirst();
-    }
 
-    public int addSupplier(Supplier supplier) {
+//
+//    public Optional<Supplier> getSupplierByData(Supplier supplier) {
+//        var sql = """
+//                SELECT * FROM suppliers
+//                WHERE name = ? AND address_id = ?
+//                """;
+//        return jdbcTemplate.query(
+//                sql,
+//                new SupplierMapper(),
+//                supplier.name(),
+//                supplier.addressId()
+//        ).stream().findFirst();
+//    }
+//
+    public Supplier addSupplier(Supplier supplier) {
         var sql = """
                 INSERT INTO suppliers (name, address_id)
                 VALUES (?, ?)
                 """;
-        return jdbcTemplate.update(
+        jdbcTemplate.update(
                 sql,
                 supplier.name(),
-                supplier.addressId()
+                supplier.address().id()
         );
+        return getSupplierByName(supplier.name()).orElseThrow();
     }
 
     public int deleteSupplier(Long id) {
@@ -87,72 +93,88 @@ public class SupplierDao {
         );
     }
 
-    public int updateSupplier(Supplier supplier) {
+    public List<Supplier> getSuppliersByName(String name) {
+        var sql = """
+                SELECT suppliers.id AS supplier_id, suppliers.name, addresses.id AS address_id, addresses.street, addresses.house_nr, addresses.postal_code, addresses.city, addresses.country
+                FROM suppliers LEFT JOIN addresses ON addresses.id = suppliers.address_id
+                WHERE LOWER(suppliers.name) like LOWER(?)
+                ORDER BY suppliers.id
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new SupplierMapper(),
+                "%" + name + "%"
+        );
+    }
+
+    public Supplier updateSupplier(Supplier supplier) {
         var sql = """
                 UPDATE suppliers
                 SET name = ?, address_id = ?
                 WHERE id = ?
                 """;
-        return jdbcTemplate.update(
+        jdbcTemplate.update(
                 sql,
                 supplier.name(),
-                supplier.addressId(),
+                supplier.address().id(),
                 supplier.id()
         );
+        return getSupplierById(supplier.id()).orElseThrow();
     }
 
-    public List<SupplierView> getAllSuppliersViews() {
-        var sql = """
-                SELECT
-                    suppliers.id,
-                    suppliers.name,
-                    addresses.id AS address_id,
-                    addresses.street,
-                    addresses.house_nr,
-                    addresses.postal_code,
-                    addresses.city,
-                	addresses.country
-                FROM
-                    suppliers
-                LEFT JOIN
-                    addresses ON addresses.id = suppliers.address_id
-                GROUP BY
-                    suppliers.id, suppliers.name, addresses.id, addresses.street, addresses.house_nr,
-                	addresses.postal_code, addresses.city, addresses.country
-                ORDER BY
-                    suppliers.id;""";
-        return jdbcTemplate.query(
-                sql,
-                new SupplierViewMapper()
-        );
-    }
-
-
-    public List<SupplierView> getSuppliersViewsByName(String name) {
-        var sql = """
-                SELECT
-                    suppliers.id,
-                    suppliers.name,
-                    addresses.id AS address_id,
-                    addresses.street,
-                    addresses.house_nr,
-                    addresses.postal_code,
-                    addresses.city,
-                	addresses.country
-                FROM
-                    suppliers
-                LEFT JOIN
-                    addresses ON addresses.id = suppliers.address_id
-                WHERE suppliers.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?)))
-                GROUP BY
-                    suppliers.id, suppliers.name, addresses.id, addresses.street, addresses.house_nr,
-                	addresses.postal_code, addresses.city, addresses.country
-                ORDER BY
-                    suppliers.id;""";
-        return jdbcTemplate.query(
-                sql,
-                new SupplierViewMapper(),
-                "%" + name + "%"
-        );
-    }
+//
+//    public List<SupplierView> getAllSuppliersViews() {
+//        var sql = """
+//                SELECT
+//                    suppliers.id,
+//                    suppliers.name,
+//                    addresses.id AS address_id,
+//                    addresses.street,
+//                    addresses.house_nr,
+//                    addresses.postal_code,
+//                    addresses.city,
+//                	addresses.country
+//                FROM
+//                    suppliers
+//                LEFT JOIN
+//                    addresses ON addresses.id = suppliers.address_id
+//                GROUP BY
+//                    suppliers.id, suppliers.name, addresses.id, addresses.street, addresses.house_nr,
+//                	addresses.postal_code, addresses.city, addresses.country
+//                ORDER BY
+//                    suppliers.id;""";
+//        return jdbcTemplate.query(
+//                sql,
+//                new SupplierDtoMapper()
+//        );
+//    }
+//
+//
+//    public List<SupplierView> getSuppliersViewsByName(String name) {
+//        var sql = """
+//                SELECT
+//                    suppliers.id,
+//                    suppliers.name,
+//                    addresses.id AS address_id,
+//                    addresses.street,
+//                    addresses.house_nr,
+//                    addresses.postal_code,
+//                    addresses.city,
+//                	addresses.country
+//                FROM
+//                    suppliers
+//                LEFT JOIN
+//                    addresses ON addresses.id = suppliers.address_id
+//                WHERE suppliers.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?)))
+//                GROUP BY
+//                    suppliers.id, suppliers.name, addresses.id, addresses.street, addresses.house_nr,
+//                	addresses.postal_code, addresses.city, addresses.country
+//                ORDER BY
+//                    suppliers.id;""";
+//        return jdbcTemplate.query(
+//                sql,
+//                new SupplierDtoMapper(),
+//                "%" + name + "%"
+//        );
+//    }
 }

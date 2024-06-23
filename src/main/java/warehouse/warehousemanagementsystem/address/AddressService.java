@@ -36,9 +36,6 @@ public class AddressService {
         if (addressDao.getAddressByData(address).isPresent()) {
             throw new ConflictException("Address already exists");
         }
-        if (addressDao.addAddress(address) != 1) {
-            throw new DatabaseException("Failed to add address");
-        }
     }
 
     public void deleteAddress(Long id) {
@@ -71,9 +68,6 @@ public class AddressService {
                 || address.city().isEmpty()
                 || address.country().isEmpty()) {
             throw new BadRequestException("All fields are required");
-        }
-        if (addressDao.updateAddress(address) != 1) {
-            throw new DatabaseException("Failed to update address");
         }
     }
 }

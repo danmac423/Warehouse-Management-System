@@ -1,6 +1,10 @@
 package warehouse.warehousemanagementsystem.supplier;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import warehouse.warehousemanagementsystem.address.Address;
+import warehouse.warehousemanagementsystem.address.AddressDao;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.ConflictException;
 import warehouse.warehousemanagementsystem.exception.DatabaseException;
@@ -12,68 +16,103 @@ import java.util.Optional;
 @Service
 public class SupplierService {
     private final SupplierDao supplierDao;
+    private final AddressDao addressDao;
 
-    public SupplierService(SupplierDao supplierDao) {
+    @Autowired
+    public SupplierService(SupplierDao supplierDao, AddressDao addressDao) {
         this.supplierDao = supplierDao;
+        this.addressDao = addressDao;
     }
 
     public List<Supplier> getAllSupplies() {
         return supplierDao.getAllSuppliers();
     }
 
-    public void addSupplier(Supplier supplier) {
+    @Transactional
+    public Supplier addSupplierAndAddress(Supplier supplier) {
+
+        Address address = supplier.address();
         if (supplier.name().isEmpty()
-            || supplier.addressId() == null) {
+                || address.street().isEmpty()
+                || address.houseNumber().isEmpty()
+                || address.postalCode().isEmpty()
+                || address.city().isEmpty()
+                || address.country().isEmpty()) {
             throw new BadRequestException("All fields are required");
         }
+
         if (supplierDao.getSupplierByName(supplier.name()).isPresent()) {
-            throw new ConflictException("Product with this name already exists");
+            throw new ConflictException("Supplier with this name already exists");
         }
-        if (supplierDao.getSupplierByData(supplier).isPresent()) {
-            throw new ConflictException("Product already exists");
-        }
-        if (supplierDao.addSupplier(supplier) != 1) {
-            throw new DatabaseException("Failed to add product");
-        }
+
+        address = addressDao.addAddress(address);
+
+        Supplier newSupplier = new Supplier(
+                supplier.id(),
+                supplier.name(),
+                address
+        );
+
+        return supplierDao.addSupplier(newSupplier);
     }
 
+    @Transactional
     public void deleteSupplier(Long id) {
+
         Optional<Supplier> supplier = supplierDao.getSupplierById(id);
         int result;
         if (supplier.isEmpty()) {
-            throw new BadRequestException("Product not found");
+            throw new BadRequestException("Supplier not found");
         }
         try {
             result = supplierDao.deleteSupplier(id);
         } catch (Exception e) {
-            throw new ConflictException("This product is still in use");
+            throw new ConflictException("This supplier is still in use");
         }
         if (result != 1) {
-            throw new DatabaseException("Failed to delete product");
+            throw new DatabaseException("Failed to delete supplier");
         }
     }
 
-    public void updateSupplier(Supplier supplier) {
-        Supplier currentSupplier = supplierDao.getSupplierById(supplier.id()).orElseThrow(() -> new NotFoundException("Product not found"));
+    public List<Supplier> getSuppliersByName(String name) {
+        return supplierDao.getSuppliersByName(name);
+    }
+
+    @Transactional
+    public Supplier updateSupplier(Supplier supplier) {
+        Address address = supplier.address();
         if (supplier.name().isEmpty()
-                || supplier.addressId() == null) {
+                || address.street().isEmpty()
+                || address.houseNumber().isEmpty()
+                || address.postalCode().isEmpty()
+                || address.city().isEmpty()
+                || address.country().isEmpty()) {
             throw new BadRequestException("All fields are required");
         }
-        if (supplierDao.getSupplierById(supplier.id()).isEmpty()) {
-            throw new NotFoundException("Product not found");
+
+        Supplier currentSupplier = supplierDao.getSupplierById(supplier.id()).orElseThrow(() -> new NotFoundException("Supplier not found"));
+        Address currentAddress = currentSupplier.address();
+
+        if (supplierDao.getSupplierByName(supplier.name()).isPresent() && !currentSupplier.name().equals(supplier.name())) {
+            throw new ConflictException("Supplier with this name already exists");
         }
-        if (supplierDao.getSupplierByData(supplier).isPresent()) {
-            throw new ConflictException("Product already exists");
-        }
-        if (supplierDao.updateSupplier(supplier) != 1) {
-            throw new DatabaseException("Failed to update product");
-        }
+
+        address = new Address(
+                currentAddress.id(),
+                address.street(),
+                address.houseNumber(),
+                address.postalCode(),
+                address.city(),
+                address.country()
+        );
+
+        Address updatedAddress = addressDao.updateAddress(address);
+
+        return supplierDao.updateSupplier(new Supplier(
+                supplier.id(),
+                supplier.name(),
+                updatedAddress
+        ));
+
     }
-
-    public List<SupplierView> getAllSuppliersViews() { return supplierDao.getAllSuppliersViews(); }
-
-    public List<SupplierView> getSuppliersViewsByName(String name) {
-        return supplierDao.getSuppliersViewsByName(name);
-    }
-
 }
