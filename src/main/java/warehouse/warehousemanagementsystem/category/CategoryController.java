@@ -26,7 +26,7 @@ public class CategoryController {
 
     @GetMapping("/categoryName/{categoryName}")
 //    @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
-    public ResponseEntity<List<Category>> getCategoriesByCategoryName(@PathVariable String categoryName) {
+    public ResponseEntity<List<Category>> getCategoriesByCategoryName(@RequestParam String categoryName) {
         return new ResponseEntity<>(categoryService.getCategoriesByCategoryName (categoryName), HttpStatus.OK);
     }
 
