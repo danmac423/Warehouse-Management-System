@@ -77,7 +77,7 @@ public class ProductDao {
         ).stream().findFirst();
     }
 
-    public Optional<Product> getProductByName(Product product) {
+    public Optional<Product> getProductByName(String name) {
         var sql = """
                 SELECT
                     products.id AS product_id,
@@ -98,7 +98,7 @@ public class ProductDao {
         return jdbcTemplate.query(
                 sql,
                 new ProductMapper(),
-                product.name()
+                name
         ).stream().findFirst();
     }
 //
@@ -115,7 +115,7 @@ public class ProductDao {
                 product.stock()
         );
 
-        return getProductByName(product).get();
+        return getProductByName(product.name()).get();
     }
 
     public int deleteProduct(Long id) {

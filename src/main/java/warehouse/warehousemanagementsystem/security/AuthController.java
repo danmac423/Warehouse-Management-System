@@ -52,6 +52,13 @@ public class AuthController {
         return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
     }
 
+    @PostMapping("change-password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
+        Worker worker = workerDao.getWorkerById(changePasswordDto.workerId()).orElseThrow(() -> new RuntimeException("Worker not found"));
+        workerDao.changePassword(worker.id(), passwordEncoder.encode(changePasswordDto.newPassword()));
+        return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
+    }
+
     @PostMapping("login")
     public ResponseEntity<AuthResponse> login(@RequestBody LoginDto loginDto) {
 

@@ -77,14 +77,14 @@ public class WorkerDao {
     public int updateWorker(Worker worker) {
         var sql = """
                 UPDATE workers
-                SET username = ?, password = ?, name = ?, last_name = ?, role = ?
+                SET username = ?, name = ?, last_name = ?, role = ?
+                
                 WHERE id = ?
                 """;
 
         return jdbcTemplate.update(
                 sql,
                 worker.username(),
-                worker.password(),
                 worker.name(),
                 worker.lastName(),
                 worker.role(),
@@ -105,4 +105,12 @@ public class WorkerDao {
     }
 
 
+    public void changePassword(Long id, String encode) {
+        var sql = """
+                UPDATE workers
+                SET password = ?
+                WHERE id = ?
+                """;
+        jdbcTemplate.update(sql, encode, id);
+    }
 }

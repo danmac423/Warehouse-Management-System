@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class SupplyDao {
@@ -16,26 +17,18 @@ public class SupplyDao {
     public SupplyDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
         sqlPreffix = """
-                SELECT
-                    supplies.id,
-                    supplier.id AS supplier_id,
-                    supplier.name AS supplier_name,
-                    worker.id AS worker_id,
-                    worker.username,
-                    supplies.status,
-                    supplies.arrival_date,
-                    supplies.expected_date,
-                    supplies.product_id,
-                    product.name AS product_name,
-                    supplies.amount
-                FROM
-                    supplies
-                LEFT JOIN
-                    workers worker ON worker.id = supplies.worker_id
-                LEFT JOIN
-                    products product ON supplies.product_id = product.id
-                LEFT JOIN
-                    suppliers supplier ON supplies.supplier_id = supplier.id
+                SELECT addresses.id AS address_id, street, house_nr, postal_code, city, country,
+                    suppliers.id AS supplier_id, suppliers.name AS supplier_name,
+                    workers.id AS worker_id, workers.username, workers.password, workers.name AS worker_name, workers.last_name AS worker_last_name, workers.role,
+                    products.id AS product_id, products.name AS product_name, products.price, products.stock,
+                    categories.id AS category_id, categories.name AS category_name, (SELECT COUNT(*) FROM products p WHERE p.category_id = categories.id) AS product_count,
+                    supplies.id AS supply_id, supplies.status, supplies.arrival_date, supplies.processed_date, supplies.expected_date, supplies.amount
+                FROM supplies
+                    LEFT JOIN suppliers ON supplies.supplier_id = suppliers.id
+                    LEFT JOIN addresses ON suppliers.address_id = addresses.id
+                    LEFT JOIN workers ON supplies.worker_id = workers.id
+                    LEFT JOIN products ON supplies.product_id = products.id
+                    LEFT JOIN categories ON products.category_id = categories.id
                 """;
         sqlSuffix = """
                 GROUP BY
@@ -60,25 +53,33 @@ public class SupplyDao {
         if (status == null) {
             status = "";
         }
-        var sql = """
-                SELECT addresses.id AS address_id, street, house_nr, postal_code, city, country,
-                    suppliers.id AS supplier_id, suppliers.name AS supplier_name,
-                    workers.id AS worker_id, workers.username, workers.password, workers.name AS worker_name, workers.last_name AS worker_last_name, workers.role,
-                    products.id AS product_id, products.name AS product_name, products.price, products.stock,
-                    categories.id AS category_id, categories.name AS category_name, (SELECT COUNT(*) FROM products p WHERE p.category_id = categories.id) AS product_count,
-                    supplies.id AS supply_id, supplies.status, supplies.arrival_date, supplies.processed_date, supplies.expected_date, supplies.amount
-                FROM supplies
-                    LEFT JOIN suppliers ON supplies.supplier_id = suppliers.id
-                    LEFT JOIN addresses ON suppliers.address_id = addresses.id
-                    LEFT JOIN workers ON supplies.worker_id = workers.id
-                    LEFT JOIN products ON supplies.product_id = products.id
-                    LEFT JOIN categories ON products.category_id = categories.id
+//        var sql = """
+//                SELECT addresses.id AS address_id, street, house_nr, postal_code, city, country,
+//                    suppliers.id AS supplier_id, suppliers.name AS supplier_name,
+//                    workers.id AS worker_id, workers.username, workers.password, workers.name AS worker_name, workers.last_name AS worker_last_name, workers.role,
+//                    products.id AS product_id, products.name AS product_name, products.price, products.stock,
+//                    categories.id AS category_id, categories.name AS category_name, (SELECT COUNT(*) FROM products p WHERE p.category_id = categories.id) AS product_count,
+//                    supplies.id AS supply_id, supplies.status, supplies.arrival_date, supplies.processed_date, supplies.expected_date, supplies.amount
+//                FROM supplies
+//                    LEFT JOIN suppliers ON supplies.supplier_id = suppliers.id
+//                    LEFT JOIN addresses ON suppliers.address_id = addresses.id
+//                    LEFT JOIN workers ON supplies.worker_id = workers.id
+//                    LEFT JOIN products ON supplies.product_id = products.id
+//                    LEFT JOIN categories ON products.category_id = categories.id
+//                WHERE LOWER(suppliers.name) LIKE LOWER(?) AND
+//                      (LOWER(workers.username) LIKE LOWER(?) OR (worker_id ISNULL AND ? = '' )) AND
+//                      LOWER(products.name) LIKE LOWER(?) AND
+//                      LOWER(supplies.status) LIKE LOWER(?)
+//                ORDER BY supplies.id
+//                """;
+
+        var sql = sqlPreffix.concat("""
                 WHERE LOWER(suppliers.name) LIKE LOWER(?) AND
                       (LOWER(workers.username) LIKE LOWER(?) OR (worker_id ISNULL AND ? = '' )) AND
                       LOWER(products.name) LIKE LOWER(?) AND
                       LOWER(supplies.status) LIKE LOWER(?)
-                ORDER BY supplies.id
-                """;
+                      ORDER BY supplies.id
+                """);
         return jdbcTemplate.query(
                 sql,
                 new SupplyMapper(),
@@ -89,24 +90,97 @@ public class SupplyDao {
                 "%" + status + "%"
         );
     }
-//
-//    public int addSupply(Supply supply) {
-//        var sql = """
-//                INSERT INTO supplies (supplier_id, worker_id, status, arrival_date, processed_date, expected_date, product_id, amount)
-//                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-//                """;
-//        return jdbcTemplate.update(
-//                sql,
-//                supply.supplierId(),
-//                supply.workerId(),
-//                "underway",
-//                supply.arrivalDate(),
-//                supply.processedDate(),
-//                supply.expectedDate(),
-//                supply.productId(),
-//                supply.amount()
-//        );
-//    }
+
+    Optional<Supply> getSupplyById(Long id) {
+        var sql = sqlPreffix.concat("""
+                WHERE supplies.id = ?
+                """);
+        return jdbcTemplate.query(
+                sql,
+                new SupplyMapper(),
+                id
+        ).stream().findFirst();
+    }
+
+    Optional<Supply> getSupplyBySupply(Supply supply) {
+        var sql = sqlPreffix.concat("""
+                WHERE product_id = ? AND status = ? AND expected_date = ? AND amount = ?
+                """);
+        return jdbcTemplate.query(
+                sql,
+                new SupplyMapper(),
+                supply.product().id(),
+                supply.status(),
+                supply.expectedDate(),
+                supply.amount()
+        ).stream().findFirst();
+    }
+
+    public Supply addSupply(Supply supply) {
+        var sql = """
+                INSERT INTO supplies (supplier_id, worker_id, status, arrival_date, processed_date, expected_date, product_id, amount)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """;
+        jdbcTemplate.update(
+            sql,
+            supply.supplier().id(),
+            null,
+            supply.status(),
+            null,
+            null,
+            supply.expectedDate(),
+            supply.product().id(),
+            supply.amount()
+        );
+
+        return getSupplyBySupply(supply).get();
+    }
+
+    public int deleteSupply(Long id) {
+        var sql = "DELETE FROM supplies WHERE id = ?";
+        return jdbcTemplate.update(
+                sql,
+                id
+        );
+    }
+
+    public Supply updateSupply(Supply supply) {
+        var sql = """
+                UPDATE supplies
+                SET supplier_id = ?, expected_date = ?, product_id = ?, amount = ?
+                WHERE id = ?
+                """;
+        jdbcTemplate.update(
+                sql,
+                supply.supplier().id(),
+                supply.expectedDate(),
+                supply.product().id(),
+                supply.amount(),
+                supply.id()
+        );
+        return getSupplyById(supply.id()).get();
+    }
+
+    public Supply acknowledgeSupply(Supply supply) {
+        var sql = "UPDATE supplies SET status = ? WHERE id = ?";
+        jdbcTemplate.update(
+                sql,
+                "arrived",
+                supply.id()
+        );
+        return getSupplyById(supply.id()).get();
+    }
+
+    public Supply assignSupply(Supply supply) {
+        var sql = "UPDATE supplies SET status = ?, worker_id = ? WHERE id = ?";
+        jdbcTemplate.update(
+                sql,
+                "assigned",
+                supply.worker().id(),
+                supply.id()
+        );
+        return getSupplyById(supply.id()).get();
+    }
 //
 //    public int updateSupply(Supply supply) {
 //        var sql = """

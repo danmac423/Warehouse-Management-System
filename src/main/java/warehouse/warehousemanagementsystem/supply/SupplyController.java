@@ -17,8 +17,6 @@ public class SupplyController {
         this.supplyService = supplyService;
     }
 
-
-
     @GetMapping
     public ResponseEntity<List<Supply>> getSupplies(
             @RequestParam(required = false) String supplierName,
@@ -30,39 +28,36 @@ public class SupplyController {
     }
 
 
-//
-//    @PostMapping
-//    public ResponseEntity<String> addSupply(@RequestBody Supply supply) {
-//        supplyService.addSupply(supply);
-//        return new ResponseEntity<>("Supply added successfully", HttpStatus.CREATED);
-//    }
-//
-//    @PutMapping
-//    public ResponseEntity<String> updateSupply(@RequestBody Supply supply) {
-//        supplyService.updateSupply(supply);
-//        return new ResponseEntity<>("Supply updated successfully", HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/worker/{workerId}")
-//    public List<Supply> getSuppliesByWorker(@PathVariable Long workerId) {
-//        return supplyService.getSuppliesByWorkerId(workerId);
-//    }
-//
-//    @GetMapping("/product/{productId}")
-//    public List<Supply> getSuppliesByProduct(@PathVariable Long productId) {
-//        return supplyService.getSuppliesByProductId(productId);
-//    }
-//
-//    @GetMapping("/supplier/{supplierId}")
-//    public List<Supply> getSuppliesBySupplier(@PathVariable Long supplierId) {
-//        return supplyService.getSuppliesBySupplierId(supplierId);
-//    }
-//
-//    @PutMapping("/acknowledge")
-//    public ResponseEntity<String> acknowledgeSupply(@RequestBody Supply supply) {
-//        supplyService.acknowledgeSupply(supply);
-//        return new ResponseEntity<>("Supply acknowledged successfully", HttpStatus.OK);
-//    }
+
+    @PostMapping
+    public ResponseEntity<Supply> addSupply(@RequestBody Supply supply) {
+        Supply newSupply = supplyService.addSupply(supply);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newSupply);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteSupply(@PathVariable Long id) {
+        supplyService.deleteSupply(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Supply deleted successfully");
+    }
+
+    @PutMapping
+    public ResponseEntity<Supply> updateSupply(@RequestBody Supply supply) {
+        Supply updatedSupply = supplyService.updateSupply(supply);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedSupply);
+    }
+
+    @PutMapping("/acknowledge")
+    public ResponseEntity<Supply> acknowledgeSupply(@RequestBody Supply supply) {
+        Supply acknowledgedSupply = supplyService.acknowledgeSupply(supply);
+        return ResponseEntity.status(HttpStatus.OK).body(acknowledgedSupply);
+    }
+
+    @PutMapping("/assign")
+    public ResponseEntity<Supply> assignSupply(@RequestBody Supply supply) {
+        Supply assignedSupply = supplyService.assignSupply(supply);
+        return ResponseEntity.status(HttpStatus.OK).body(assignedSupply);
+    }
 //
 //    @PutMapping("/unpack")
 //    public ResponseEntity<String> unpackSupply(@RequestBody Supply supply) {

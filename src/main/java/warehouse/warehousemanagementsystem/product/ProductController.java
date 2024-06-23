@@ -25,7 +25,6 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.OK).body(productService.getProducts(productName, categoryId));
     }
 
-
     @PostMapping
     public ResponseEntity<Product> addProduct(@RequestBody Product product) {
         Product newProduct = productService.addProduct(product);
