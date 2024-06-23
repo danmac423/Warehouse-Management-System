@@ -50,8 +50,8 @@ class ProductPage(QWidget):
         self.category_dropdown = QComboBox(self)
         self.category_dropdown.currentIndexChanged.connect(lambda index: self.filter_table_by_category(self.category_dropdown.itemData(index)))
 
-        self.serach_layout.addWidget(self.category_dropdown,0,0)
-        self.serach_layout.addWidget(self.search_bar, 1,0)
+        self.serach_layout.addWidget(self.category_dropdown, 0, 0)
+        self.serach_layout.addWidget(self.search_bar, 1, 0)
 
         self.products_widget = QGroupBox("Products")
         self.products_widget.setMinimumHeight(210)
@@ -106,7 +106,7 @@ class ProductPage(QWidget):
         submit_button.clicked.connect(self.add_product)
 
         add_layout = QGridLayout()
-        add_layout.addWidget(form, 0,0)
+        add_layout.addWidget(form, 0, 0)
         add_layout.addWidget(submit_button, 1, 0)
         self.add_widget = QGroupBox('Add Product')
         self.add_widget.setLayout(add_layout)
@@ -149,9 +149,9 @@ class ProductPage(QWidget):
             params = {}
 
             if category_id != "ALL":
-                url += f'/category/{category_id}'
+                url += f'/categoryId/{category_id}'
             if search_text:
-                url += f'/substring/{search_text}'
+                url += f'/productName/{search_text}'
 
             response = requests.get(url, params=params)
             if response.status_code == 200:
@@ -178,6 +178,7 @@ class ProductPage(QWidget):
         response = requests.post('http://localhost:8080/api/products', headers=headers, data=data)
         print(response.status_code)
         if response.status_code == 201:
+            self.clear_form()
             self.reset_filters()
             self.load_products()
             self.writeToConsole('Product added successfully')
@@ -186,12 +187,17 @@ class ProductPage(QWidget):
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
 
+    def clear_form(self):
+        self.product_name.clear()
+        self.price.clear()
+        self.category.setCurrentIndex(0)
+        self.stock.clear()
+
     def reset_filters(self):
         self.search_bar.setText("")
         self.category_dropdown.setCurrentIndex(0)
         self.current_category_id = "ALL"
         self.current_search_text = ""
-
 
     def populate_table(self, products):
         self.table.clearContents()
@@ -250,7 +256,6 @@ class ProductPage(QWidget):
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
 
-
     def delete_product(self, row):
         selected_row = row
         print(selected_row)
@@ -270,7 +275,6 @@ class ProductPage(QWidget):
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
 
-
     def get_categories(self):
         response = requests.get('http://localhost:8080/api/categories')
         if response.status_code == 200:
@@ -281,7 +285,6 @@ class ProductPage(QWidget):
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
             return []
-
 
     def edit_product(self, row_position):
         print(row_position)
@@ -323,9 +326,6 @@ class ProductPage(QWidget):
         edit_layout.setContentsMargins(0, 0, 0, 0)
         edit_layout.setSpacing(0)
         self.table.setCellWidget(row_position, 5, edit_widget)
-
-
-
 
     def select_row(self, row):
         self.table.setSelectionMode(QTableWidget.SingleSelection)
