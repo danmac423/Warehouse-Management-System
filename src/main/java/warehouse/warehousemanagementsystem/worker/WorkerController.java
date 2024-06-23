@@ -43,7 +43,7 @@ public class WorkerController {
 
     @GetMapping("/username/{username}")
     public ResponseEntity<List<Worker>> getWorkersByUsername(@PathVariable String username) {
-        return new ResponseEntity<>(workerService.getWorkerByUsername(username), HttpStatus.OK);
+        return new ResponseEntity<>(workerService.getWorkersByUsername(username), HttpStatus.OK);
     }
 
 
