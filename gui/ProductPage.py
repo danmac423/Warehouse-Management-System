@@ -174,7 +174,7 @@ class ProductPage(QWidget):
         category_id = self.category.currentData()
         stock = self.stock.text()
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'name': name, 'price': price, 'categoryId': category_id, 'stock': stock})
+        data = json.dumps({'name': name, 'price': price, 'category': {'id': category_id}, 'stock': stock})
         response = requests.post('http://localhost:8080/api/products', headers=headers, data=data)
         print(response.status_code)
         if response.status_code == 201:
@@ -203,6 +203,7 @@ class ProductPage(QWidget):
         self.table.clearContents()
         self.table.setRowCount(0)
         for product in products:
+            category = product['category']
             row_position = self.table.rowCount()
             self.table.insertRow(row_position)
 
@@ -221,7 +222,7 @@ class ProductPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 2, item)
 
-            item = QTableWidgetItem(product['categoryName'])
+            item = QTableWidgetItem(category['name'])
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 3, item)
@@ -381,7 +382,7 @@ class ProductPage(QWidget):
 
         stock = self.table.item(row_position, 4).text()
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'id': product_id, 'name': name, 'price': price, 'categoryId': category_id, 'stock': stock})
+        data = json.dumps({'id': product_id, 'name': name, 'price': price, 'category': {'id': category_id}, 'stock': stock})
         response = requests.put(f'http://localhost:8080/api/products', headers=headers, data=data)
 
         if response.status_code == 200:
