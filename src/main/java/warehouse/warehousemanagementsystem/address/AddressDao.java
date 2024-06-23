@@ -51,12 +51,12 @@ public class AddressDao {
         ).stream().findFirst();
     }
 
-    public int addAddress(Address address) {
+    public Address addAddress(Address address) {
         var sql = """
                 INSERT INTO addresses (street, house_nr, postal_code, city, country)
                 VALUES (?, ?, ?, ?, ?)
                 """;
-        return jdbcTemplate.update(
+        jdbcTemplate.update(
                 sql,
                 address.street(),
                 address.houseNumber(),
@@ -64,6 +64,7 @@ public class AddressDao {
                 address.city(),
                 address.country()
         );
+        return getAddressByData(address).orElseThrow();
     }
 
     public int deleteAddress(Long id) {
@@ -77,13 +78,13 @@ public class AddressDao {
         );
     }
 
-    public int updateAddress(Address address) {
+    public Address updateAddress(Address address) {
         var sql = """
                 UPDATE addresses
                 SET street = ?, house_nr = ?, postal_code = ?, city = ?, country = ?
                 WHERE id = ?
                 """;
-        return jdbcTemplate.update(
+        jdbcTemplate.update(
                 sql,
                 address.street(),
                 address.houseNumber(),
@@ -92,5 +93,6 @@ public class AddressDao {
                 address.country(),
                 address.id()
         );
+        return getAddressById(address.id()).orElseThrow();
     }
 }

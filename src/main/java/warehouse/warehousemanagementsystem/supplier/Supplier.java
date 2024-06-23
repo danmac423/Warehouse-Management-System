@@ -1,4 +1,6 @@
 package warehouse.warehousemanagementsystem.supplier;
 
-public record Supplier(Long id, String name, Long addressId) {
+import warehouse.warehousemanagementsystem.address.Address;
+
+public record Supplier(Long id, String name, Address address) {
 }
