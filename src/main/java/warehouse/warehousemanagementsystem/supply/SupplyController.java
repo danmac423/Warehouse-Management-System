@@ -22,9 +22,10 @@ public class SupplyController {
             @RequestParam(required = false) String supplierName,
             @RequestParam(required = false) String workerUsername,
             @RequestParam(required = false) String productName,
-            @RequestParam(required = false) String status
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long workerId
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(supplyService.getSupplies(supplierName, workerUsername, productName, status));
+        return ResponseEntity.status(HttpStatus.OK).body(supplyService.getSupplies(supplierName, workerUsername, productName, status, workerId));
     }
 
 
@@ -58,10 +59,10 @@ public class SupplyController {
         Supply assignedSupply = supplyService.assignSupply(supply);
         return ResponseEntity.status(HttpStatus.OK).body(assignedSupply);
     }
-//
+
 //    @PutMapping("/unpack")
-//    public ResponseEntity<String> unpackSupply(@RequestBody Supply supply) {
-//        supplyService.unpackSupply(supply);
+//    public ResponseEntity<Supply> unpackSupply(@RequestBody Supply supply) {
+//        Supply unpackedSupply = supplyService.unpackSupply(supply);
 //        return new ResponseEntity<>("Supply unpacked successfully", HttpStatus.OK);
 //    }
 //

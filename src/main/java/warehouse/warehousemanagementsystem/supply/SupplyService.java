@@ -27,8 +27,8 @@ public class SupplyService {
         this.productDao = productDao;
     }
 
-    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, String status) {
-        return supplyDao.getSupplies(supplierName, workerUsername, productName, status);
+    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, String status, Long workerId) {
+        return supplyDao.getSupplies(supplierName, workerUsername, productName, status, workerId);
     }
 
     //
@@ -156,7 +156,7 @@ public class SupplyService {
 
 
     public Supply assignSupply(Supply supply) {
-        if (!supply.status().equals("arrived")) {
+        if (!supply.status().equals("arrived") && !supply.status().equals("assigned")) {
             throw new BadRequestException("The supply must be arrived to assign");
         }
 

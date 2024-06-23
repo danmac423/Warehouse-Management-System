@@ -40,7 +40,7 @@ public class SupplyDao {
 
 
 
-    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, String status) {
+    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, String status, Long workerId) {
         if (supplierName == null) {
             supplierName = "";
         }
@@ -53,31 +53,16 @@ public class SupplyDao {
         if (status == null) {
             status = "";
         }
-//        var sql = """
-//                SELECT addresses.id AS address_id, street, house_nr, postal_code, city, country,
-//                    suppliers.id AS supplier_id, suppliers.name AS supplier_name,
-//                    workers.id AS worker_id, workers.username, workers.password, workers.name AS worker_name, workers.last_name AS worker_last_name, workers.role,
-//                    products.id AS product_id, products.name AS product_name, products.price, products.stock,
-//                    categories.id AS category_id, categories.name AS category_name, (SELECT COUNT(*) FROM products p WHERE p.category_id = categories.id) AS product_count,
-//                    supplies.id AS supply_id, supplies.status, supplies.arrival_date, supplies.processed_date, supplies.expected_date, supplies.amount
-//                FROM supplies
-//                    LEFT JOIN suppliers ON supplies.supplier_id = suppliers.id
-//                    LEFT JOIN addresses ON suppliers.address_id = addresses.id
-//                    LEFT JOIN workers ON supplies.worker_id = workers.id
-//                    LEFT JOIN products ON supplies.product_id = products.id
-//                    LEFT JOIN categories ON products.category_id = categories.id
-//                WHERE LOWER(suppliers.name) LIKE LOWER(?) AND
-//                      (LOWER(workers.username) LIKE LOWER(?) OR (worker_id ISNULL AND ? = '' )) AND
-//                      LOWER(products.name) LIKE LOWER(?) AND
-//                      LOWER(supplies.status) LIKE LOWER(?)
-//                ORDER BY supplies.id
-//                """;
+        if (workerId == null) {
+            workerId = 0L;
+        }
 
         var sql = sqlPreffix.concat("""
                 WHERE LOWER(suppliers.name) LIKE LOWER(?) AND
                       (LOWER(workers.username) LIKE LOWER(?) OR (worker_id ISNULL AND ? = '' )) AND
                       LOWER(products.name) LIKE LOWER(?) AND
-                      LOWER(supplies.status) LIKE LOWER(?)
+                      LOWER(supplies.status) LIKE LOWER(?) AND
+                      (? = workers.id OR (? = 0))
                       ORDER BY supplies.id
                 """);
         return jdbcTemplate.query(
@@ -87,7 +72,9 @@ public class SupplyDao {
                 "%" + workerUsername + "%",
                 workerUsername,
                 "%" + productName + "%",
-                "%" + status + "%"
+                "%" + status + "%",
+                workerId,
+                workerId
         );
     }
 
