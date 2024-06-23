@@ -79,7 +79,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.suppliers_page)
         self.stacked_widget.addWidget(self.orders_history_page)
         self.stacked_widget.addWidget(self.supplies_history_page)
-        
+
         self.stacked_widget.addWidget(self.login_widget)
 
         self.stacked_widget.setCurrentIndex(0)
@@ -101,8 +101,7 @@ class MainWindow(QMainWindow):
 
     def resizeEvent(self, event):
         self.globalVariables.window_size = (self.width(), self.height())
-        
-    
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
