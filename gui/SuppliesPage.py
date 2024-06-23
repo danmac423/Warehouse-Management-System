@@ -46,21 +46,21 @@ class SuppliesPage(QWidget):
 
         self.search_bar_supplier = QLineEdit(self)
         self.search_bar_supplier.setPlaceholderText("Search by supplier name")
-        self.search_bar_supplier.textChanged.connect(lambda text: self.filter_table_by_supplier_name(text))
+        self.search_bar_supplier.textChanged.connect(self.apply_filters)
 
         self.search_bar_worker = QLineEdit(self)
         self.search_bar_worker.setPlaceholderText("Search by worker username")
-        self.search_bar_worker.textChanged.connect(lambda text: self.filter_table_by_worker_username(text))
+        self.search_bar_worker.textChanged.connect(self.apply_filters)
 
         self.search_bar_product = QLineEdit(self)
         self.search_bar_product.setPlaceholderText("Search by product name")
-        self.search_bar_product.textChanged.connect(lambda text: self.filter_table_by_product_name(text))
+        self.search_bar_product.textChanged.connect(self.apply_filters)
 
         self.status_dropdown = QComboBox(self)
         self.status_dropdown.addItem("All", "ALL")
         self.status_dropdown.addItem("Arrived", "arrived")
         self.status_dropdown.addItem("Underway", "underway")
-        self.status_dropdown.currentIndexChanged.connect(lambda index: self.filter_table_by_status(self.status_dropdown.itemData(index)))
+        self.status_dropdown.currentIndexChanged.connect(self.apply_filters)
 
         self.reset_button = QPushButton('Reset Filters')
         self.reset_button.clicked.connect(self.reset_filters)
@@ -180,12 +180,17 @@ class SuppliesPage(QWidget):
         self.apply_filters()
 
     def apply_filters(self):
+        self.current_status = self.status_dropdown.currentData()
+        self.current_supplier_name = self.search_bar_supplier.text()
+        self.current_worker_username = self.search_bar_worker.text()
+        self.current_product_name = self.search_bar_product.text()
+
         status = self.current_status
         worker_username = self.current_worker_username
         supplier_name = self.current_supplier_name
         product_name = self.current_product_name
 
-        url = 'http://localhost:8080/api/supplies/formated'
+        url = 'http://localhost:8080/api/supplies'
         params = {}
 
         if status != "ALL":
@@ -226,6 +231,7 @@ class SuppliesPage(QWidget):
         if response.status_code == 201:
             self.clear_form()
             self.reset_filters()
+            self.load_supplies()
             self.writeToConsole('Supply added successfully')
         else:
             body = json.loads(response.text)
@@ -469,3 +475,4 @@ class SuppliesPage(QWidget):
             item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
         self.table.clearSelection()
         self.table.setSelectionMode(QTableWidget.NoSelection)
+
