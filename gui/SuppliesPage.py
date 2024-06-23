@@ -56,6 +56,7 @@ class SuppliesPage(QWidget):
         self.search_bar_product.setPlaceholderText("Search by product name")
         self.search_bar_product.textChanged.connect(self.apply_filters)
 
+
         self.status_dropdown = QComboBox(self)
         self.status_dropdown.addItem("All", "ALL")
         self.status_dropdown.addItem("Arrived", "arrived")
@@ -163,21 +164,7 @@ class SuppliesPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
-    def filter_table_by_status(self, status):
-        self.current_status = status
-        self.apply_filters()
 
-    def filter_table_by_supplier_name(self, supplier_name):
-        self.current_supplier_name = supplier_name
-        self.apply_filters()
-
-    def filter_table_by_worker_username(self, username):
-        self.current_worker_username = username
-        self.apply_filters()
-
-    def filter_table_by_product_name(self, product_name):
-        self.current_product_name = product_name
-        self.apply_filters()
 
     def apply_filters(self):
         self.current_status = self.status_dropdown.currentData()
@@ -231,7 +218,6 @@ class SuppliesPage(QWidget):
         if response.status_code == 201:
             self.clear_form()
             self.reset_filters()
-            self.load_supplies()
             self.writeToConsole('Supply added successfully')
         else:
             body = json.loads(response.text)
@@ -387,7 +373,6 @@ class SuppliesPage(QWidget):
 
     def revert_edit(self, row_position):
         self.reset_table(row_position)
-        self.load_supplies()
         self.writeToConsole("Reverted edit")
 
     def confirm_supply(self, row_position):

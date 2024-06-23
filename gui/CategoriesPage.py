@@ -42,9 +42,13 @@ class CategoriesPage(QWidget):
 
         self.search_bar = QLineEdit(self)
         self.search_bar.setPlaceholderText("Search by category name")
-        self.search_bar.textChanged.connect(lambda text: self.filter_table_by_name(text))
+        self.search_bar.textChanged.connect(self.apply_filters)
+
+        self.reset_button = QPushButton("Reset Filters")
+        self.reset_button.clicked.connect(self.reset_filters)
 
         self.serach_layout.addWidget(self.search_bar, 1, 0)
+        self.serach_layout.addWidget(self.reset_button, 2, 0)
 
         self.categories_widget = QGroupBox("Categories")
         self.categories_widget.setMinimumHeight(210)
@@ -115,29 +119,31 @@ class CategoriesPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
-    def filter_table_by_name(self, name):
-        self.current_search_text = name
-        self.apply_filters()
 
     def apply_filters(self):
-        search_text = self.current_search_text
-        if search_text:
-            response = requests.get(f'http://localhost:8080/api/categories/categoryName/{search_text}')
-            if response.status_code == 200:
-                categories = response.json()
-                self.populate_table(categories)
-                self.writeToConsole("Categories filtered successfully")
-            else:
-                if response.status_code == 404:
-                    self.writeToConsole(f'Error: No categories found under \'{search_text}\'')
-                    self.table.clearContents()
-                    self.table.setRowCount(0)
-                else:
-                    body = json.loads(response.text)
-                    mess = body.get('message')
-                    self.writeToConsole(f'Error: {mess}')
+        self.current_category_name = self.search_bar.text()
+
+        category_name = self.current_category_name
+
+        url = 'http://localhost:8080/api/categories'
+        params = {}
+
+        if category_name:
+            params['name'] = category_name
+
+        response = requests.get(url, params=params)
+        if response.status_code == 200:
+            self.writeToConsole("Categories loaded successfully")
+            categories = response.json()
+            self.populate_table(categories)
         else:
-            self.load_categories()
+            self.writeToConsole('Failed to load categories')
+            body = json.loads(response.text)
+            mess = body.get('message')
+            self.writeToConsole(f'Error: {mess}')
+            self.table.clearContents()
+            self.table.setRowCount(0)
+
 
     def add_category(self):
         name = self.category_name.text()
@@ -147,7 +153,6 @@ class CategoriesPage(QWidget):
         if response.status_code == 201:
             self.clear_form()
             self.reset_filters()
-            self.load_categories()
             self.writeToConsole('Category added successfully')
         else:
             body = json.loads(response.text)
@@ -160,6 +165,7 @@ class CategoriesPage(QWidget):
     def reset_filters(self):
         self.search_bar.setText("")
         self.current_search_text = ""
+        self.load_categories()
 
     def populate_table(self, categories):
         self.table.clearContents()
