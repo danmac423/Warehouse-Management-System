@@ -91,4 +91,9 @@ public class SupplyController {
     public ResponseEntity<List<SupplyView>> getSuppliesViewsByStatus(@PathVariable String status) {
         return new ResponseEntity<>(supplyService.getSuppliesViewsByStatus(status), HttpStatus.OK);
     }
+
+    @GetMapping("/formated/worker/{workerId}")
+    public ResponseEntity<List<SupplyView>> getSuppliesViewsByWorkerId(@PathVariable Long workerId) {
+        return new ResponseEntity<>(supplyService.getSuppliesViewsByWorkerId(workerId), HttpStatus.OK);
+    }
 }

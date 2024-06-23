@@ -9,10 +9,39 @@ import java.util.List;
 @Repository
 public class SupplyDao {
     private final JdbcTemplate jdbcTemplate;
+    private final String  sqlPreffix;
+    private final String sqlSuffix;
 
     @Autowired
     public SupplyDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        sqlPreffix = """
+                SELECT
+                    supplies.id,
+                    supplier.id AS supplier_id,
+                    supplier.name AS supplier_name,
+                    worker.id AS worker_id,
+                    worker.username,
+                    supplies.status,
+                    supplies.arrival_date,
+                    supplies.expected_date,
+                    supplies.product_id,
+                    product.name AS product_name,
+                    supplies.amount
+                FROM
+                    supplies
+                LEFT JOIN
+                    workers worker ON worker.id = supplies.worker_id
+                LEFT JOIN
+                    products product ON supplies.product_id = product.id
+                LEFT JOIN
+                    suppliers supplier ON supplies.supplier_id = supplier.id""";
+        sqlSuffix = """
+                GROUP BY
+                    supplies.id, supplier.id, supplier.name, worker.id, worker.username,
+                    supplies.status, supplies.arrival_date, supplies.expected_date, supplies.product_id, product.name, supplies.amount
+                ORDER BY
+                    supplies.id;""";
     }
 
     public List<Supply> getAllSupplies() {
@@ -133,32 +162,7 @@ public class SupplyDao {
     }
 
     public List<SupplyView> getAllSuppliesViews() {
-        var sql = """
-                SELECT
-                    supplies.id,
-                    supplier.id AS supplier_id,
-                    supplier.name AS supplier_name,
-                    worker.id AS worker_id,
-                    worker.username,
-                    supplies.status,
-                    supplies.arrival_date,
-                    supplies.expected_date,
-                    supplies.product_id,
-                    product.name AS product_name,
-                    supplies.amount
-                FROM
-                    supplies
-                LEFT JOIN
-                    workers worker ON worker.id = supplies.worker_id
-                LEFT JOIN
-                    products product ON supplies.product_id = product.id
-                LEFT JOIN
-                    suppliers supplier ON supplies.supplier_id = supplier.id
-                GROUP BY
-                    supplies.id, supplier.id, supplier.name, worker.id, worker.username,
-                    supplies.status, supplies.arrival_date, supplies.expected_date, supplies.product_id, product.name, supplies.amount
-                ORDER BY
-                    supplies.id;""";
+        var sql = sqlPreffix.concat("\n").concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new SupplyViewMapper()
@@ -304,6 +308,20 @@ public class SupplyDao {
                 sql,
                 new SupplyViewMapper(),
                 status
+        );
+    }
+
+    public List<SupplyView> getSuppliesViewsByWorkerId(Long workerId) {
+        // ten endline musi byc w tym stringu
+        var sql = sqlPreffix.concat("""
+                
+                WHERE supplies.worker_id = ?
+                """).
+                concat(sqlSuffix);
+        return jdbcTemplate.query(
+                sql,
+                new SupplyViewMapper(),
+                workerId
         );
     }
 }

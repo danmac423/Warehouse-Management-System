@@ -106,4 +106,6 @@ public class SupplyService {
     }
 
     public List<SupplyView> getSuppliesViewsByStatus(String status) { return supplyDao.getSuppliesViewsByStatus(status); }
+
+    public List<SupplyView> getSuppliesViewsByWorkerId(Long workerId) { return supplyDao.getSuppliesViewsByWorkerId(workerId); }
 }
