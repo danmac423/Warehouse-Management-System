@@ -20,14 +20,8 @@ public class CategoryController {
 
     @GetMapping
 //    @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
-    public ResponseEntity<List<Category>> getAllCategories() {
-        return new ResponseEntity<>(categoryService.getAllCategories(), HttpStatus.OK);
-    }
-
-    @GetMapping("/categoryName/{categoryName}")
-//    @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
-    public ResponseEntity<List<Category>> getCategoriesByCategoryName(@RequestParam String categoryName) {
-        return new ResponseEntity<>(categoryService.getCategoriesByCategoryName (categoryName), HttpStatus.OK);
+    public ResponseEntity<List<Category>> getCategories(@RequestParam(required = false) String name) {
+        return new ResponseEntity<>(categoryService.getCategories(name), HttpStatus.OK);
     }
 
     @PostMapping

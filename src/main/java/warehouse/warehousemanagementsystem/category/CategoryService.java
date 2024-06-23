@@ -18,16 +18,9 @@ public class CategoryService {
         this.categoryDao = categoryDao;
     }
 
-    public List<Category> getAllCategories() {
-        var categories =  categoryDao.getAllCategories();
-        if (categories.isEmpty()) {
-            throw new NotFoundException("No categories found");
-        }
-        return categories;
-    }
 
-    public List<Category> getCategoriesByCategoryName(String categoryName) {
-        var categories = categoryDao.getCategoriesByCategoryName(categoryName);
+    public List<Category> getCategories(String categoryName) {
+        var categories = categoryDao.getCategories(categoryName);
         if (categories.isEmpty()) {
             throw new NotFoundException("No categories found");
         }
