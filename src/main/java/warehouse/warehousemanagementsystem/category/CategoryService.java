@@ -26,8 +26,8 @@ public class CategoryService {
         return categories;
     }
 
-    public List<Category> getCategoriesBySubstring(String substring) {
-        var categories = categoryDao.getCategoriesBySubstring(substring);
+    public List<Category> getCategoriesByCategoryName(String categoryName) {
+        var categories = categoryDao.getCategoriesByCategoryName(categoryName);
         if (categories.isEmpty()) {
             throw new NotFoundException("No categories found");
         }

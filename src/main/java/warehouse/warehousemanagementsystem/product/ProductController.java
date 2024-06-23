@@ -22,19 +22,19 @@ public class ProductController {
         return new ResponseEntity<>(productService.getAllProducts(), HttpStatus.OK);
     }
 
-    @GetMapping("/category/{categoryId}")
-    public List<Product> getProductsByCategory(@PathVariable Long categoryId) {
-        return productService.getProductsByCategory(categoryId);
+    @GetMapping("/categoryId/{categoryId}")
+    public List<Product> getProductsByCategoryId(@PathVariable Long categoryId) {
+        return productService.getProductsByCategoryId(categoryId);
     }
 
-    @GetMapping("/substring/{substring}")
-    public List<Product> getProductsBySubstring(@PathVariable String substring) {
-        return productService.getProductsBySubstring(substring);
+    @GetMapping("/productName/{productName}")
+    public List<Product> getProductsByProductCame(@PathVariable String productName) {
+        return productService.getProductsByProductName(productName);
     }
 
-    @GetMapping("/category/{categoryId}/substring/{substring}")
-    public List<Product> getProductsByCategoryAndSubstring(@PathVariable Long categoryId, @PathVariable String substring) {
-        return productService.getProductsByCategoryAndSubstring(categoryId, substring);
+    @GetMapping("/categoryId/{categoryId}/productName/{productName}")
+    public List<Product> getProductsByCategoryIdAndProductName(@PathVariable Long categoryId, @PathVariable String productName) {
+        return productService.getProductsByCategoryIdAndProductName(categoryId, productName);
     }
 
 

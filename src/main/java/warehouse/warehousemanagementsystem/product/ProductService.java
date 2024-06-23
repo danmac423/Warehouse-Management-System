@@ -22,24 +22,24 @@ public class ProductService {
         return productDao.getAllProducts();
     }
 
-    public List<Product> getProductsByCategory(Long categoryId) {
-        var products =  productDao.getProductsByCategory(categoryId);
+    public List<Product> getProductsByCategoryId(Long categoryId) {
+        var products =  productDao.getProductsByCategoryId(categoryId);
         if (products.isEmpty()) {
             throw new NotFoundException("No products found");
         }
         return products;
     }
 
-    public List<Product> getProductsBySubstring(String substring) {
-        var products = productDao.getProductsBySubstring(substring);
+    public List<Product> getProductsByProductName(String substring) {
+        var products = productDao.getProductsByProductName(substring);
         if (products.isEmpty()) {
             throw new NotFoundException("No products found");
         }
         return products;
     }
 
-    public List<Product> getProductsByCategoryAndSubstring(Long categoryId, String substring) {
-        var products = productDao.getProductsByCategoryAndSubstring(categoryId, substring);
+    public List<Product> getProductsByCategoryIdAndProductName(Long categoryId, String substring) {
+        var products = productDao.getProductsByCategoryIdAndProductName(categoryId, substring);
         if (products.isEmpty()) {
             throw new NotFoundException("No products found");
         }

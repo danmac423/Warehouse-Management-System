@@ -25,6 +25,11 @@ public class OrdersHistoryController {
         return new ResponseEntity<>(ordersHistoryService.getAllOrders(), HttpStatus.OK);
     }
 
+    @GetMapping("/{orderId}")
+    public OrdersHistory getOrderById(@PathVariable Long orderId) {
+        return ordersHistoryService.getOrderById(orderId);
+    }
+
     @GetMapping("/worker/{workerId}")
     public List<OrdersHistory> getOrdersByWorker(@PathVariable Long workerId) {
         return ordersHistoryService.getOrdersByWorker(workerId);

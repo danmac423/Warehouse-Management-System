@@ -99,8 +99,8 @@ public class WorkerDao {
         var sql = """
                 SELECT *
                 FROM workers
-                WHERE username LIKE ? AND
-                    role != 'ADMIN'
+                WHERE username LIKE ?
+                ORDER BY id
                 """;
         return jdbcTemplate.query(
                 sql,

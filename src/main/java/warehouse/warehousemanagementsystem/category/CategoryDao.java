@@ -30,7 +30,7 @@ public class CategoryDao {
         );
     }
 
-    public List<Category> getCategoriesBySubstring(String substring) {
+    public List<Category> getCategoriesByCategoryName(String categoryName) {
         var sql = """
                 SELECT c.id, c.name, COUNT(p.id) AS productCount
                 FROM categories c LEFT JOIN products p ON c.id = p.category_id
@@ -41,7 +41,7 @@ public class CategoryDao {
         return jdbcTemplate.query(
                 sql,
                 new CategoryMapper(),
-                "%" + substring + "%"
+                "%" + categoryName + "%"
         );
     }
 
