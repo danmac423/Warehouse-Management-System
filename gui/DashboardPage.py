@@ -45,6 +45,7 @@ class DashboardPage(QWidget):
             layout.addWidget(self.blocks_list[i], row, col)  
 
         self.setLayout(layout)
+        
     def _init_blocks(self):
         self.products_block = Block("Products", self.globalVariables, self.colors[0])
         self.categories_block = Block("Categories", self.globalVariables, self.colors[1])
@@ -64,8 +65,9 @@ class DashboardPage(QWidget):
         for block in self.blocks_list:
             global_w, global_h = new_window_size
             size = min(global_w/4 - global_w/40, global_h/2 - 20)
-            block.setMaximumSize(size, size)
-       
+            if block:
+                block.setMaximumSize(size, size)
+    
 class Block(QLabel):
     def __init__(self, name, globalVariables, color):
         super().__init__()

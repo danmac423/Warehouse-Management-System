@@ -1,4 +1,3 @@
-
 import sys
 import os
 import shutil
@@ -28,17 +27,62 @@ class MainWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.central_widget = QWidget()
-        self.setCentralWidget(self.central_widget)
-        self.central_layout = QHBoxLayout()
-
+        
         self.setWindowTitle("Warehouse Application")
         # self.setMinimumSize(1024, 600)
         self.setMinimumSize(1280, 860)
-
+        
         self.globalVariables = GlobalVariables()
-
+        
+        self.show_login()
+    
+    def show_login(self):
         self.login_widget = LoginWindow(self.globalVariables)
+        self.globalVariables.signals.login_successful.connect(self.show_main_application)
+        self.setCentralWidget(self.login_widget)
+    
+    def show_main_application(self):
+        self.central_widget = CentralWidget(self.globalVariables)
+        self.setCentralWidget(self.central_widget)
+        self.init_toolbar()
+        self.globalVariables.signals.log_out.connect(lambda: self.log_out())
+        self.globalVariables.signals.log_out.connect(lambda: self.show_login())
+    
+    def init_toolbar(self):
+        self.toolBarWidget = ToolBarWidget(self.globalVariables)
+        self.toolbar = self.addToolBar("Tools")
+        self.toolbar.setMovable(False)
+        self.toolbar.addWidget(self.toolBarWidget)
+    
+    def log_out(self):
+        if self.central_widget:
+            self.setCentralWidget(None)  
+            self.central_widget.deleteLater()  
+            self.central_widget = None  
+            
+        # if hasattr(self, 'toolbar') and self.toolbar is not None:
+        if self.toolbar:
+            # self.toolbar.clear()
+            self.toolBarWidget.deleteLater()
+            self.toolBarWidget = None
+            
+            # self.toolbar.deleteLater()
+            self.removeToolBar(self.toolbar)
+            
+            # self.toolbar.clear()
+            self.toolbar = None
+            
+
+class CentralWidget(QWidget):
+    def __init__(self, globalVariables):
+        super().__init__()
+        
+        self.central_layout = QHBoxLayout()
+        
+        self.globalVariables = globalVariables
+
+        # self.login_widget = LoginWindow(self.globalVariables)
+        
         self.dashboard_page = DashboardPage(self.globalVariables)
         self.product_page = ProductPage(self.globalVariables)
         self.categories_page = CategoriesPage(self.globalVariables)
@@ -52,7 +96,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget = QStackedWidget()
         self.stacked_widget_init()
 
-        self.init_toolbar()
+        # self.init_toolbar()
 
         self.sideBarWidget = SideBarWidget(self.globalVariables)
 
@@ -60,14 +104,13 @@ class MainWindow(QMainWindow):
         self.central_layout.addWidget(self.sideBarWidget)
         self.central_layout.setContentsMargins(0, 0, 0, 0)
         self.central_layout.addWidget(self.stacked_widget)
-        self.central_widget.setLayout(self.central_layout)
-
-
-    def init_toolbar(self):
-        toolBarWidget = ToolBarWidget( self.globalVariables)
-        self.toolbar = self.addToolBar("Tools")
-        self.toolbar.setMovable(False)
-        self.toolbar.addWidget(toolBarWidget)
+        self.setLayout(self.central_layout)
+    
+    # def init_toolbar(self):
+    #     toolBarWidget = ToolBarWidget( self.globalVariables)
+    #     self.toolbar = self.addToolBar("Tools")
+    #     self.toolbar.setMovable(False)
+    #     self.toolbar.addWidget(toolBarWidget)
 
     def stacked_widget_init(self):
         self.stacked_widget.addWidget(self.dashboard_page)
@@ -80,7 +123,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(self.orders_history_page)
         self.stacked_widget.addWidget(self.supplies_history_page)
 
-        self.stacked_widget.addWidget(self.login_widget)
+        # self.stacked_widget.addWidget(self.login_widget)
 
         self.stacked_widget.setCurrentIndex(0)
 

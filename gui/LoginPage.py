@@ -89,16 +89,17 @@ class LoginWindow(QWidget):
 
         if response.status_code == 200:
             print(response.json())
-            token = response.json().get('accessToken')
-            self.open_manager(token)
+            session_data = response.json()
+            # self.open_manager(token)
+            self.globalVariables.signals.login_successful.emit(session_data)
             self.login_status.setText("")
         else:
 
             self.login_status.setStyleSheet("QLabel { color: red; }")
             self.login_status.setText("Failed to login, try again.")
 
-    def open_manager(self, token):
-        print(token)
+    # def open_manager(self, token):
+    #     print(token)
 
 
 

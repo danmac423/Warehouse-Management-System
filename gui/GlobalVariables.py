@@ -19,6 +19,9 @@ class Signals(QObject):
     order_history_view_clicked = Signal()
     supplies_history_view_clicked = Signal()
     
+    login_successful = Signal(dict)
+    log_out = Signal()
+    
     
     window_size_changed = Signal(tuple)
     
@@ -35,6 +38,7 @@ class GlobalVariables(QObject):
         self._window_size = (1280,680)
         self.session_token = ""
         self.signals = Signals()
+        self.signals.log_out.connect(self.clear_session_data)
         
     @property
     def window_size(self):
@@ -44,3 +48,18 @@ class GlobalVariables(QObject):
     def window_size(self, new_window_size):
         self._window_size = new_window_size
         self.signals.window_size_changed.emit(new_window_size)
+        
+    def set_session_data(self, session_data):
+        self.session_token = session_data['accessToken']
+        self.tokenType = session_data['tokenType']
+        self.role = session_data['role']
+        self.loged_workerID = session_data['workerId']
+    
+    def clear_session_data(self):
+        self.session_token = None
+        self.tokenType = None
+        self.role = None
+        self.loged_workerID = None
+        
+        
+        
