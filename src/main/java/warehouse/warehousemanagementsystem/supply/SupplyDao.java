@@ -168,6 +168,15 @@ public class SupplyDao {
         );
         return getSupplyById(supply.id()).get();
     }
+
+    public void unpackSupply(Supply supply) {
+        var sql = "UPDATE supplies SET status = ? WHERE id = ?";
+        jdbcTemplate.update(
+                sql,
+                "processed",
+                supply.id()
+        );
+    }
 //
 //    public int updateSupply(Supply supply) {
 //        var sql = """

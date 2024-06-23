@@ -167,6 +167,18 @@ public class SupplyService {
         return supplyDao.assignSupply(supply);
     }
 
+    public void unpackSupply(Supply supply) {
+        if (!supply.status().equals("assigned")) {
+            throw new BadRequestException("The supply must be assigned to unpack");
+        }
+
+        if (supply.worker() == null || supply.worker().id() == null) {
+            throw new BadRequestException("The supply must have a worker assigned to unpack");
+        }
+
+        supplyDao.unpackSupply(supply);
+    }
+
 //
 //    public void updateSupply(Supply supply) {
 //        long currentMilliseconds = System.currentTimeMillis();

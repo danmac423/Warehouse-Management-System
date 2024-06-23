@@ -60,11 +60,11 @@ public class SupplyController {
         return ResponseEntity.status(HttpStatus.OK).body(assignedSupply);
     }
 
-//    @PutMapping("/unpack")
-//    public ResponseEntity<Supply> unpackSupply(@RequestBody Supply supply) {
-//        Supply unpackedSupply = supplyService.unpackSupply(supply);
-//        return new ResponseEntity<>("Supply unpacked successfully", HttpStatus.OK);
-//    }
+    @PutMapping("/unpack")
+    public ResponseEntity<String> unpackSupply(@RequestBody Supply supply) {
+        supplyService.unpackSupply(supply);
+        return ResponseEntity.status(HttpStatus.OK).body("Supply unpacked successfully and added to the history");
+    }
 //
 //    @PutMapping("/updateWorker")
 //    public ResponseEntity<String> updateWorker(@RequestBody Supply supply) {
