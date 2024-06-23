@@ -284,34 +284,35 @@ class ProductPage(QWidget):
     def edit_product(self, row_position):
         print(row_position)
         self.select_row(row_position)
-        for col in range(5):
+        for col in range(1, 5):
             item = self.table.item(row_position, col)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
 
-        # Tworzymy ComboBox dla kolumny kategorii
+        poduct_name = QLineEdit(self.table.item(row_position, 1).text())
+        price = QLineEdit(self.table.item(row_position, 2).text())
+
         category_combo = QComboBox()
-        categories = self.get_categories()  # Zakładamy, że masz metodę, która zwraca listę kategorii
-        for category_name, category_id in categories:
-            category_combo.addItem(category_name, category_id)
+        self.populate_category_dropdown(category_combo)
 
-        current_category_name = self.table.item(row_position, 3).text()
-        index = category_combo.findText(current_category_name)
-        if index != -1:
-            category_combo.setCurrentIndex(index)
-
-        # Usuń istniejący element tekstowy z komórki przed dodaniem QComboBox
-        self.table.setItem(row_position, 3, QTableWidgetItem(""))
-        self.table.setCellWidget(row_position, 3, category_combo)
+        stock = QLineEdit(self.table.item(row_position, 4).text())
 
         edit_widget = QWidget()
         edit_layout = QGridLayout()
         edit_widget.setLayout(edit_layout)
 
         update_button = QPushButton('Update')
-        update_button.clicked.connect(partial(self.update_product, row_position))
+        update_button.clicked.connect(partial(self.update_product, row_position, poduct_name, price, category_combo, stock))
 
         revert_button = QPushButton('Revert')
         revert_button.clicked.connect(partial(self.revert_edit, row_position))
+
+        for col in range(1, 5):
+            self.table.setItem(row_position, col, QTableWidgetItem(""))
+
+        self.table.setCellWidget(row_position, 1, poduct_name)
+        self.table.setCellWidget(row_position, 2, price)
+        self.table.setCellWidget(row_position, 3, category_combo)
+        self.table.setCellWidget(row_position, 4, stock)
 
         edit_layout.addWidget(revert_button, 0, 0)
         edit_layout.addWidget(update_button, 0, 1)
@@ -321,6 +322,12 @@ class ProductPage(QWidget):
         edit_layout.setContentsMargins(0, 0, 0, 0)
         edit_layout.setSpacing(0)
         self.table.setCellWidget(row_position, 5, edit_widget)
+
+    def populate_category_dropdown(self, dropdown):
+        categories = self.get_categories()
+        dropdown.clear()
+        for category in categories:
+            dropdown.addItem(category[0], category[1])
 
     def select_row(self, row):
         self.table.setSelectionMode(QTableWidget.SingleSelection)
@@ -357,34 +364,22 @@ class ProductPage(QWidget):
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
 
-    def update_product(self, row_position):
-        selected_row = row_position
-        if selected_row == -1:
-            self.writeToConsole(f'Error: No product selected')
-            return
-
+    def update_product(self, row_position, product_name, price, category_dropdown, stock):
         product_id = self.table.item(row_position, 0).text()
-        name = self.table.item(row_position, 1).text()
-        price = self.table.item(row_position, 2).text()
+        product_name = product_name.text()
+        price = price.text()
+        category_id = category_dropdown.currentData()
+        stock = stock.text()
 
-        category_combo = self.table.cellWidget(row_position, 3)
-        if isinstance(category_combo, QComboBox):
-            category_id = category_combo.currentData()
-        else:
-            category_name = self.table.item(row_position, 3).text()
-            category_id = next((id for id, name in self.category_map.items() if name == category_name), None)
-
-        stock = self.table.item(row_position, 4).text()
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'id': product_id, 'name': name, 'price': price, 'category': {'id': category_id}, 'stock': stock})
+        data = json.dumps({'id': product_id, 'name': product_name, 'price': price, 'category': {'id': category_id}, 'stock': stock})
         response = requests.put(f'http://localhost:8080/api/products', headers=headers, data=data)
 
         if response.status_code == 200:
             self.reset_table(row_position)
-            self.apply_filters()
-            self.writeToConsole(f'Success: Product updated successfully')
+            self.load_products()
+            self.writeToConsole("Product updated successfully")
         else:
-            self.reset_table(row_position)
             body = json.loads(response.text)
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')

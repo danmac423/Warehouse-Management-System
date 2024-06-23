@@ -231,15 +231,20 @@ class CategoriesPage(QWidget):
         item = self.table.item(row_position, 1)
         item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
 
+        name = QLineEdit(self.table.item(row_position, 1).text())
+
         edit_widget = QWidget()
         edit_layout = QGridLayout()
         edit_widget.setLayout(edit_layout)
 
         update_button = QPushButton('Update')
-        update_button.clicked.connect(partial(self.update_category, row_position))
+        update_button.clicked.connect(partial(self.update_category, row_position, name))
 
         revert_button = QPushButton('Revert')
         revert_button.clicked.connect(partial(self.revert_edit, row_position))
+
+        self.table.setItem(row_position, 1, item)
+        self.table.setCellWidget(row_position, 1, name)
 
         edit_layout.addWidget(revert_button, 0, 0)
         edit_layout.addWidget(update_button, 0, 1)
@@ -267,22 +272,16 @@ class CategoriesPage(QWidget):
         self.writeToConsole("Reverted edit")
 
     def update_category(self, row_position):
-        selected_row = row_position
-        if selected_row == -1:
-            self.writeToConsole(f'Error: No category selected')
-            return
-
         category_id = self.table.item(row_position, 0).text()
-        name = self.table.item(row_position, 1).text()
+        name = self.table.cellWidget(row_position, 1).text()
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'name': name, 'id': category_id})
-        response = requests.put(f'http://localhost:8080/api/categories', headers=headers, data=data)
+        data = json.dumps({'name': name})
+        response = requests.put(f'http://localhost:8080/api/categories/{category_id}', headers=headers, data=data)
         if response.status_code == 200:
+            self.writeToConsole('Category updated successfully')
             self.reset_table(row_position)
             self.apply_filters()
-            self.writeToConsole(f'Success: Category updated successfully')
         else:
-            self.reset_table(row_position)
             body = json.loads(response.text)
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')

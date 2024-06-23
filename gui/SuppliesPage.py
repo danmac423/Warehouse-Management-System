@@ -56,7 +56,6 @@ class SuppliesPage(QWidget):
         self.search_bar_product.setPlaceholderText("Search by product name")
         self.search_bar_product.textChanged.connect(self.apply_filters)
 
-
         self.status_dropdown = QComboBox(self)
         self.status_dropdown.addItem("All", "ALL")
         self.status_dropdown.addItem("Arrived", "arrived")
@@ -112,22 +111,23 @@ class SuppliesPage(QWidget):
 
         form_layout = QFormLayout()
 
-        self.supply_name = QLineEdit()
-        self.price = QLineEdit()
-        self.status = QComboBox()
-        self.status.addItems(["arrived", "underway"])
+        self.supplier_dropdown = QComboBox()
+        self.populate_suppliers()
+
         self.expected_date = QDateEdit()
         self.expected_date.setCalendarPopup(True)
         self.expected_date.setDate(QDate.currentDate())
-        self.arrival_date = QDateEdit()
-        self.arrival_date.setCalendarPopup(True)
-        self.arrival_date.setDate(QDate.currentDate())
 
-        form_layout.addRow(QLabel('Supply Name:'), self.supply_name)
-        form_layout.addRow(QLabel('Price:'), self.price)
-        form_layout.addRow(QLabel('Status:'), self.status)
+        self.product_dropdown = QComboBox()
+        self.populate_products()
+
+        self.amount = QLineEdit()
+        self.amount.setPlaceholderText("Enter amount")
+
+        form_layout.addRow(QLabel('Supplier:'), self.supplier_dropdown)
         form_layout.addRow(QLabel('Expected Date:'), self.expected_date)
-        form_layout.addRow(QLabel('Arrival Date:'), self.arrival_date)
+        form_layout.addRow(QLabel('Product:'), self.product_dropdown)
+        form_layout.addRow(QLabel('Amount:'), self.amount)
 
         form.setLayout(form_layout)
         form_layout.setAlignment(Qt.AlignTop)
@@ -148,8 +148,8 @@ class SuppliesPage(QWidget):
         self.table_scrollArea.setMinimumHeight(120)
         self.table_scrollArea.setMaximumHeight(300)
 
-        self.table.setColumnCount(11)
-        self.table.setHorizontalHeaderLabels(['ID', 'Supplier', 'Worker', 'Status', 'Expected Date', 'Arrival Date', 'Product', 'Amount', 'Confirm', 'Assign', 'Delete'])
+        self.table.setColumnCount(12)
+        self.table.setHorizontalHeaderLabels(['ID', 'Supplier', 'Worker', 'Status', 'Expected Date', 'Arrival Date', 'Product', 'Amount', 'Confirm', 'Assign', 'Edit', 'Delete'])
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
@@ -161,6 +161,7 @@ class SuppliesPage(QWidget):
         self.table.horizontalHeader().setSectionResizeMode(8, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(9, QHeaderView.Stretch)
         self.table.horizontalHeader().setSectionResizeMode(10, QHeaderView.Stretch)
+        self.table.horizontalHeader().setSectionResizeMode(11, QHeaderView.Stretch)
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
@@ -203,16 +204,14 @@ class SuppliesPage(QWidget):
                 self.writeToConsole(f'Error: {mess}')
 
     def add_supply(self):
-        name = self.supply_name.text()
-        price = self.price.text()
-        status = self.status.currentText()
+        supplier_id = self.supplier_dropdown.currentData()
         expected_date = self.expected_date.date().toString("yyyy-MM-dd")
-        arrival_date = self.arrival_date.date().toString("yyyy-MM-dd")
+        product_id = self.product_dropdown.currentData()
+        amount = self.amount.text()
 
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'name': name, 'price': price, 'status': status, 'expectedDate': expected_date, 'arrivalDate': arrival_date})
+        data = json.dumps({'supplier': {'id': supplier_id}, 'expectedDate': expected_date, 'product': {'id': product_id}, 'amount': amount, 'status': 'underway'})
         response = requests.post('http://localhost:8080/api/supplies', headers=headers, data=data)
-        print(response.status_code)
         if response.status_code == 201:
             self.clear_form()
             self.reset_filters()
@@ -223,11 +222,10 @@ class SuppliesPage(QWidget):
             self.writeToConsole(f'Error: {mess}')
 
     def clear_form(self):
-        self.supply_name.clear()
-        self.price.clear()
-        self.status.setCurrentIndex(0)
+        self.supplier_dropdown.setCurrentIndex(0)
         self.expected_date.setDate(QDate.currentDate())
-        self.arrival_date.setDate(QDate.currentDate())
+        self.product_dropdown.setCurrentIndex(0)
+        self.amount.clear()
 
     def reset_filters(self):
         self.search_bar_worker.setText("")
@@ -299,9 +297,13 @@ class SuppliesPage(QWidget):
             assign_button.clicked.connect(partial(self.assign_supply, row_position))
             self.table.setCellWidget(row_position, 9, assign_button)
 
+            edit_button = QPushButton('Edit')
+            edit_button.clicked.connect(partial(self.edit_supply, row_position))
+            self.table.setCellWidget(row_position, 10, edit_button)
+
             delete_button = QPushButton('Delete')
             delete_button.clicked.connect(partial(self.delete_supply, row_position))
-            self.table.setCellWidget(row_position, 10, delete_button)
+            self.table.setCellWidget(row_position, 11, delete_button)
 
     def load_supplies(self):
         response = requests.get('http://localhost:8080/api/supplies')
@@ -319,13 +321,11 @@ class SuppliesPage(QWidget):
 
     def delete_supply(self, row):
         selected_row = row
-        print(selected_row)
         if selected_row == -1:
             self.writeToConsole('Error: No supply selected')
             return
 
         supply_id = self.table.item(selected_row, 0).text()
-        print(f"supply_id: {supply_id}")
         response = requests.delete(f'http://localhost:8080/api/supplies/{supply_id}')
 
         if response.status_code == 200:
@@ -335,6 +335,96 @@ class SuppliesPage(QWidget):
             body = json.loads(response.text)
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
+
+    def edit_supply(self, row_position):
+        print(row_position)
+        self.select_row(row_position)
+        self.table.item(row_position, 1).setFlags(self.table.item(row_position, 1).flags() | Qt.ItemFlag.ItemIsEditable)
+        self.table.item(row_position, 4).setFlags(self.table.item(row_position, 4).flags() | Qt.ItemFlag.ItemIsEditable)
+        self.table.item(row_position, 6).setFlags(self.table.item(row_position, 6).flags() | Qt.ItemFlag.ItemIsEditable)
+        self.table.item(row_position, 7).setFlags(self.table.item(row_position, 7).flags() | Qt.ItemFlag.ItemIsEditable)
+
+        supplier_dropdown = QComboBox()
+        self.populate_suppliers_edit(supplier_dropdown)
+
+        expected_date = QDateEdit()
+        expected_date.setCalendarPopup(True)
+        expected_date.setDate(QDate.fromString(self.table.item(row_position, 4).text(), "yyyy-MM-dd"))
+
+        product_dropdown = QComboBox()
+        self.populate_products_edit(product_dropdown)
+
+        amount = QLineEdit(self.table.item(row_position, 7).text())
+
+        edit_widget = QWidget()
+        edit_layout = QGridLayout()
+        edit_widget.setLayout(edit_layout)
+
+        update_button = QPushButton('Update')
+        update_button.clicked.connect(partial(self.save_supply, row_position, supplier_dropdown, expected_date, product_dropdown, amount))
+
+        revert_button = QPushButton('Revert')
+        revert_button.clicked.connect(partial(self.revert_edit, row_position))
+
+        self.table.setItem(row_position, 1, QTableWidgetItem(""))
+        self.table.setItem(row_position, 4, QTableWidgetItem(""))
+        self.table.setItem(row_position, 6, QTableWidgetItem(""))
+        self.table.setItem(row_position, 7, QTableWidgetItem(""))
+
+        self.table.setCellWidget(row_position, 1, supplier_dropdown)
+        self.table.setCellWidget(row_position, 4, expected_date)
+        self.table.setCellWidget(row_position, 6, product_dropdown)
+        self.table.setCellWidget(row_position, 7, amount)
+
+        edit_layout.addWidget(revert_button, 0, 0)
+        edit_layout.addWidget(update_button, 0, 1)
+        edit_layout.setColumnStretch(0, 1)
+        edit_layout.setColumnStretch(1, 1)
+        edit_layout.setRowStretch(0, 1)
+        edit_layout.setContentsMargins(0, 0, 0, 0)
+        edit_layout.setSpacing(0)
+        self.table.setCellWidget(row_position, 10, edit_widget)
+
+
+    def save_supply(self, row_position, supplier_dropdown, expected_date, product_dropdown, amount):
+        supply_id = self.table.item(row_position, 0).text()
+        supplier_id = supplier_dropdown.currentData()
+        date = expected_date.date().toString("yyyy-MM-dd")
+        product_id = product_dropdown.currentData()
+        amount_value = amount.text()
+        status = self.table.item(row_position, 3).text()
+
+        headers = {'Content-Type': 'application/json'}
+        data = json.dumps({'id': supply_id, 'supplier': {'id': supplier_id}, 'expectedDate': date, 'product': {'id': product_id}, 'amount': amount_value, 'status': status})
+        response = requests.put(f'http://localhost:8080/api/supplies', headers=headers, data=data)
+        if response.status_code == 200:
+            self.reset_table(row_position)
+            self.apply_filters()
+            self.writeToConsole(f'Success: Supply updated successfully')
+        else:
+            body = json.loads(response.text)
+            mess = body.get('message')
+            self.writeToConsole(f'Error: {mess}')
+
+    def populate_suppliers_edit(self, dropdown):
+        response = requests.get('http://localhost:8080/api/suppliers')
+        if response.status_code == 200:
+            suppliers = response.json()
+            dropdown.clear()
+            for supplier in suppliers:
+                dropdown.addItem(supplier['name'], supplier['id'])
+        else:
+            self.writeToConsole('Failed to load suppliers')
+
+    def populate_products_edit(self, dropdown):
+        response = requests.get('http://localhost:8080/api/products')
+        if response.status_code == 200:
+            products = response.json()
+            dropdown.clear()
+            for product in products:
+                dropdown.addItem(product['name'], product['id'])
+        else:
+            self.writeToConsole('Failed to load products')
 
     def edit_confirm_supply(self, row_position):
         self.select_row(row_position)
@@ -366,11 +456,14 @@ class SuppliesPage(QWidget):
         self.table.selectionModel().select(index, QItemSelectionModel.Deselect)
         index = self.table.model().index(row, 10)
         self.table.selectionModel().select(index, QItemSelectionModel.Deselect)
+        index = self.table.model().index(row, 11)
+        self.table.selectionModel().select(index, QItemSelectionModel.Deselect)
 
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
     def revert_edit(self, row_position):
         self.reset_table(row_position)
+        self.load_supplies()
         self.writeToConsole("Reverted edit")
 
     def confirm_supply(self, row_position):
@@ -383,7 +476,7 @@ class SuppliesPage(QWidget):
 
         if response.status_code == 200:
             self.load_supplies()
-            self.writeToConsole(f'Confirmation of arrival supply id: {supply_id} successfully done')
+            self.writeToConsole(f'Success: Supply confirmed successfully')
         else:
             body = json.loads(response.text)
             mess = body.get('message')
@@ -392,19 +485,20 @@ class SuppliesPage(QWidget):
     def assign_supply(self, row_position):
         self.select_row(row_position)
 
+        self.table.item(row_position, 2).setFlags(self.table.item(row_position, 2).flags() | Qt.ItemFlag.ItemIsEditable)
+        self.table.setItem(row_position, 2, QTableWidgetItem(""))
+
         workers_to_assign = QComboBox()
         workers = self.worker_list()
 
         for worker in workers:
             workers_to_assign.addItem(worker[0], worker[1])  # get all possible workers
 
-        current_worker_username = self.table.item(row_position, 2).text()
-        if current_worker_username:
-            workers_to_assign.setCurrentText(current_worker_username)
         self.table.setCellWidget(row_position, 2, workers_to_assign)
 
+
         assign_button = QPushButton('Update')
-        assign_button.clicked.connect(lambda: self.assign_supply_update(row_position, workers_to_assign.currentData()))
+        assign_button.clicked.connect(partial(self.assign_supply_update, row_position, workers_to_assign.currentData()))
 
         revert_button = QPushButton('Revert')
         revert_button.clicked.connect(partial(self.revert_edit, row_position))
@@ -424,13 +518,11 @@ class SuppliesPage(QWidget):
     def assign_supply_update(self, row_position, worker_id):
         supply_id = self.table.item(row_position, 0).text()
         status = self.table.item(row_position, 3).text()
-        print(f"order_id {supply_id}")
-        print(f"worked_id {worker_id}")
+        worker_id = worker_id
 
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'id': supply_id, 'workerId': worker_id, 'status': status})
-        response = requests.put(f'http://localhost:8080/api/supplies/updateWorker', headers=headers, data=data)
-        print(response.status_code)
+        data = json.dumps({'id': supply_id, 'worker': {'id': worker_id}, 'status': status})
+        response = requests.put(f'http://localhost:8080/api/supplies/assign', headers=headers, data=data)
         if response.status_code == 200:
             self.load_supplies()
             self.writeToConsole(f'Success: Worker assigned successfully')
@@ -452,10 +544,29 @@ class SuppliesPage(QWidget):
             self.writeToConsole(f'Error: {mess}')
             return []
 
+    def populate_suppliers(self):
+        response = requests.get('http://localhost:8080/api/suppliers')
+        if response.status_code == 200:
+            suppliers = response.json()
+            self.supplier_dropdown.clear()
+            for supplier in suppliers:
+                self.supplier_dropdown.addItem(supplier['name'], supplier['id'])
+        else:
+            self.writeToConsole('Failed to load suppliers')
+
+    def populate_products(self):
+        response = requests.get('http://localhost:8080/api/products')
+        if response.status_code == 200:
+            products = response.json()
+            self.product_dropdown.clear()
+            for product in products:
+                self.product_dropdown.addItem(product['name'], product['id'])
+        else:
+            self.writeToConsole('Failed to load products')
+
     def reset_table(self, row_position):
         for col in range(5):
             item = self.table.item(row_position, col)
             item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
         self.table.clearSelection()
         self.table.setSelectionMode(QTableWidget.NoSelection)
-

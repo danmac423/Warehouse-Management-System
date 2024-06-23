@@ -237,10 +237,10 @@ class WorkerPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 4, item)
 
-            password_widget = QLineEdit(worker['password'])
-            password_widget.setEchoMode(QLineEdit.Password)
-            password_widget.setReadOnly(True)
-            self.table.setCellWidget(row_position, 5, password_widget)
+            item = QTableWidgetItem(worker['password'])
+            item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            item.setTextAlignment(Qt.AlignCenter)
+            self.table.setItem(row_position, 5, item)
 
             edit_button = QPushButton('Edit')
             edit_button.clicked.connect(partial(self.edit_worker, row_position))
@@ -283,11 +283,13 @@ class WorkerPage(QWidget):
 
     def edit_worker(self, row_position):
         self.select_row(row_position)
-        for col in range(1, 5):
+        for col in range(1, 6):
             item = self.table.item(row_position, col)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
 
-        # Tworzymy ComboBox dla kolumny roli
+        name = QLineEdit(self.table.item(row_position, 1).text())
+        lastName = QLineEdit(self.table.item(row_position, 2).text())
+
         role_combo = QComboBox()
         roles = ["WORKER", "ADMIN"]
         role_combo.addItems(roles)
@@ -296,27 +298,32 @@ class WorkerPage(QWidget):
         if index != -1:
             role_combo.setCurrentIndex(index)
 
-        # Usunięcie zawartości komórki przed dodaniem QComboBox
-        self.table.setItem(row_position, 3, QTableWidgetItem())
-        self.table.setCellWidget(row_position, 3, role_combo)
+        username = QLineEdit(self.table.item(row_position, 4).text())
+        password = QLineEdit(self.table.item(row_position, 5).text())
 
-        password_item = self.table.cellWidget(row_position, 5)
-        password = password_item.text()
-        self.table.removeCellWidget(row_position, 5)
-        item = QTableWidgetItem(password)
-        item.setFlags(item.flags() | Qt.ItemIsEditable)
-        item.setTextAlignment(Qt.AlignCenter)
-        self.table.setItem(row_position, 5, item)
+        current_password = self.table.item(row_position, 5).text()
 
         edit_widget = QWidget()
         edit_layout = QGridLayout()
         edit_widget.setLayout(edit_layout)
 
         update_button = QPushButton('Update')
-        update_button.clicked.connect(partial(self.update_worker, row_position))
+        update_button.clicked.connect(partial(self.update_worker, row_position, name, lastName, role_combo, username, password, current_password))
 
         revert_button = QPushButton('Revert')
         revert_button.clicked.connect(partial(self.revert_edit, row_position))
+
+        self.table.setItem(row_position, 1, QTableWidgetItem(""))
+        self.table.setItem(row_position, 2, QTableWidgetItem(""))
+        self.table.setItem(row_position, 3, QTableWidgetItem(""))
+        self.table.setItem(row_position, 4, QTableWidgetItem(""))
+        self.table.setItem(row_position, 5, QTableWidgetItem(""))
+
+        self.table.setCellWidget(row_position, 1, name)
+        self.table.setCellWidget(row_position, 2, lastName)
+        self.table.setCellWidget(row_position, 3, role_combo)
+        self.table.setCellWidget(row_position, 4, username)
+        self.table.setCellWidget(row_position, 5, password)
 
         edit_layout.addWidget(revert_button, 0, 0)
         edit_layout.addWidget(update_button, 0, 1)
@@ -341,36 +348,35 @@ class WorkerPage(QWidget):
         self.apply_filters()
         self.writeToConsole("Reverted edit")
 
-    def update_worker(self, row_position):
-        selected_row = row_position
-        if selected_row == -1:
-            self.writeToConsole(f'Error: No worker selected')
-            return
-
+    def update_worker(self, row_position, name, lastName, role_combo, username, password, current_password):
         worker_id = self.table.item(row_position, 0).text()
-        name = self.table.item(row_position, 1).text()
-        lastName = self.table.item(row_position, 2).text()
-
-        role_combo = self.table.cellWidget(row_position, 3)
-        if isinstance(role_combo, QComboBox):
-            role = role_combo.currentText()
-        else:
-            role = self.table.item(row_position, 3).text()
-
-        username = self.table.item(row_position, 4).text()
-        password = self.table.item(row_position, 5).text()
+        name = name.text()
+        lastName = lastName.text()
+        role = role_combo.currentText()
+        username = username.text()
+        password = password.text()
 
         headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'id': worker_id, 'username': username, 'password': password, 'name': name, 'lastName': lastName, 'role': role})
 
+        if current_password != password:
+            change_password_data = json.dumps({'workerId': worker_id, 'newPassword': password})
+            response = requests.post('http://localhost:8080/api/auth/change-password', headers=headers, data=change_password_data)
+            if response.status_code != 200:
+                body = json.loads(response.text)
+                mess = body.get('message')
+                self.writeToConsole(f'Error: {mess}')
+                return
+            else:
+                self.writeToConsole('Password updated successfully')
+
+        data = json.dumps({'id': worker_id, 'username': username, 'name': name, 'lastName': lastName, 'role': role})
         response = requests.put(f'http://localhost:8080/api/workers', headers=headers, data=data)
 
         if response.status_code == 200:
             self.reset_table(row_position)
             self.apply_filters()
-            self.writeToConsole(f'Success: Worker updated successfully')
+            self.writeToConsole('Worker updated successfully')
         else:
-            self.reset_table(row_position)
             body = json.loads(response.text)
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')

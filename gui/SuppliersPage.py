@@ -264,15 +264,33 @@ class SuppliersPage(QWidget):
             item = self.table.item(row_position, col)
             item.setFlags(item.flags() | Qt.ItemFlag.ItemIsEditable)
 
+        name = QLineEdit(self.table.item(row_position, 1).text())
+        country = QLineEdit(self.table.item(row_position, 2).text())
+        city = QLineEdit(self.table.item(row_position, 3).text())
+        street = QLineEdit(self.table.item(row_position, 4).text())
+        house_number = QLineEdit(self.table.item(row_position, 5).text())
+        postal_code = QLineEdit(self.table.item(row_position, 6).text())
+
+
         edit_widget = QWidget()
         edit_layout = QGridLayout()
         edit_widget.setLayout(edit_layout)
 
         update_button = QPushButton('Update')
-        update_button.clicked.connect(partial(self.update_supplier, row_position))
+        update_button.clicked.connect(partial(self.update_supplier, row_position, name, country, city, street, house_number, postal_code))
 
         revert_button = QPushButton('Revert')
         revert_button.clicked.connect(partial(self.revert_edit, row_position))
+
+        for col in range(1, 7):
+            self.table.setItem(row_position, col, QTableWidgetItem(""))
+
+        self.table.setCellWidget(row_position, 1, name)
+        self.table.setCellWidget(row_position, 2, country)
+        self.table.setCellWidget(row_position, 3, city)
+        self.table.setCellWidget(row_position, 4, street)
+        self.table.setCellWidget(row_position, 5, house_number)
+        self.table.setCellWidget(row_position, 6, postal_code)
 
         edit_layout.addWidget(revert_button, 0, 0)
         edit_layout.addWidget(update_button, 0, 1)
@@ -299,19 +317,14 @@ class SuppliersPage(QWidget):
         self.load_suppliers()
         self.writeToConsole("Reverted edit")
 
-    def update_supplier(self, row_position):
-        selected_row = row_position
-        if selected_row == -1:
-            self.writeToConsole(f'Error: No supplier selected')
-            return
-
+    def update_supplier(self, row_position, name, country, city, street, house_number, postal_code):
         supplier_id = self.table.item(row_position, 0).text()
-        name = self.table.item(row_position, 1).text()
-        country = self.table.item(row_position, 2).text()
-        city = self.table.item(row_position, 3).text()
-        street = self.table.item(row_position, 4).text()
-        house_number = self.table.item(row_position, 5).text()
-        postal_code = self.table.item(row_position, 6).text()
+        name = name.text()
+        country = country.text()
+        city = city.text()
+        street = street.text()
+        house_number = house_number.text()
+        postal_code = postal_code.text()
 
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'id': supplier_id, 'name': name, 'address': {'city': city, 'street': street, 'postalCode': postal_code, 'houseNumber': house_number, 'country': country}})
@@ -369,5 +382,5 @@ class SuppliersPage(QWidget):
         self.search_bar_country.clear()
         self.search_bar_city.clear()
         self.apply_filters()
-        
+
 
