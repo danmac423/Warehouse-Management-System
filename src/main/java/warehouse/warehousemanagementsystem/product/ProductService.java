@@ -32,6 +32,10 @@ public class ProductService {
     public Product addProduct(Product product) {
 
         Category category = product.category();
+        if (category == null) {
+            throw new BadRequestException("Category is required");
+        }
+
         if (product.name().isEmpty()
             || product.price() == null
             || category.id() == null) {
@@ -48,7 +52,7 @@ public class ProductService {
         if (product.price().compareTo(BigDecimal.valueOf(0)) < 0) {
             throw new BadRequestException("Price cannot be negative");
         }
-        if (productDao.getProductByName(product).isPresent()) {
+        if (productDao.getProductByName(product.name()).isPresent()) {
             throw new ConflictException("Product with this name already exists");
         }
 
@@ -89,7 +93,7 @@ public class ProductService {
         if (product.price().compareTo(BigDecimal.valueOf(0)) < 0) {
             throw new BadRequestException("Price cannot be negative");
         }
-        if (productDao.getProductByName(product).isPresent() && !currentProduct.name().startsWith(product.name())) {
+        if (productDao.getProductByName(product.name()).isPresent() && !currentProduct.name().startsWith(product.name())) {
             throw new ConflictException("Product with this name already exists");
         }
         return productDao.updateProduct(product);

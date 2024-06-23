@@ -24,7 +24,7 @@ public class AddressController {
         return new ResponseEntity<>(addressService.getAllAddresses(), HttpStatus.OK);
     }
 
-    @GetMapping("addressData")
+    @GetMapping("address-data")
     public ResponseEntity<Address> getAddressByData(@RequestBody Address address) {
         return new ResponseEntity<>(addressService.getAddressByData(address), HttpStatus.OK);
     }
