@@ -92,7 +92,7 @@ public class ProductDao {
         );
     }
 
-    public List<Product> getProductsByCategory(Long categoryId) {
+    public List<Product> getProductsByCategoryId(Long categoryId) {
         var sql = """
                 SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE p.category_id = ?
@@ -105,7 +105,7 @@ public class ProductDao {
         );
     }
 
-    public List<Product> getProductsBySubstring(String substring) {
+    public List<Product> getProductsByProductName(String substring) {
         var sql = """
                 SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE LOWER(p.name) LIKE LOWER(?)
@@ -118,7 +118,7 @@ public class ProductDao {
         );
     }
 
-    public List<Product> getProductsByCategoryAndSubstring(Long categoryId, String substring) {
+    public List<Product> getProductsByCategoryIdAndProductName(Long categoryId, String substring) {
         var sql = """
                 SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
                 WHERE p.category_id = ? AND LOWER(p.name) LIKE LOWER(?)
