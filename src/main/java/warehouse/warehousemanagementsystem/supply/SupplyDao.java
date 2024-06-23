@@ -35,7 +35,8 @@ public class SupplyDao {
                 LEFT JOIN
                     products product ON supplies.product_id = product.id
                 LEFT JOIN
-                    suppliers supplier ON supplies.supplier_id = supplier.id""";
+                    suppliers supplier ON supplies.supplier_id = supplier.id
+                """;
         sqlSuffix = """
                 GROUP BY
                     supplies.id, supplier.id, supplier.name, worker.id, worker.username,
@@ -162,7 +163,7 @@ public class SupplyDao {
     }
 
     public List<SupplyView> getAllSuppliesViews() {
-        var sql = sqlPreffix.concat("\n").concat(sqlSuffix);
+        var sql = sqlPreffix.concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new SupplyViewMapper()
@@ -170,33 +171,9 @@ public class SupplyDao {
     }
 
     public List<SupplyView> getAllSuppliesViewsByWorkerUsername(String usernameSubstring) {
-        var sql = """
-                SELECT
-                    supplies.id,
-                    supplier.id AS supplier_id,
-                    supplier.name AS supplier_name,
-                    worker.id AS worker_id,
-                    worker.username,
-                    supplies.status,
-                    supplies.arrival_date,
-                    supplies.expected_date,
-                    supplies.product_id,
-                    product.name AS product_name,
-                    supplies.amount
-                FROM
-                    supplies
-                LEFT JOIN
-                    workers worker ON worker.id = supplies.worker_id
-                LEFT JOIN
-                    products product ON supplies.product_id = product.id
-                LEFT JOIN
-                    suppliers supplier ON supplies.supplier_id = supplier.id
-                WHERE worker.id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
-                GROUP BY
-                    supplies.id, supplier.id, supplier.name, worker.id, worker.username,
-                    supplies.status, supplies.arrival_date, supplies.expected_date, supplies.product_id, product.name, supplies.amount
-                ORDER BY
-                    supplies.id;""";
+        var sql = sqlPreffix.concat("""
+                WHERE worker.id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))""")
+                .concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new SupplyViewMapper(),
@@ -205,33 +182,9 @@ public class SupplyDao {
     }
 
     public List<SupplyView> getAllSuppliesViewsBySupplierName(String name) {
-        var sql = """
-                SELECT
-                    supplies.id,
-                    supplier.id AS supplier_id,
-                    supplier.name AS supplier_name,
-                    worker.id AS worker_id,
-                    worker.username,
-                    supplies.status,
-                    supplies.arrival_date,
-                    supplies.expected_date,
-                    supplies.product_id,
-                    product.name AS product_name,
-                    supplies.amount
-                FROM
-                    supplies
-                LEFT JOIN
-                    workers worker ON worker.id = supplies.worker_id
-                LEFT JOIN
-                    products product ON supplies.product_id = product.id
-                LEFT JOIN
-                    suppliers supplier ON supplies.supplier_id = supplier.id
+        var sql = sqlPreffix.concat("""
                 WHERE supplier.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?)))
-                GROUP BY
-                    supplies.id, supplier.id, supplier.name, worker.id, worker.username,
-                    supplies.status, supplies.arrival_date, supplies.expected_date, supplies.product_id, product.name, supplies.amount
-                ORDER BY
-                    supplies.id;""";
+                """).concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new SupplyViewMapper(),
@@ -240,34 +193,11 @@ public class SupplyDao {
     }
 
     public List<SupplyView> getAllSuppliesViewsBySupplierNameAndUsername(String name, String username) {
-        var sql = """
-                SELECT
-                    supplies.id,
-                    supplier.id AS supplier_id,
-                    supplier.name AS supplier_name,
-                    worker.id AS worker_id,
-                    worker.username,
-                    supplies.status,
-                    supplies.arrival_date,
-                    supplies.expected_date,
-                    supplies.product_id,
-                    product.name AS product_name,
-                    supplies.amount
-                FROM
-                    supplies
-                LEFT JOIN
-                    workers worker ON worker.id = supplies.worker_id
-                LEFT JOIN
-                    products product ON supplies.product_id = product.id
-                LEFT JOIN
-                    suppliers supplier ON supplies.supplier_id = supplier.id
+        var sql = sqlPreffix.concat("""
                 WHERE supplier.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?))) AND
                     worker.id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
-                GROUP BY
-                    supplies.id, supplier.id, supplier.name, worker.id, worker.username,
-                    supplies.status, supplies.arrival_date, supplies.expected_date, supplies.product_id, product.name, supplies.amount
-                ORDER BY
-                    supplies.id;""";
+                """).
+                concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new SupplyViewMapper(),
@@ -277,33 +207,10 @@ public class SupplyDao {
     }
 
     public List<SupplyView> getSuppliesViewsByStatus(String status) {
-        var sql = """
-                SELECT
-                    supplies.id,
-                    supplier.id AS supplier_id,
-                    supplier.name AS supplier_name,
-                    worker.id AS worker_id,
-                    worker.username,
-                    supplies.status,
-                    supplies.arrival_date,
-                    supplies.expected_date,
-                    supplies.product_id,
-                    product.name AS product_name,
-                    supplies.amount
-                FROM
-                    supplies
-                LEFT JOIN
-                    workers worker ON worker.id = supplies.worker_id
-                LEFT JOIN
-                    products product ON supplies.product_id = product.id
-                LEFT JOIN
-                    suppliers supplier ON supplies.supplier_id = supplier.id
+        var sql = sqlPreffix.concat("""
                 WHERE supplies.status = ?
-                GROUP BY
-                    supplies.id, supplier.id, supplier.name, worker.id, worker.username,
-                    supplies.status, supplies.arrival_date, supplies.expected_date, supplies.product_id, product.name, supplies.amount
-                ORDER BY
-                    supplies.id;""";
+                """)
+                .concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new SupplyViewMapper(),
@@ -312,9 +219,7 @@ public class SupplyDao {
     }
 
     public List<SupplyView> getSuppliesViewsByWorkerId(Long workerId) {
-        // ten endline musi byc w tym stringu
         var sql = sqlPreffix.concat("""
-                
                 WHERE supplies.worker_id = ?
                 """).
                 concat(sqlSuffix);

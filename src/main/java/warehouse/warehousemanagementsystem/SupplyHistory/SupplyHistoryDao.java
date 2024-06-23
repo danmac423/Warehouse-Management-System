@@ -11,10 +11,42 @@ import java.util.List;
 @Repository
 public class SupplyHistoryDao {
     private final JdbcTemplate jdbcTemplate;
+    private final String sqlPrefix;
+    private final String sqlSuffix;
 
     @Autowired
     public SupplyHistoryDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        sqlPrefix = """
+                SELECT
+                    supplies_history.id,
+                    supplier.id AS supplier_id,
+                    supplier.name AS supplier_name,
+                    worker.id AS worker_id,
+                    worker.username,
+                    supplies_history.arrival_date,
+                    supplies_history.expected_date,
+					supplies_history.processed_date,
+                    supplies_history.product_id,
+                    product.name AS product_name,
+                    supplies_history.amount
+                FROM
+                    supplies_history
+                LEFT JOIN
+                    workers worker ON worker.id = supplies_history.worker_id
+                LEFT JOIN
+                    products product ON supplies_history.product_id = product.id
+                LEFT JOIN
+                    suppliers supplier ON supplies_history.supplier_id = supplier.id
+                """;
+        sqlSuffix = """
+                GROUP BY
+                    supplies_history.id, supplier.id, supplier.name, worker.id, worker.username,
+                    supplies_history.arrival_date, supplies_history.expected_date,
+                	supplies_history, supplies_history.product_id, product.name, supplies_history.amount
+                ORDER BY
+                    supplies_history.id;
+                """;
     }
 
     public List<SupplyHistory> getAllSupplies() {
@@ -70,33 +102,7 @@ public class SupplyHistoryDao {
         );
     }
     public List<SupplyHistoryView> getAllSuppliesHistViews() {
-        var sql = """
-                SELECT
-                    supplies_history.id,
-                    supplier.id AS supplier_id,
-                    supplier.name AS supplier_name,
-                    worker.id AS worker_id,
-                    worker.username,
-                    supplies_history.arrival_date,
-                    supplies_history.expected_date,
-					supplies_history.processed_date,
-                    supplies_history.product_id,
-                    product.name AS product_name,
-                    supplies_history.amount
-                FROM
-                    supplies_history
-                LEFT JOIN
-                    workers worker ON worker.id = supplies_history.worker_id
-                LEFT JOIN
-                    products product ON supplies_history.product_id = product.id
-                LEFT JOIN
-                    suppliers supplier ON supplies_history.supplier_id = supplier.id
-                GROUP BY
-                    supplies_history.id, supplier.id, supplier.name, worker.id, worker.username,
-                    supplies_history.arrival_date, supplies_history.expected_date,
-					supplies_history, supplies_history.product_id, product.name, supplies_history.amount
-                ORDER BY
-                    supplies_history.id;""";
+        var sql = sqlPrefix.concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new SupplyHistoryViewMapper()
@@ -104,34 +110,10 @@ public class SupplyHistoryDao {
     }
 
     public List<SupplyHistoryView> getAllSuppliesHistViewsByWorkerUsername(String username) {
-        var sql = """
-                SELECT
-                    supplies_history.id,
-                    supplier.id AS supplier_id,
-                    supplier.name AS supplier_name,
-                    worker.id AS worker_id,
-                    worker.username,
-                    supplies_history.arrival_date,
-                    supplies_history.expected_date,
-					supplies_history.processed_date,
-                    supplies_history.product_id,
-                    product.name AS product_name,
-                    supplies_history.amount
-                FROM
-                    supplies_history
-                LEFT JOIN
-                    workers worker ON worker.id = supplies_history.worker_id
-                LEFT JOIN
-                    products product ON supplies_history.product_id = product.id
-                LEFT JOIN
-                    suppliers supplier ON supplies_history.supplier_id = supplier.id
+        var sql = sqlPrefix.concat("""
                 WHERE worker.id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
-                GROUP BY
-                    supplies_history.id, supplier.id, supplier.name, worker.id, worker.username,
-                    supplies_history.arrival_date, supplies_history.expected_date,
-					supplies_history, supplies_history.product_id, product.name, supplies_history.amount
-                ORDER BY
-                    supplies_history.id;""";
+                """)
+                .concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new SupplyHistoryViewMapper(),
@@ -140,34 +122,10 @@ public class SupplyHistoryDao {
     }
 
     public List<SupplyHistoryView> getAllSuppliesViewsHistBySupplierName(String name) {
-        var sql = """
-                SELECT
-                    supplies_history.id,
-                    supplier.id AS supplier_id,
-                    supplier.name AS supplier_name,
-                    worker.id AS worker_id,
-                    worker.username,
-                    supplies_history.arrival_date,
-                    supplies_history.expected_date,
-					supplies_history.processed_date,
-                    supplies_history.product_id,
-                    product.name AS product_name,
-                    supplies_history.amount
-                FROM
-                    supplies_history
-                LEFT JOIN
-                    workers worker ON worker.id = supplies_history.worker_id
-                LEFT JOIN
-                    products product ON supplies_history.product_id = product.id
-                LEFT JOIN
-                    suppliers supplier ON supplies_history.supplier_id = supplier.id
+        var sql = sqlPrefix.concat("""
                 WHERE supplier.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?)))
-                GROUP BY
-                    supplies_history.id, supplier.id, supplier.name, worker.id, worker.username,
-                    supplies_history.arrival_date, supplies_history.expected_date,
-					supplies_history, supplies_history.product_id, product.name, supplies_history.amount
-                ORDER BY
-                    supplies_history.id;""";
+                """)
+                .concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new SupplyHistoryViewMapper(),
@@ -176,35 +134,11 @@ public class SupplyHistoryDao {
     }
 
     public List<SupplyHistoryView> getSuppliesHistViewsBySupplierNameWorkerUsername(String name, String username) {
-        var sql = """
-                SELECT
-                    supplies_history.id,
-                    supplier.id AS supplier_id,
-                    supplier.name AS supplier_name,
-                    worker.id AS worker_id,
-                    worker.username,
-                    supplies_history.arrival_date,
-                    supplies_history.expected_date,
-					supplies_history.processed_date,
-                    supplies_history.product_id,
-                    product.name AS product_name,
-                    supplies_history.amount
-                FROM
-                    supplies_history
-                LEFT JOIN
-                    workers worker ON worker.id = supplies_history.worker_id
-                LEFT JOIN
-                    products product ON supplies_history.product_id = product.id
-                LEFT JOIN
-                    suppliers supplier ON supplies_history.supplier_id = supplier.id
+        var sql = sqlPrefix.concat("""
                 WHERE supplier.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?))) AND
                     worker.id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
-                GROUP BY
-                    supplies_history.id, supplier.id, supplier.name, worker.id, worker.username,
-                    supplies_history.arrival_date, supplies_history.expected_date,
-					supplies_history, supplies_history.product_id, product.name, supplies_history.amount
-                ORDER BY
-                    supplies_history.id;""";
+                """)
+                .concat(sqlSuffix);
         return jdbcTemplate.query(
                 sql,
                 new SupplyHistoryViewMapper(),
