@@ -41,14 +41,31 @@ class SuppliersPage(QWidget):
         self._init_console()
 
         self.search_widget = QGroupBox("Search supplier")
-        self.serach_layout = QGridLayout(self.search_widget)
-        self.serach_layout.setAlignment(Qt.AlignTop)
+        self.search_layout = QGridLayout(self.search_widget)
+        self.search_layout.setAlignment(Qt.AlignTop)
 
-        self.search_bar = QLineEdit(self)
-        self.search_bar.setPlaceholderText("Search by supplier name")
-        self.search_bar.textChanged.connect(lambda text: self.filter_table_by_name(text))
+        self.search_bar_supplier_name = QLineEdit(self)
+        self.search_bar_supplier_name.setPlaceholderText("Search by supplier name")
+        self.search_bar_supplier_name.textChanged.connect(self.apply_filters)
 
-        self.serach_layout.addWidget(self.search_bar, 1, 0)
+        self.search_bar_country = QLineEdit(self)
+        self.search_bar_country.setPlaceholderText("Search by country")
+        self.search_bar_country.textChanged.connect(self.apply_filters)
+
+        self.search_bar_city = QLineEdit(self)
+        self.search_bar_city.setPlaceholderText("Search by city")
+        self.search_bar_city.textChanged.connect(self.apply_filters)
+
+        self.reset_filters_button = QPushButton("Reset Filters")
+        self.reset_filters_button.clicked.connect(self.reset_filters)
+
+        self.search_layout.addWidget(QLabel("Supplier name:"), 0, 0)
+        self.search_layout.addWidget(self.search_bar_supplier_name, 0, 1)
+        self.search_layout.addWidget(QLabel("Country:"), 1, 0)
+        self.search_layout.addWidget(self.search_bar_country, 1, 1)
+        self.search_layout.addWidget(QLabel("City:"), 2, 0)
+        self.search_layout.addWidget(self.search_bar_city, 2, 1)
+        self.search_layout.addWidget(self.reset_filters_button, 3, 0, 1, 2)
 
         self.suppliers_widget = QGroupBox("Suppliers")
         self.suppliers_widget.setMinimumHeight(210)
@@ -133,30 +150,32 @@ class SuppliersPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
-    def filter_table_by_name(self, name):
-        self.current_search_text = name
-        self.apply_filters()
-
     def apply_filters(self):
-        search_text = self.current_search_text
-        if search_text:
-            url = f'http://localhost:8080/api/suppliers/supplierName/{search_text}'
-            response = requests.get(url)
-            if response.status_code == 200:
-                suppliers = response.json()
-                self.populate_table(suppliers)
-                self.writeToConsole(f"Suppliers filtered by '{search_text}'")
-            else:
-                if response.status_code == 404:
-                    self.writeToConsole(f'Error: No suppliers found under \'{search_text}\'')
-                    self.table.clearContents()
-                    self.table.setRowCount(0)
-                else:
-                    body = json.loads(response.text)
-                    mess = body.get('message')
-                    self.writeToConsole(f'Error: {mess}')
+        supplier_name = self.search_bar_supplier_name.text()
+        country = self.search_bar_country.text()
+        city = self.search_bar_city.text()
+
+        url = 'http://localhost:8080/api/suppliers'
+        params = {}
+
+        if supplier_name:
+            params['supplierName'] = supplier_name
+        if country:
+            params['country'] = country
+        if city:
+            params['city'] = city
+
+        response = requests.get(url, params=params)
+
+        if response.status_code == 200:
+            suppliers = response.json()
+            self.populate_table(suppliers)
+            self.writeToConsole("Filters applied successfully")
         else:
-            self.load_suppliers()
+            body = json.loads(response.text)
+            mess = body.get('message')
+            self.writeToConsole(f'Error: {mess}')
+
 
     def populate_table(self, suppliers):
         self.table.clearContents()
@@ -346,6 +365,9 @@ class SuppliersPage(QWidget):
         self.postal_code.clear()
 
     def reset_filters(self):
-        self.search_bar.setText("")
-        self.current_search_text = ""
+        self.search_bar_supplier_name.clear()
+        self.search_bar_country.clear()
+        self.search_bar_city.clear()
+        self.apply_filters()
+        
 

@@ -164,8 +164,6 @@ class SuppliesPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
-
-
     def apply_filters(self):
         self.current_status = self.status_dropdown.currentData()
         self.current_supplier_name = self.search_bar_supplier.text()

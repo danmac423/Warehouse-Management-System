@@ -12,7 +12,7 @@ class ProductPage(QWidget):
         self.globalVariables = globalVariables
 
         self.current_category_id = "ALL"
-        self.current_search_text = ""
+        self.current_product_name = ""
 
         self._setup_ui()
         layout = QVBoxLayout()
@@ -40,18 +40,24 @@ class ProductPage(QWidget):
         self._init_console()
 
         self.search_widget = QGroupBox("Search Products")
-        self.serach_layout = QGridLayout(self.search_widget)
-        self.serach_layout.setAlignment(Qt.AlignTop)
+        self.search_layout = QGridLayout(self.search_widget)
+        self.search_layout.setAlignment(Qt.AlignTop)
 
         self.search_bar = QLineEdit(self)
         self.search_bar.setPlaceholderText("Search by product name")
-        self.search_bar.textChanged.connect(lambda text: self.filter_table_by_name(text))
+        self.search_bar.textChanged.connect(self.apply_filters)
 
         self.category_dropdown = QComboBox(self)
-        self.category_dropdown.currentIndexChanged.connect(lambda index: self.filter_table_by_category(self.category_dropdown.itemData(index)))
+        self.category_dropdown.currentIndexChanged.connect(self.apply_filters)
 
-        self.serach_layout.addWidget(self.category_dropdown, 0, 0)
-        self.serach_layout.addWidget(self.search_bar, 1, 0)
+        self.reset_button = QPushButton("Reset Filters")
+        self.reset_button.clicked.connect(self.reset_filters)
+
+        self.search_layout.addWidget(QLabel("Category:"), 0, 0)
+        self.search_layout.addWidget(self.category_dropdown, 0, 1)
+        self.search_layout.addWidget(QLabel("Product Name:"), 1, 0)
+        self.search_layout.addWidget(self.search_bar, 1, 1)
+        self.search_layout.addWidget(self.reset_button, 2, 0, 1, 2)
 
         self.products_widget = QGroupBox("Products")
         self.products_widget.setMinimumHeight(210)
@@ -130,43 +136,31 @@ class ProductPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
-    def filter_table_by_category(self, cat_id):
-        self.current_category_id = cat_id
-        self.apply_filters()
-
-    def filter_table_by_name(self, name):
-        self.current_search_text = name
-        self.apply_filters()
-
     def apply_filters(self):
-        category_id = self.current_category_id
-        search_text = self.current_search_text
+        self.current_category_id = self.category_dropdown.currentData()
+        self.current_product_name = self.search_bar.text()
 
-        if category_id == "ALL" and not search_text:
-            self.load_products()
+        current_category_id = self.current_category_id
+        current_product_name = self.current_product_name
+
+        url = 'http://localhost:8080/api/products'
+        params = {}
+
+        if current_category_id != "ALL":
+            params['categoryId'] = current_category_id
+        if current_product_name:
+            params['productName'] = current_product_name
+
+        response = requests.get(url, params=params)
+
+        if response.status_code == 200:
+            products = response.json()
+            self.populate_table(products)
+            self.writeToConsole("Filters applied successfully")
         else:
-            url = 'http://localhost:8080/api/products'
-            params = {}
-
-            if category_id != "ALL":
-                url += f'/categoryId/{category_id}'
-            if search_text:
-                url += f'/productName/{search_text}'
-
-            response = requests.get(url, params=params)
-            if response.status_code == 200:
-                products = response.json()
-                self.populate_table(products)
-                self.writeToConsole("Products filtered successfully")
-            else:
-                if response.status_code == 404:
-                    self.writeToConsole(f'Error: No products found')
-                    self.table.clearContents()
-                    self.table.setRowCount(0)
-                else:
-                    body = json.loads(response.text)
-                    mess = body.get('message')
-                    self.writeToConsole(f'Error: {mess}')
+            body = json.loads(response.text)
+            mess = body.get('message')
+            self.writeToConsole(f'Error: {mess}')
 
     def add_product(self):
         name = self.product_name.text()
@@ -198,6 +192,7 @@ class ProductPage(QWidget):
         self.category_dropdown.setCurrentIndex(0)
         self.current_category_id = "ALL"
         self.current_search_text = ""
+        self.load_products()
 
     def populate_table(self, products):
         self.table.clearContents()
@@ -241,8 +236,7 @@ class ProductPage(QWidget):
             self.table.setCellWidget(row_position, 6, delete_button)
 
     def load_products(self, reset_filters=False):
-        if reset_filters:
-            self.reset_filters()
+
         response = requests.get('http://localhost:8080/api/products')
 
         if response.status_code == 200:

@@ -39,12 +39,27 @@ class WorkerPage(QWidget):
         self._init_console()
 
         self.search_widget = QGroupBox("Search workers")
+        self.search_layout = QGridLayout(self.search_widget)
+        self.search_layout.setAlignment(Qt.AlignTop)
+
         self.search_bar = QLineEdit(self)
         self.search_bar.setPlaceholderText("Search workers by username")
-        self.search_bar.textChanged.connect(lambda text: self.filter_table_by_username(text))
-        self.search_layout = QGridLayout(self.search_widget)
-        self.search_layout.addWidget(self.search_bar)
-        self.search_layout.setAlignment(Qt.AlignTop)
+        self.search_bar.textChanged.connect(self.apply_filters)
+
+        self.role_dropdown = QComboBox(self)
+        self.role_dropdown.addItem("All", "ALL")
+        self.role_dropdown.addItem("WORKER", "WORKER")
+        self.role_dropdown.addItem("ADMIN", "ADMIN")
+        self.role_dropdown.currentIndexChanged.connect(self.apply_filters)
+
+        self.reset_button = QPushButton("Reset Filters")
+        self.reset_button.clicked.connect(self.reset_filters)
+
+        self.search_layout.addWidget(QLabel("Username:"), 0, 0)
+        self.search_layout.addWidget(self.search_bar, 0, 1)
+        self.search_layout.addWidget(QLabel("Role:"), 1, 0)
+        self.search_layout.addWidget(self.role_dropdown, 1, 1)
+        self.search_layout.addWidget(self.reset_button, 2, 0, 1, 2)
 
         self.workers_widget = QGroupBox("Workers")
         self.workers_widget.setMinimumHeight(210)
@@ -130,27 +145,32 @@ class WorkerPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
-    def filter_table_by_username(self, username):
-        self.current_search_text = username
-        self.apply_filters()
-
     def apply_filters(self):
-        search_text = self.current_search_text
-        if search_text:
-            url = f'http://localhost:8080/api/workers/username/{search_text}'
-            params = {}
-            response = requests.get(url, params=params)
-            if response.status_code == 200:
-                workers = response.json()
-                self.populate_table(workers)
-            else:
-                self.table.clearContents()
-                self.table.setRowCount(0)
-                body = json.loads(response.text)
-                mess = body.get('message')
-                self.writeToConsole(f'Error: {mess}')
+        self.current_username = self.search_bar.text()
+        self.current_role = self.role_dropdown.currentData()
+
+        username = self.current_username
+        role = self.current_role
+
+        url = 'http://localhost:8080/api/workers'
+        params = {}
+
+        if role != "ALL":
+            params['role'] = role
+        if username:
+            params['username'] = username
+
+        response = requests.get(url, params=params)
+
+        if response.status_code == 200:
+            self.writeToConsole("Workers loaded successfully")
+            workers = response.json()
+            self.populate_table(workers)
         else:
-            self.load_workers()
+            body = json.loads(response.text)
+            mess = body.get('message')
+            self.writeToConsole(f'Error: {mess}')
+
 
     def add_worker(self):
         name = self.worker_name.text()
@@ -181,8 +201,9 @@ class WorkerPage(QWidget):
         self.password.clear()
 
     def reset_filters(self):
-        self.search_bar.setText("")
-        self.current_search_text = ""
+        self.search_bar.clear()
+        self.role_dropdown.setCurrentIndex(0)
+        self.apply_filters()
 
     def populate_table(self, workers):
         self.table.clearContents()

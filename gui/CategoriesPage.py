@@ -37,8 +37,8 @@ class CategoriesPage(QWidget):
         self._init_console()
 
         self.search_widget = QGroupBox("Search Category")
-        self.serach_layout = QGridLayout(self.search_widget)
-        self.serach_layout.setAlignment(Qt.AlignTop)
+        self.search_layout = QGridLayout(self.search_widget)
+        self.search_layout.setAlignment(Qt.AlignTop)
 
         self.search_bar = QLineEdit(self)
         self.search_bar.setPlaceholderText("Search by category name")
@@ -47,8 +47,9 @@ class CategoriesPage(QWidget):
         self.reset_button = QPushButton("Reset Filters")
         self.reset_button.clicked.connect(self.reset_filters)
 
-        self.serach_layout.addWidget(self.search_bar, 1, 0)
-        self.serach_layout.addWidget(self.reset_button, 2, 0)
+        self.search_layout.addWidget(QLabel("Category Name:"), 1, 0)
+        self.search_layout.addWidget(self.search_bar, 1, 1)
+        self.search_layout.addWidget(self.reset_button, 2, 0, 1, 2)
 
         self.categories_widget = QGroupBox("Categories")
         self.categories_widget.setMinimumHeight(210)
