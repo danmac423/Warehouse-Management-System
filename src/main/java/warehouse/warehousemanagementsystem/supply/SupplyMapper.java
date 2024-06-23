@@ -1,6 +1,10 @@
 package warehouse.warehousemanagementsystem.supply;
 
 import org.springframework.jdbc.core.RowMapper;
+import warehouse.warehousemanagementsystem.address.Address;
+import warehouse.warehousemanagementsystem.product.Product;
+import warehouse.warehousemanagementsystem.supplier.Supplier;
+import warehouse.warehousemanagementsystem.worker.Worker;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -8,15 +12,48 @@ import java.sql.SQLException;
 public class SupplyMapper implements RowMapper<Supply>{
     @Override
     public Supply mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new Supply(
-                rs.getLong("id"),
+        Address address = new Address(
+                rs.getLong("address_id"),
+                rs.getString("street"),
+                rs.getString("house_nr"),
+                rs.getString("postal_code"),
+                rs.getString("city"),
+                rs.getString("country")
+        );
+
+        Supplier supplier = new Supplier(
                 rs.getLong("supplier_id"),
+                rs.getString("supplier_name"),
+                address
+        );
+
+        Worker worker = new Worker(
                 rs.getLong("worker_id"),
+                rs.getString("username"),
+                rs.getString("password"),
+                rs.getString("worker_name"),
+                rs.getString("worker_last_name"),
+                rs.getString("role")
+        );
+
+        Product product = new Product(
+                rs.getLong("product_id"),
+                rs.getString("product_name"),
+                rs.getBigDecimal("price"),
+                rs.getLong("category_id"),
+                rs.getString("category_name"),
+                rs.getInt("stock")
+        );
+
+        return new Supply(
+                rs.getLong("supply_id"),
+                supplier,
+                worker,
                 rs.getString("status"),
                 rs.getDate("arrival_date"),
                 rs.getDate("processed_date"),
                 rs.getDate("expected_date"),
-                rs.getLong("product_id"),
+                product,
                 rs.getInt("amount")
         );
     }

@@ -47,8 +47,15 @@ public class SupplyDao {
 
     public List<Supply> getAllSupplies() {
         var sql = """
-                SELECT * FROM supplies
-                ORDER BY id
+                SELECT addresses.id AS address_id, street, house_nr, postal_code, city, country,
+                    suppliers.id AS supplier_id, suppliers.name AS supplier_name,
+                    workers.id AS worker_id, workers.username, workers.name AS worker_name, workers.last_name AS worker_last_name,
+                FROM supplies 
+                    LEFT JOIN suppliers ON supplies.supplier_id = suppliers.id
+                    LEFT JOIN addresses ON suppliers.address_id = addresses.id
+                    LEFT JOIN workers ON supplies.worker_id = workers.id
+                    LEFT JOIN products ON supplies.product_id = products.id
+                
                 """;
         return jdbcTemplate.query(
                 sql,
