@@ -10,13 +10,12 @@ import java.util.Optional;
 @Repository
 public class SupplyDao {
     private final JdbcTemplate jdbcTemplate;
-    private final String  sqlPreffix;
-    private final String sqlSuffix;
+    private final String  sqlPrefix;
 
     @Autowired
     public SupplyDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        sqlPreffix = """
+        sqlPrefix = """
                 SELECT addresses.id AS address_id, street, house_nr, postal_code, city, country,
                     suppliers.id AS supplier_id, suppliers.name AS supplier_name,
                     workers.id AS worker_id, workers.username, workers.password, workers.name AS worker_name, workers.last_name AS worker_last_name, workers.role,
@@ -30,12 +29,6 @@ public class SupplyDao {
                     LEFT JOIN products ON supplies.product_id = products.id
                     LEFT JOIN categories ON products.category_id = categories.id
                 """;
-        sqlSuffix = """
-                GROUP BY
-                    supplies.id, supplier.id, supplier.name, worker.id, worker.username,
-                    supplies.status, supplies.arrival_date, supplies.expected_date, supplies.product_id, product.name, supplies.amount
-                ORDER BY
-                    supplies.id;""";
     }
 
 
@@ -57,7 +50,7 @@ public class SupplyDao {
             workerId = 0L;
         }
 
-        var sql = sqlPreffix.concat("""
+        var sql = sqlPrefix.concat("""
                 WHERE LOWER(suppliers.name) LIKE LOWER(?) AND
                       (LOWER(workers.username) LIKE LOWER(?) OR (worker_id ISNULL AND ? = '' )) AND
                       LOWER(products.name) LIKE LOWER(?) AND
@@ -79,7 +72,7 @@ public class SupplyDao {
     }
 
     Optional<Supply> getSupplyById(Long id) {
-        var sql = sqlPreffix.concat("""
+        var sql = sqlPrefix.concat("""
                 WHERE supplies.id = ?
                 """);
         return jdbcTemplate.query(
@@ -90,7 +83,7 @@ public class SupplyDao {
     }
 
     Optional<Supply> getSupplyBySupply(Supply supply) {
-        var sql = sqlPreffix.concat("""
+        var sql = sqlPrefix.concat("""
                 WHERE product_id = ? AND status = ? AND expected_date = ? AND amount = ?
                 """);
         return jdbcTemplate.query(
@@ -267,7 +260,7 @@ public class SupplyDao {
 //    }
 //
 //    public List<SupplyView> getAllSuppliesViews() {
-//        var sql = sqlPreffix.concat(sqlSuffix);
+//        var sql = sqlPrefix.concat(sqlSuffix);
 //        return jdbcTemplate.query(
 //                sql,
 //                new SupplyViewMapper()
@@ -275,7 +268,7 @@ public class SupplyDao {
 //    }
 //
 //    public List<SupplyView> getAllSuppliesViewsByWorkerUsername(String usernameSubstring) {
-//        var sql = sqlPreffix.concat("""
+//        var sql = sqlPrefix.concat("""
 //                WHERE worker.id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))""")
 //                .concat(sqlSuffix);
 //        return jdbcTemplate.query(
@@ -286,7 +279,7 @@ public class SupplyDao {
 //    }
 //
 //    public List<SupplyView> getAllSuppliesViewsBySupplierName(String name) {
-//        var sql = sqlPreffix.concat("""
+//        var sql = sqlPrefix.concat("""
 //                WHERE supplier.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?)))
 //                """).concat(sqlSuffix);
 //        return jdbcTemplate.query(
@@ -297,7 +290,7 @@ public class SupplyDao {
 //    }
 //
 //    public List<SupplyView> getAllSuppliesViewsBySupplierNameAndUsername(String name, String username) {
-//        var sql = sqlPreffix.concat("""
+//        var sql = sqlPrefix.concat("""
 //                WHERE supplier.id IN (SELECT id FROM suppliers WHERE LOWER(suppliers.name) like LOWER((?))) AND
 //                    worker.id IN (SELECT id FROM workers WHERE LOWER(workers.username) like LOWER((?)))
 //                """).
@@ -311,7 +304,7 @@ public class SupplyDao {
 //    }
 //
 //    public List<SupplyView> getSuppliesViewsByStatus(String status) {
-//        var sql = sqlPreffix.concat("""
+//        var sql = sqlPrefix.concat("""
 //                WHERE supplies.status = ?
 //                """)
 //                .concat(sqlSuffix);
@@ -323,7 +316,7 @@ public class SupplyDao {
 //    }
 //
 //    public List<SupplyView> getSuppliesViewsByWorkerId(Long workerId) {
-//        var sql = sqlPreffix.concat("""
+//        var sql = sqlPrefix.concat("""
 //                WHERE supplies.worker_id = ?
 //                """).
 //                concat(sqlSuffix);

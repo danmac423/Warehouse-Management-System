@@ -13,7 +13,7 @@ public class ProductInOrderMapper  implements RowMapper<ProductInOrder> {
         Category category = new Category(
                 rs.getLong("category_id"),
                 rs.getString("category_name"),
-                rs.getInt("product_count")
+                null
         );
 
         return new ProductInOrder(
