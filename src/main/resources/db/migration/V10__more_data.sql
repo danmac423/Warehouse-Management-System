@@ -232,10 +232,6 @@ BEGIN
     VALUES (cust1_id, null, null, 'received', CURRENT_TIMESTAMP - INTERVAL '2 days')
 	RETURNING id INTO order5_id;
 
-	-- INSERT INTO orders (customer_id, date_processed, worker_id, status, date_received)
- --    VALUES (cust2_id, null, null, 'received', CURRENT_TIMESTAMP - INTERVAL '1 days')
-	-- RETURNING id INTO order1_id;
-
     -- Products Orders
     INSERT INTO products_orders(product_id, order_id, amount)
     VALUES 
