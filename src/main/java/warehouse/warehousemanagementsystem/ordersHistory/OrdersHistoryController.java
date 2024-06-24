@@ -11,7 +11,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ordersHistory")
+@RequestMapping("/api/orders-history")
 public class OrdersHistoryController {
     private final OrdersHistoryService ordersHistoryService;
 
@@ -21,7 +21,7 @@ public class OrdersHistoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Order>> getOrder(
+    public ResponseEntity<List<Order>> getOrders(
             @RequestParam (required = false) String customerEmail,
             @RequestParam (required = false) String workerUsername
     ) {
