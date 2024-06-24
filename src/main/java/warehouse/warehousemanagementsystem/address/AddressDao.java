@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -14,16 +13,6 @@ public class AddressDao {
     @Autowired
     public AddressDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-    }
-
-    public List<Address> getAllAddresses() {
-        var sql = """
-                SELECT * FROM addresses
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new AddressMapper()
-        );
     }
 
     public Optional<Address> getAddressById(Long id) {
@@ -65,17 +54,6 @@ public class AddressDao {
                 address.country()
         );
         return getAddressByData(address).orElseThrow();
-    }
-
-    public int deleteAddress(Long id) {
-        var sql = """
-                DELETE FROM addresses
-                WHERE id = ?
-                """;
-        return jdbcTemplate.update(
-                sql,
-                id
-        );
     }
 
     public Address updateAddress(Address address) {
