@@ -1,10 +1,8 @@
-package warehouse.warehousemanagementsystem.SupplyHistory;
+package warehouse.warehousemanagementsystem.supplyHistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import warehouse.warehousemanagementsystem.supply.SupplyView;
-import warehouse.warehousemanagementsystem.supply.SupplyViewMapper;
 
 import java.util.List;
 

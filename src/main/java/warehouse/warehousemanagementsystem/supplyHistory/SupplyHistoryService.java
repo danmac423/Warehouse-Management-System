@@ -1,7 +1,6 @@
-package warehouse.warehousemanagementsystem.SupplyHistory;
+package warehouse.warehousemanagementsystem.supplyHistory;
 
 import org.springframework.stereotype.Service;
-import warehouse.warehousemanagementsystem.supply.SupplyView;
 
 import java.util.List;
 

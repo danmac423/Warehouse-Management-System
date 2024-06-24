@@ -1,4 +1,4 @@
-package warehouse.warehousemanagementsystem.SupplyHistory;
+package warehouse.warehousemanagementsystem.supplyHistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
