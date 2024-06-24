@@ -294,14 +294,14 @@ class WorkerDashboard(QWidget):
             self.table_order.setCellWidget(row_position, 7, more_button)
 
     def pack_order(self, row_position):
-        order_id = self.table.item(row_position, 0).text()
+        order_id = self.table_order.item(row_position, 0).text()
         worker_id = self.globalVariables.loged_workerID
 
         data = json.dumps({'id': order_id, 'worker': {'id': worker_id}} )
-        response = requests.put('http://localhost:8080/api/supplies/unpack', data=data, headers=self.globalVariables.http_headers)
+        response = requests.put('http://localhost:8080/api/orders/pack', data=data, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
-            self.load_supplies()
+            self.load_orders()
             self.writeToConsole(f'Packing of order id: {order_id} successfully done')
         else:
             body = json.loads(response.text)
@@ -334,7 +334,7 @@ class WorkerDashboard(QWidget):
                 item.clear()
 
     def show_more(self, rowposition):
-        order_id = self.table.item(rowposition, 0).text()
+        order_id = self.table_order.item(rowposition, 0).text()
         response = requests.get(f'http://localhost:8080/api/orders/{order_id}', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
