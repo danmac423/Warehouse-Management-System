@@ -2,8 +2,11 @@ package warehouse.warehousemanagementsystem.ordersHistory;
 
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.NotFoundException;
+
 import warehouse.warehousemanagementsystem.order.Order;
 import warehouse.warehousemanagementsystem.product.ProductInOrder;
+import warehouse.warehousemanagementsystem.product.Product;
+
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

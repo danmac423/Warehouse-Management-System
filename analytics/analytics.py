@@ -100,6 +100,8 @@ def _get_avg_order_processing_time_by_month(endpoint_url:str, worker_id:str, dat
     return avg_processing_time_by_month
 
 def _add_empty_dates(dated_data:dict, step:str) -> None:
+    if len(dated_data) == 0:
+        return
     for date in np.arange(min(dated_data), max(dated_data), np.timedelta64(1, step)):
         if date not in dated_data.keys():
             dated_data[date] = 0
@@ -125,8 +127,15 @@ def _get_order_product_list(endpoint_url:str, order_id:str):
     
     raise(Exception(response.text))
 
-def _get_categories_stats(orders_endpoint_url:str, product_list_url:str) -> dict:
-    response = requests.get(orders_endpoint_url)
+def _get_categories_stats(orders_endpoint_url:str, dates_endpoint_url:str, product_list_url:str, date_min, date_max) -> dict:
+    response = None
+    if date_min and date_max:
+        date_min = dt.strptime(date_min,  '%Y-%m-%d').isoformat(timespec='microseconds')
+        date_max = dt.strptime(date_max,  '%Y-%m-%d').replace(hour=23, minute=59, second=59).isoformat(timespec='microseconds')
+        response = requests.get(dates_endpoint_url + date_min +'+00:00' + '/' + date_max + '+00:00')
+    else:
+        response = requests.get(orders_endpoint_url)
+    
     if response.ok:
         categories_stats = {}
         orders = response.json()
@@ -134,7 +143,7 @@ def _get_categories_stats(orders_endpoint_url:str, product_list_url:str) -> dict
             order_id = order['id']
             product_list = _get_order_product_list(product_list_url, order_id)
             for product in product_list:
-                category = product['categoryName']
+                category = product['category']['name']
                 categories_stats[category] = categories_stats.get(category, 0) + int(product['amount'])
 
         return categories_stats
@@ -187,7 +196,7 @@ def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_wor
     
     max_y = 0
     date_min_x = np.datetime64(dt.today().isoformat())
-    date_max_x = np.datetime64(dt.today().isoformat())
+    date_max_x = np.datetime64(dt.min)
 
     averages = {}
 
@@ -217,6 +226,9 @@ def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_wor
         except:
             pass
     
+    if date_max_x == np.datetime64(dt.min):
+        date_max_x = np.datetime64(dt.today().isoformat())
+    
     if avg:
         num_workers = len(worker_id_list)
         averages = {k:v/num_workers for k,v in averages.items()}
@@ -235,11 +247,11 @@ def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_wor
 
     if per == 'month' and date_min_x != date_max_x:
         one_month = np.timedelta64(1, 'M').astype('<m8[us]')
-        ax.set_xticks(np.arange(date_min_x, date_max_x, one_month))
+        ax.set_xticks(np.arange(date_min_x, date_max_x+one_month, one_month))
     
     elif per == 'day' and date_min_x  != date_max_x:
         one_day = np.timedelta64(1, 'D').astype('<m8[us]')
-        ax.set_xticks(np.arange(date_min_x, date_max_x, one_day))
+        ax.set_xticks(np.arange(date_min_x, date_max_x+one_day, one_day))
 
     if data == 'processed_nums':
         ax.set_yticks(np.arange(0, max_y+1, 1))
@@ -249,9 +261,9 @@ def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_wor
     ax.legend()
     plt.show()
 
-    return date_min_x, date_max_x
+    return
 
-def _compile_orders_data(data:str, endpoint_url_orders:str, endpoint_url_workers:str, worker_id_list:List[str], per:str,
+def _compile_orders_data(data:str, endpoint_url_orders:str, worker_id_list:List[str], per:str,
                                          date_min:str=None, date_max:str=None, graph_type:str='line', avg:bool=False) -> None:
     
     get_func = None
@@ -277,18 +289,28 @@ def _compile_orders_data(data:str, endpoint_url_orders:str, endpoint_url_workers
         raise(Exception('Incorrect arguments'))
     
 
-    min_date = np.datetime64(dt.max)
+    min_date = np.datetime64(dt.today().isoformat())
     max_date = np.datetime64(dt.min)
     orders_dicts = []
     for worker_id in worker_id_list:
         order_nums:dict = get_func(endpoint_url_orders, worker_id, date_min=date_min, date_max=date_max, show_empty=True)
         orders_dicts.append(order_nums)
         keys = list(order_nums.keys())
-        min_date = min(min(keys), min_date)
-        max_date = max(max(keys), max_date)
+        if len(keys) > 0:
+            min_date = min(min(keys), min_date)
+            max_date = max(max(keys), max_date)
 
-    dates = np.arange(min_date, max_date, step)
+    if max_date == np.datetime64(dt.min):
+        max_date = np.datetime64(dt.today().isoformat())
+    
     rows = [['Dates'] + worker_id_list]
+
+    dates = None
+    if min_date == max_date:
+        dates = [min_date]
+    else:
+        dates = np.arange(min_date, max_date, step)
+   
     for date in dates:
         row = [date]
         for orders_dict in orders_dicts:
@@ -297,9 +319,9 @@ def _compile_orders_data(data:str, endpoint_url_orders:str, endpoint_url_workers
     
     return rows
 
-def dump_orders_data_to_csv(filepath:str, data:str, endpoint_url_orders:str, endpoint_url_workers:str, worker_id_list:List[str], per:str,
+def dump_orders_data_to_csv(filepath:str, data:str, endpoint_url_orders:str, worker_id_list:List[str], per:str,
                                          date_min:str=None, date_max:str=None):
-    rows = _compile_orders_data(data, endpoint_url_orders, endpoint_url_workers, worker_id_list, per, date_min, date_max)
+    rows = _compile_orders_data(data, endpoint_url_orders, worker_id_list, per, date_min, date_max)
     with open(filepath, 'w') as file:
         np.savetxt(
             file,
@@ -307,15 +329,17 @@ def dump_orders_data_to_csv(filepath:str, data:str, endpoint_url_orders:str, end
             delimiter=',',
             fmt="%s"
         )
-        
-     
-
-# def graph_worker_unload_times(endpoint_url_orders:str, endpoint_url_workers:str, worker_id_list:List[str], per:str, ax:plt.Axes, 
-#                                          date_min:str=None, date_max:str=None, graph_type:str='line', avg:bool=False, show_empty:bool=False):
     
-def graph_orders_by_category(orders_endpoint_url:str, product_list_url:str, ax:plt.Axes) -> bool:
-    categories_stats = _get_categories_stats(orders_endpoint_url, product_list_url)
-    ax.pie(list(categories_stats.values()), labels=list(categories_stats.keys()), normalize=True)
-    return True
+def graph_orders_by_category(orders_endpoint_url:str, dates_endpoint_url:str, product_list_url:str, date_min:str=None, date_max:str=None) -> bool:
 
+
+    categories_stats = _get_categories_stats(orders_endpoint_url, dates_endpoint_url, product_list_url, date_min, date_max)
+    label_arr = []
+    sum_nums = sum(categories_stats.values())
+    for category, num in categories_stats.items():
+        label_arr.append(str(category)+'\n'+str(round(num/sum_nums*100, 2))+'%')
+    
+    fig, ax = plt.subplots(1,1, num='Orders statistics')
+    ax.pie(list(categories_stats.values()), labels=label_arr, normalize=True)
+    plt.show()
     
