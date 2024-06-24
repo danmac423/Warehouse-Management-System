@@ -32,7 +32,9 @@ public class OrderService {
             List<ProductInOrder> productsInOrder = productDao.getProductsInOrder(order.id());
             BigDecimal totalPrice = new BigDecimal(0);
             for (ProductInOrder productInOrder : productsInOrder) {
-                totalPrice = totalPrice.add(productInOrder.price());
+                BigDecimal itemPrice = productInOrder.price();
+                BigDecimal amount = BigDecimal.valueOf(productInOrder.amount());
+                totalPrice = totalPrice.add(itemPrice.multiply(amount));
             }
             order = new Order(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, productsInOrder);
             completedOrders.add(order);
@@ -60,7 +62,9 @@ public class OrderService {
         List<ProductInOrder> productsInOrder = productDao.getProductsInOrder(order.id());
         BigDecimal totalPrice = new BigDecimal(0);
         for (ProductInOrder productInOrder : productsInOrder) {
-            totalPrice = totalPrice.add(productInOrder.price());
+            BigDecimal itemPrice = productInOrder.price();
+            BigDecimal amount = BigDecimal.valueOf(productInOrder.amount());
+            totalPrice = totalPrice.add(itemPrice.multiply(amount));
         }
         return new Order(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, productsInOrder);
     }
