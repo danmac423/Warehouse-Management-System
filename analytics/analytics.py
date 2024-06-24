@@ -143,7 +143,6 @@ def _get_categories_stats(orders_endpoint_url:str, dates_endpoint_url:str, produ
             order_id = order['id']
             product_list = _get_order_product_list(product_list_url, order_id)
             for product in product_list:
-                print(product)
                 category = product['category']['name']
                 categories_stats[category] = categories_stats.get(category, 0) + int(product['amount'])
 
