@@ -37,12 +37,6 @@ public class WorkerController {
 
     }
 
-    @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping
-    public ResponseEntity<String> addWorker(@RequestBody Worker worker) {
-        workerService.addWorker(worker);
-        return new ResponseEntity<>("Worker added successfully", HttpStatus.CREATED);
-    }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("{id}")

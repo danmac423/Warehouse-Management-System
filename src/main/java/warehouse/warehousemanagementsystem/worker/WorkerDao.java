@@ -49,13 +49,13 @@ public class WorkerDao {
                 .stream().findFirst();
     }
 
-    public int addWorker(Worker worker) {
+    public void addWorker(Worker worker) {
         var sql = """
                 INSERT INTO workers (username, password, name, last_name, role)
                 VALUES (?, ?, ?, ?, ?)
                 """;
 
-        return jdbcTemplate.update(
+        jdbcTemplate.update(
                 sql,
                 worker.username(),
                 worker.password(),

@@ -43,19 +43,6 @@ public class WorkerService {
     }
 
     @Transactional
-    public void addWorker(Worker worker) {
-        validData(worker);
-
-        if (workerDao.getWorkerByUsername(worker.username()).isPresent()) {
-            throw new ConflictException("Worker with this username already exists");
-        }
-
-        if (workerDao.addWorker(worker) != 1) {
-            throw new DatabaseException("Failed to add worker");
-        }
-    }
-
-    @Transactional
     public void updateWorker(Worker worker) {
         Worker currentWorker = workerDao.getWorkerById(worker.id()).orElseThrow(() -> new BadRequestException("Worker not found"));
 
