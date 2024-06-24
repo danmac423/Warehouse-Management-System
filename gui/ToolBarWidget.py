@@ -36,5 +36,4 @@ class ToolBarWidget(QWidget):
         self.globalVariables.signals.menu_toggled.emit()
     
     def log_out_clicked(self):
-        print("Log out")
-        pass        
+        self.globalVariables.signals.log_out.emit()
