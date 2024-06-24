@@ -3,6 +3,8 @@ package warehouse.warehousemanagementsystem.order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import warehouse.warehousemanagementsystem.exception.BadRequestException;
+import warehouse.warehousemanagementsystem.exception.NotFoundException;
 import warehouse.warehousemanagementsystem.product.ProductDao;
 import warehouse.warehousemanagementsystem.product.ProductInOrder;
 
@@ -36,6 +38,20 @@ public class OrderService {
             completedOrders.add(order);
         }
         return completedOrders;
+    }
+
+    @Transactional
+    public void packOrder(Order order) {
+        order = orderDao.getOrderById(order.id()).orElseThrow(() -> new NotFoundException("Order not found"));
+        if (!order.status().equals("received")) {
+            throw new BadRequestException("Order must be received before packing");
+        }
+
+        if (order.worker() == null || order.worker().id() == null) {
+            throw new BadRequestException("Order must have a worker assigned before packing");
+        }
+
+        orderDao.packOrder(order);
     }
 //
 //    public List<Order> getOrdersByWorkerUsernameSubstring(String usernameSubstring) {

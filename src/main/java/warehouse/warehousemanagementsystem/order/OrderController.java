@@ -27,6 +27,13 @@ public class OrderController {
         List<Order> orders = orderService.getOrders(workerUsername, customerEmail, status, workerId);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
+
+    @PutMapping("/pack")
+    public ResponseEntity<String> packOrder(@RequestBody Order order) {
+        orderService.packOrder(order);
+        return ResponseEntity.status(HttpStatus.OK).body("Order packed successfully and added to the history");
+    }
+
 //
 //    @GetMapping("/workerUsername/{usernameSubstring}")
 //    public ResponseEntity<List<Order>> getOrdersByWorkerUsernameSubstring(@PathVariable String usernameSubstring) {

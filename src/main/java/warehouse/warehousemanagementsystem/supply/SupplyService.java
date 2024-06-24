@@ -8,7 +8,6 @@ import warehouse.warehousemanagementsystem.product.ProductDao;
 import warehouse.warehousemanagementsystem.supplier.Supplier;
 import warehouse.warehousemanagementsystem.supplier.SupplierDao;
 import warehouse.warehousemanagementsystem.worker.Worker;
-import warehouse.warehousemanagementsystem.worker.WorkerDao;
 
 import java.util.List;
 import java.util.Objects;
@@ -17,13 +16,11 @@ import java.util.Objects;
 public class SupplyService {
     private final SupplyDao supplyDao;
     private final SupplierDao supplierDao;
-    private final WorkerDao workerDao;
     private final ProductDao productDao;
 
-    public SupplyService(SupplyDao supplyDao, SupplierDao supplierDao, WorkerDao workerDao, ProductDao productDao) {
+    public SupplyService(SupplyDao supplyDao, SupplierDao supplierDao, ProductDao productDao) {
         this.supplyDao = supplyDao;
         this.supplierDao = supplierDao;
-        this.workerDao = workerDao;
         this.productDao = productDao;
     }
 
@@ -156,7 +153,7 @@ public class SupplyService {
 
 
     public Supply assignSupply(Supply supply) {
-        if (!supply.status().equals("arrived") && !supply.status().equals("assigned")) {
+        if (!supply.status().equals("arrived")) {
             throw new BadRequestException("The supply must be arrived to assign");
         }
 
@@ -168,8 +165,8 @@ public class SupplyService {
     }
 
     public void unpackSupply(Supply supply) {
-        if (!supply.status().equals("assigned")) {
-            throw new BadRequestException("The supply must be assigned to unpack");
+        if (!supply.status().equals("arrived")) {
+            throw new BadRequestException("The supply must be arrived to unpack");
         }
 
         if (supply.worker() == null || supply.worker().id() == null) {
