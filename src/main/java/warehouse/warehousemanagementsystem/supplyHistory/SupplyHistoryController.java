@@ -4,11 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import warehouse.warehousemanagementsystem.supply.Supply;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/suppliesHistory")
+@RequestMapping("/api/supplies-history")
 public class SupplyHistoryController {
     private final SupplyHistoryService supplyHistoryService;
 
@@ -17,9 +18,19 @@ public class SupplyHistoryController {
         this.supplyHistoryService = supplyHistoryService;
     }
 
+//    @GetMapping
+//    public ResponseEntity<List<SupplyHistory>> getAllSupplies() {
+//        return new ResponseEntity<>(supplyHistoryService.getAllSupplies(), HttpStatus.OK);
+//    }
+
     @GetMapping
-    public ResponseEntity<List<SupplyHistory>> getAllSupplies() {
-        return new ResponseEntity<>(supplyHistoryService.getAllSupplies(), HttpStatus.OK);
+    public ResponseEntity<List<Supply>> getSupplies(
+            @RequestParam(required = false) String supplierName,
+            @RequestParam(required = false) String workerUsername,
+            @RequestParam(required = false) String productName,
+            @RequestParam(required = false) Long categoryId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(supplyHistoryService.getSupplies(supplierName, workerUsername, productName, categoryId));
     }
 
     @GetMapping("/worker/{workerId}")
