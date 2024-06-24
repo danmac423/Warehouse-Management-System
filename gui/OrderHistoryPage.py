@@ -59,8 +59,10 @@ class OrderHistoryPage(QWidget):
         search_layout.setAlignment(Qt.AlignTop)
 
         form_layout = QFormLayout()
-        self.search_customer_email = QLineEdit()
-        self.search_worker_username = QLineEdit()
+        self.search_customer_email = QLineEdit(self)
+        self.search_customer_email.textChanged.connect(self.apply_filters)
+        self.search_worker_username = QLineEdit(self)
+        self.search_worker_username.textChanged.connect(self.apply_filters)
 
         form_layout.addRow(QLabel('Customer email:'), self.search_customer_email)
         form_layout.addRow(QLabel('Worker username:'), self.search_worker_username)
@@ -69,11 +71,11 @@ class OrderHistoryPage(QWidget):
         form.setLayout(form_layout)
         form_layout.setAlignment(Qt.AlignTop)
 
-        search_button = QPushButton('Search')
-        search_button.clicked.connect(self.filter_order)
+        reset_button = QPushButton('Reset Filters')
+        reset_button.clicked.connect(self.reset_filters)
 
-        search_layout.addWidget(form, 0,0)
-        search_layout.addWidget(search_button, 1, 0)
+        search_layout.addWidget(form, 0, 0)
+        search_layout.addWidget(reset_button, 1, 0)
         self.search_widget.setLayout(search_layout)
         search_layout.setAlignment(Qt.AlignTop)
 
@@ -199,34 +201,41 @@ class OrderHistoryPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
-    def filter_order(self):
-        emailSubstring = self.search_customer_email.text()
-        usernameSubstring = self.search_worker_username.text()
+    def apply_filters(self):
+        customer_email = self.search_customer_email.text()
+        worker_username = self.search_worker_username.text()
 
-        if emailSubstring and usernameSubstring:
-            response = requests.get(f'http://localhost:8080/api/ordersHistory/formated/email/{emailSubstring}/username/{usernameSubstring}')
-        elif emailSubstring:
-            response = requests.get(f'http://localhost:8080/api/ordersHistory/formated/email/{emailSubstring}')
-        elif usernameSubstring:
-            response = requests.get(f'http://localhost:8080/api/ordersHistory/formated/username/{usernameSubstring}')
-        else:
-            self.load_ordersHistory()
-            return
+        url = 'http://localhost:8080/api/ordersHistory'
+        params = {}
 
-        print(response.status_code)
+        if customer_email:
+            params['customerEmail'] = customer_email
+        if worker_username:
+            params['workerUsername'] = worker_username
+
+        response = requests.get(url, params=params)
+
         if response.status_code == 200:
+            self.writeToConsole("Orders filtered successfully")
             ordersHistory = response.json()
             self.populate_table(ordersHistory)
-            self.writeToConsole(f"Orders history filtered by email: \'{emailSubstring}\' and worker: \'{usernameSubstring}\'")
         else:
             body = json.loads(response.text)
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
 
+    def reset_filters(self):
+        self.search_customer_email.clear()
+        self.search_worker_username.clear()
+        self.load_ordersHistory()
+
     def populate_table(self, ordersHistory):
         self.table.clearContents()
         self.table.setRowCount(0)
         for order in ordersHistory:
+            customer = order['customer']
+            worker = order['worker']
+
             row_position = self.table.rowCount()
             self.table.insertRow(row_position)
 
@@ -235,12 +244,12 @@ class OrderHistoryPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 0, item)
 
-            item =   QTableWidgetItem(str(order['email']))
+            item =   QTableWidgetItem(str(customer['email']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 1, item)
 
-            item =  QTableWidgetItem(str(order['username']))
+            item =  QTableWidgetItem(str(worker['username']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 2, item)
@@ -260,7 +269,7 @@ class OrderHistoryPage(QWidget):
             self.table.setCellWidget(row_position, 5, more_button)
 
     def load_ordersHistory(self):
-        response = requests.get('http://localhost:8080/api/ordersHistory/formated')
+        response = requests.get('http://localhost:8080/api/ordersHistory')
         print(response.status_code)
 
         if response.status_code == 200:
@@ -282,44 +291,43 @@ class OrderHistoryPage(QWidget):
 
     def show_more(self, rowposition):
         order_id = self.table.item(rowposition, 0).text()
-        response = requests.get(f'http://localhost:8080/api/ordersHistoryViews/orderId/{order_id}')
-        response2 = requests.get(f'http://localhost:8080/api/products/order/{order_id}')
+        response = requests.get(f'http://localhost:8080/api/ordersHistory/{order_id}')
 
-        if response.status_code == 200 and response2.status_code == 200:
-            self.writeToConsole(f"More info for order {order_id}")
-            ordersHistory = response.json()
-            products = response2.json()
-            self.populate_more_info(ordersHistory[0], products)
+        if response.status_code == 200:
+            order = response.json()
+            self.populate_more_info(order)
         else:
-
             body = json.loads(response.text)
-            body2 = json.loads(response2.text)
             mess = body.get('message')
-            mess2 = body2.get('message')
-            self.writeToConsole(f'Error: {mess} and {mess2}')
+            self.writeToConsole(f'Error: {mess}')
 
-    def populate_more_info(self, order, products):
+    def populate_more_info(self, order):
         self.clear_more_list()
         self.more_widget.setTitle(f"More info on Order ID: {order['id']}")
+
+        products = order['products']
+        customer = order['customer']
+        worker = order['worker']
 
         for item in products:
             list_item = QListWidgetItem(format_item(item))
             self.products.addItem(list_item)
 
-        self.customer_id.setText(str(order['customerId']))
-        self.customer_name.setText(str(order['name']))
-        self.worker_id.setText(str(order['workerId']))
+        self.customer_id.setText(str(customer['id']))
+        self.customer_name.setText(str(customer['name']))
+        self.worker_id.setText(str(worker['id']))
         self.date_received.setText(str(order['dateReceived']))
         self.status.setText(str(order['status']))
-        self.customer_email.setText(str(order['email']))
-        self.customer_lastname.setText(str(order['surname']))
-        self.worker_username.setText(str(order['username']))
+        self.customer_email.setText(str(customer['email']))
+        self.customer_lastname.setText(str(customer['lastName']))
+        self.worker_username.setText(str(worker['username']))
         self.date_processed.setText(str(order['dateProcessed']))
         self.total_price.setText(str(order['totalPrice']))
 
 
 
 def format_item(item):
-    return f"ID: {item['id']} | Name: {item['name']} | Price: ${item['price']} | Category: {item['categoryName']} | Amount: {item['amount']} | Total: ${item['totalPrice']}"
+    category = item['category']
+    return f"ID: {item['id']} | Name: {item['name']} | Price: ${item['price']} | Category: {category['name']} | Amount: {item['amount']} | Total: ${item['totalPrice']}"
 
 

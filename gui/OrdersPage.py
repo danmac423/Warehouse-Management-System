@@ -58,25 +58,22 @@ class OrderPage(QWidget):
         search_layout = QGridLayout(self.search_widget)
         search_layout.setAlignment(Qt.AlignTop)
 
-        form_layout = QFormLayout()
-        self.search_customer_email = QLineEdit()
-        self.search_worker_username = QLineEdit()
+        self.search_customer_email = QLineEdit(self)
+        self.search_customer_email.setPlaceholderText("Search by customer email")
+        self.search_customer_email.textChanged.connect(self.apply_filters)
 
-        form_layout.addRow(QLabel('Customer email:'), self.search_customer_email)
-        form_layout.addRow(QLabel('Worker username:'), self.search_worker_username)
+        self.search_worker_username = QLineEdit(self)
+        self.search_worker_username.setPlaceholderText("Search by customer username")
+        self.search_worker_username.textChanged.connect(self.apply_filters)
 
-        form = QWidget()
-        form.setLayout(form_layout)
-        form_layout.setAlignment(Qt.AlignTop)
+        self.reset_button = QPushButton("Reset Filters")
+        self.reset_button.clicked.connect(self.reset_filters)
 
-        search_button = QPushButton('Search Orders')
-        search_button.clicked.connect(self.filter_order)
-
-        search_layout.addWidget(form, 0,0)
-        search_layout.addWidget(search_button, 1, 0)
-        self.search_widget.setLayout(search_layout)
-        search_layout.setAlignment(Qt.AlignTop)
-
+        search_layout.addWidget(QLabel("Customer email:"), 0, 0)
+        search_layout.addWidget(self.search_customer_email, 0, 1)
+        search_layout.addWidget(QLabel("Worker username:"), 1, 0)
+        search_layout.addWidget(self.search_worker_username, 1, 1)
+        search_layout.addWidget(self.reset_button, 2, 0, 1, 2)
 
     def _init_console(self):
         self.console_box = QGroupBox("Last operation status:")
@@ -105,78 +102,91 @@ class OrderPage(QWidget):
     def _init_more_box(self):
         # products_box= QGroupBox("Products")
         products_box = QGroupBox()
-        form1 = QWidget()
-        form2 = QWidget()
+
 
         # self.order_id = QLineEdit(readOnly = True)
         # self.order_id.setText("23112")
         # self.order_id.clear()
         # self.order_id.setText("dsads")
         # self.products = QLineEdit(readOnly = True)
-        self.products =  QListWidget()
+        self.products = QListWidget()
 
-
-        self.customer_id = QLineEdit(readOnly = True)
-        self.customer_name = QLineEdit(readOnly = True)
-
-        self.date_processed = QLineEdit(readOnly = True)
-        self.worker_username = QLineEdit(readOnly = True)
-        self.worker_id = QLineEdit(readOnly = True)
-
-        self.status = QLineEdit(readOnly = True)
-        self.date_received = QLineEdit(readOnly = True)
-        self.total_price = QLineEdit(readOnly = True)
-
+        self.customer_name_last_name = QLineEdit(readOnly = True)
         self.customer_email = QLineEdit(readOnly = True)
-        self.customer_lastname = QLineEdit(readOnly = True)
+        self.customer_address = QLineEdit(readOnly = True)
 
         products_layout = QVBoxLayout()
         products_layout.setContentsMargins(0, 0, 0, 0)
-        # form_layout.addRow(QLabel("Order ID:"), self.order_id)
         products_layout.addWidget(self.products)
-
-        form_layout1 = QFormLayout()
-
-        form_layout1.addRow(QLabel("Customer ID:"), self.customer_id)
-        form_layout1.addRow(QLabel("Customer name:"), self.customer_name)
-        form_layout1.addRow(QLabel("Worker ID:"), self.worker_id)
-        form_layout1.addRow(QLabel("Date Recieved:"), self.date_received)
-        form_layout1.addRow(QLabel("Status:"), self.status)
-
-
-        form_layout2 = QFormLayout()
-        form_layout2.addRow(QLabel("Customer email:"), self.customer_email)
-        form_layout2.addRow(QLabel("Customer lastname:"), self.customer_lastname)
-        form_layout2.addRow(QLabel("Worker username:"), self.worker_username)
-        form_layout2.addRow(QLabel("Date processed:"), self.date_processed)
-        form_layout2.addRow(QLabel("Total price:"), self.total_price)
-
         self.more_list = [
             # self.order_id,
             self.products,
-            self.customer_id,
-            self.customer_name,
-            self.worker_id,
-            self.date_received,
-            self.status,
+            self.customer_name_last_name,
             self.customer_email,
-            self.customer_lastname,
-            self.worker_username,
-            self.date_processed,
-            self.total_price
+            self.customer_address
         ]
+        self.more_widget = QGroupBox('More info')
+        self.more_widget.setLayout(products_layout)
+
+
+        # self.customer_id = QLineEdit(readOnly = True)
+        # self.customer_name = QLineEdit(readOnly = True)
+
+        # self.date_processed = QLineEdit(readOnly = True)
+        # self.worker_username = QLineEdit(readOnly = True)
+        # self.worker_id = QLineEdit(readOnly = True)
+
+        # self.status = QLineEdit(readOnly = True)
+        # self.date_received = QLineEdit(readOnly = True)
+        # self.total_price = QLineEdit(readOnly = True)
+
+        # self.customer_email = QLineEdit(readOnly = True)
+        # self.customer_lastname = QLineEdit(readOnly = True)
+
+        products_layout = QVBoxLayout()
+        # products_layout.setContentsMargins(0, 0, 0, 0)
+        # # form_layout.addRow(QLabel("Order ID:"), self.order_id)
+        # products_layout.addWidget(self.products)
+
+        # form_layout1 = QFormLayout()
+
+        # form_layout1.addRow(QLabel("Customer name:"), self.customer_name)
+        # form_layout1.addRow(QLabel("Customer email:"), self.customer_email)
+
+
+
+        # form_layout2 = QFormLayout()
+        # form_layout2.addRow(QLabel("Customer last name:"), self.customer_lastname)
+
+        # self.more_list = [
+        #     # self.order_id,
+        #     self.products,
+        #     self.customer_id,
+        #     self.customer_name,
+        #     self.worker_id,
+        #     self.date_received,
+        #     self.status,
+        #     self.customer_email,
+        #     self.customer_lastname,
+        #     self.worker_username,
+        #     self.date_processed,
+        #     self.total_price
+        # ]
 
         products_box.setLayout(products_layout)
-        form1.setLayout(form_layout1)
-        form2.setLayout(form_layout2)
+        # form1.setLayout(form_layout1)
+        # form2.setLayout(form_layout2)
 
 
         more_layout = QGridLayout()
         more_layout.addWidget(products_box, 0, 0, 1, 2)
-        more_layout.addWidget(form1, 1, 0, 1, 1)
-        more_layout.addWidget(form2, 1, 1, 1, 1)
-        more_layout.setColumnStretch(0, 1)
-        more_layout.setColumnStretch(1, 1)
+        more_layout.addWidget(self.customer_name_last_name, 1, 0)
+        more_layout.addWidget(self.customer_email, 1, 1)
+        more_layout.addWidget(self.customer_address, 2, 0, 1, 2)
+        # more_layout.addWidget(form1, 1, 0, 1, 1)
+        # more_layout.addWidget(form2, 1, 1, 1, 1)
+        # more_layout.setColumnStretch(0, 1)
+        # more_layout.setColumnStretch(1, 1)
 
         self.more_widget = QGroupBox('More info')
         self.more_widget.setLayout(more_layout)
@@ -203,42 +213,42 @@ class OrderPage(QWidget):
         self.table.setSelectionBehavior(QTableWidget.SelectRows)
         self.table.setSelectionMode(QTableWidget.NoSelection)
 
-    def filter_order(self):
-        emailSubstring = self.search_customer_email.text()
-        usernameSubstring = self.search_worker_username.text()
+    def apply_filters(self):
+        customer_email = self.search_customer_email.text()
+        worker_username = self.search_worker_username.text()
 
-        print(f"customerEmail/{emailSubstring}")
-        print(f"WorkerUsername/{usernameSubstring}")
+        url = 'http://localhost:8080/api/orders'
+        params = {}
 
-        if emailSubstring and usernameSubstring:
-            response = requests.get(f'http://localhost:8080/api/ordersViews/customerEmail/{emailSubstring}/workerUsername/{usernameSubstring}')
-        elif emailSubstring:
-            response = requests.get(f'http://localhost:8080/api/ordersViews/customerEmail/{emailSubstring}')
-        elif usernameSubstring:
-            response = requests.get(f'http://localhost:8080/api/ordersViews/workerUsername/{usernameSubstring}')
-        else:
-            self.load_orders()
-            return
+        if customer_email:
+            params['customerEmail'] = customer_email
+        if worker_username:
+            params['workerUsername'] = worker_username
 
-        print(response.status_code)
+        response = requests.get(url, params=params)
         if response.status_code == 200:
             orders = response.json()
             self.populate_table(orders)
-            self.writeToConsole(f"Orders filtered by email: \'{emailSubstring}\' and worker: \'{usernameSubstring}\'")
+            self.writeToConsole("Orders filtered successfully")
         else:
-            if response.status_code == 404:
-                self.writeToConsole(f"No orders found under email: \'{emailSubstring}\' and worker: \'{usernameSubstring}\'")
-                self.table.clearContents()
-                self.table.setRowCount(0)
-            else:
-                body = json.loads(response.text)
-                mess = body.get('message')
-                self.writeToConsole(f'Error: {mess}')
+            body = json.loads(response.text)
+            mess = body.get('message')
+            self.writeToConsole(f'Error: {mess}')
+
+    def reset_filters(self):
+        self.search_customer_email.clear()
+        self.search_worker_username.clear()
+        self.load_orders()
+        self.writeToConsole("Filters reset")
+
 
     def populate_table(self, orders):
         self.table.clearContents()
         self.table.setRowCount(0)
         for order in orders:
+            customer = order['customer']
+            worker = order['worker']
+
             row_position = self.table.rowCount()
             self.table.insertRow(row_position)
 
@@ -247,12 +257,12 @@ class OrderPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 0, item)
 
-            item =   QTableWidgetItem(str(order['email']))
+            item =   QTableWidgetItem(str(customer['email']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 1, item)
 
-            item =  QTableWidgetItem(str(order['username']))
+            item =  QTableWidgetItem(str(worker['username']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 2, item)
@@ -293,7 +303,7 @@ class OrderPage(QWidget):
 
 
     def load_orders(self):
-        response = requests.get('http://localhost:8080/api/ordersViews')
+        response = requests.get('http://localhost:8080/api/orders')
 
         if response.status_code == 200:
             # self.update_categories()
@@ -389,41 +399,43 @@ class OrderPage(QWidget):
 
     def show_more(self, rowposition):
         order_id = self.table.item(rowposition, 0).text()
-        response = requests.get(f'http://localhost:8080/api/ordersViews/orderId/{order_id}')
-        response2 = requests.get(f'http://localhost:8080/api/products/order/{order_id}')
+        response = requests.get(f'http://localhost:8080/api/orders/{order_id}')
 
-        if response.status_code == 200 and response2.status_code == 200:
-            self.writeToConsole(f"More info for order {order_id}")
-            orders = response.json()
-            products = response2.json()
-            self.populate_more_info(orders[0], products)
+        if response.status_code == 200:
+            order = response.json()
+            self.populate_more_info(order)
+            self.writeToConsole(f"More info on order {order_id} loaded successfully")
         else:
-
             body = json.loads(response.text)
-            body2 = json.loads(response2.text)
             mess = body.get('message')
-            mess2 = body2.get('message')
-            self.writeToConsole(f'Error: {mess} and {mess2}')
+            self.writeToConsole(f'Error: {mess}')
 
 
-    def populate_more_info(self, order, products):
+
+    def populate_more_info(self, order):
         self.clear_more_list()
         self.more_widget.setTitle(f"More info on Order ID: {order['id']}")
+
+        products = order['products']
+        worker = order['worker']
+        customer = order['customer']
+
 
         for item in products:
             list_item = QListWidgetItem(format_item(item))
             self.products.addItem(list_item)
 
-        self.customer_id.setText(str(order['customerId']))
-        self.customer_name.setText(str(order['name']))
-        self.worker_id.setText(str(order['workerId']))
-        self.date_received.setText(str(order['dateReceived']))
-        self.status.setText(str(order['status']))
-        self.customer_email.setText(str(order['email']))
-        self.customer_lastname.setText(str(order['surname']))
-        self.worker_username.setText(str(order['username']))
-        self.date_processed.setText(str(order['dateProcessed']))
+        self.customer_id.setText(str(customer['id']))
+        self.customer_name.setText(customer['name'])
+        self.customer_email.setText(customer['email'])
+        self.customer_lastname.setText(customer['lastName'])
+        self.worker_id.setText(str(worker['id']))
+        self.worker_username.setText(worker['username'])
+        self.date_received.setText(order['dateReceived'])
+        self.date_processed.setText(order['dateProcessed'])
+        self.status.setText(order['status'])
         self.total_price.setText(str(order['totalPrice']))
+
 
 
     def assign_order(self, row_position, worker_id):
@@ -445,6 +457,10 @@ class OrderPage(QWidget):
             self.writeToConsole(f'Error: {mess}')
 
 def format_item(item):
-    return f"ID: {item['id']} | Name: {item['name']} | Price: ${item['price']} | Category: {item['categoryName']} | Amount: {item['amount']} | Total: ${item['totalPrice']}"
+
+    category = item['category']
+
+    return f"Product: {item['name']}, Category: {category['name']}, Price: {item['price']}, Amount: {item['amount']}, Total Price: {item['totalPrice']}"
+
 
 
