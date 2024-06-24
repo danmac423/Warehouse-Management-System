@@ -205,7 +205,7 @@ class OrderHistoryPage(QWidget):
         customer_email = self.search_customer_email.text()
         worker_username = self.search_worker_username.text()
 
-        url = 'http://localhost:8080/api/ordersHistory'
+        url = 'http://localhost:8080/api/orders-history'
         params = {}
 
         if customer_email:
@@ -269,7 +269,7 @@ class OrderHistoryPage(QWidget):
             self.table.setCellWidget(row_position, 5, more_button)
 
     def load_ordersHistory(self):
-        response = requests.get('http://localhost:8080/api/ordersHistory')
+        response = requests.get('http://localhost:8080/api/orders-history')
         print(response.status_code)
 
         if response.status_code == 200:
@@ -291,7 +291,7 @@ class OrderHistoryPage(QWidget):
 
     def show_more(self, rowposition):
         order_id = self.table.item(rowposition, 0).text()
-        response = requests.get(f'http://localhost:8080/api/ordersHistory/{order_id}')
+        response = requests.get(f'http://localhost:8080/api/orders-history/{order_id}')
 
         if response.status_code == 200:
             order = response.json()
