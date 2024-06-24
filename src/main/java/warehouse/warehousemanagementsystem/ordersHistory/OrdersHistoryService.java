@@ -1,12 +1,11 @@
 package warehouse.warehousemanagementsystem.ordersHistory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import warehouse.warehousemanagementsystem.exception.NotFoundException;
-
 import warehouse.warehousemanagementsystem.order.Order;
 import warehouse.warehousemanagementsystem.product.ProductInOrder;
-import warehouse.warehousemanagementsystem.product.Product;
-
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -17,6 +16,7 @@ import java.util.List;
 public class OrdersHistoryService {
     private final OrdersHistoryDao ordersHistoryDao;
 
+    @Autowired
     public OrdersHistoryService(OrdersHistoryDao ordersHistoryDao) {
         this.ordersHistoryDao = ordersHistoryDao;
     }
@@ -25,6 +25,7 @@ public class OrdersHistoryService {
         return ordersHistoryDao.getAllOrders();
     }
 
+    @Transactional
     public Order getOrderById(Long orderId) {
         Order order = ordersHistoryDao.getOrderById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
 
@@ -69,6 +70,7 @@ public class OrdersHistoryService {
         return ordersHistoryDao.getOrdersHistViewsByOrderId(orderId);
     }
 
+    @Transactional
     public List<Order> getOrders(String customerEmail, String workerUsername) {
         List<Order> orders = ordersHistoryDao.getOrders(customerEmail, workerUsername);
 
