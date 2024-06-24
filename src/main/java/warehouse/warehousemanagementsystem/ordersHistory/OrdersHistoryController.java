@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import warehouse.warehousemanagementsystem.order.Order;
 
@@ -20,6 +21,7 @@ public class OrdersHistoryController {
         this.ordersHistoryService = ordersHistoryService;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<List<Order>> getOrders(
             @RequestParam (required = false) String customerEmail,
@@ -40,8 +42,8 @@ public class OrdersHistoryController {
 //        return ordersHistoryService.getAllOrdersWithDate(processedDateMin, processedDateMax);
 //
 //    }
-
-
+//
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{orderId}")
     public Order getOrderById(@PathVariable Long orderId) {
         return ordersHistoryService.getOrderById(orderId);

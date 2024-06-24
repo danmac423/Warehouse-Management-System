@@ -3,6 +3,7 @@ package warehouse.warehousemanagementsystem.worker;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class WorkerController {
         this.workerService = workerService;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
     public ResponseEntity<List<Worker>> getWorkers(
             @RequestParam(required = false) String username,
@@ -27,28 +29,29 @@ public class WorkerController {
         return ResponseEntity.status(HttpStatus.OK).body(workerService.getWorkers(username, role));
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{id}")
     public ResponseEntity<Worker> getWorkerById(@PathVariable Long id){
         Optional<Worker> worker = workerService.getWorkerById(id);
-        if(worker.isEmpty()){
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        return worker.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
-        return new ResponseEntity<>(worker.get(), HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
     public ResponseEntity<String> addWorker(@RequestBody Worker worker) {
         workerService.addWorker(worker);
         return new ResponseEntity<>("Worker added successfully", HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteWorker(@PathVariable Long id) {
         workerService.deleteWorker(id);
         return new ResponseEntity<>("Worker deleted successfully", HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping
     public ResponseEntity<String> updateWorker(@RequestBody Worker worker) {
         workerService.updateWorker(worker);
