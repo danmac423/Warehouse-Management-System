@@ -6,40 +6,9 @@ from datetime import datetime as dt
 from calendar import monthrange
 
 
-# TODO Saving historical data
-# def generate_worker_list(workers_url):
-#     response = requests.get(workers_url)
-#     if response.ok():
-#         workers = response.json()
-#         new_worker_lists = {}
-#         for worker in workers:
-#             new_worker_lists[worker['id']] = {
-#                 'name' : worker['name'],
-#                 'orders': [],
-#                 'supplies': []   
-#             }
-    
-#     return new_worker_lists
-
-# def generate_order_list(order_url):
-#     response = requests.get(order_url)
-#     if response.ok:
-#         orders = response.json()
-#         new_order_list = {}
-#         for order in orders:
-#             new_order_list
-
-# def generate_product_list(product_url):
-#     pass
-
-# def generate_category_list(category_url):
-#     pass
-
-# def generate_supplier_list(supplier_url):
-#     pass   
-
 def _get_orders_data(per:str, endpoint_url:str, worker_id:str, date_min:str=None, date_max:str=None) -> dict:
     response = None
+    worker_id = str(worker_id)
     if per == 'day' and date_min and date_max:
         date_min = dt.strptime(date_min,  '%Y-%m-%d').isoformat(timespec='microseconds')
         date_max = dt.strptime(date_max,  '%Y-%m-%d').replace(hour=23, minute=59, second=59).isoformat(timespec='microseconds')
@@ -63,7 +32,6 @@ def _get_orders_data(per:str, endpoint_url:str, worker_id:str, date_min:str=None
         return response.json()
 
     raise(Exception(response.text))
-
 
 def _get_order_num_by_day(endpoint_url:str, worker_id:str, date_min:str=None, date_max:str=None, show_empty:bool=False) -> dict:
         orders = _get_orders_data('day', endpoint_url, worker_id, date_min, date_max)
@@ -138,10 +106,8 @@ def _add_empty_dates(dated_data:dict, step:str) -> None:
     
     return 
 
-        
-
 def _get_worker_name(endpoint_url:str, worker_id:str) -> Tuple[str, str]:
-    response = requests.get(endpoint_url+worker_id)
+    response = requests.get(endpoint_url+str(worker_id))
     if response.ok:
         worker = response.json()
         name = worker['name']
@@ -175,32 +141,41 @@ def _get_categories_stats(orders_endpoint_url:str, product_list_url:str) -> dict
     
     raise(Exception(response.text))
 
-def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_workers:str, worker_id_list:List[str], per:str, ax:plt.Axes,
+def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_workers:str, worker_id_list:List[str], per:str,
                                          date_min:str=None, date_max:str=None, graph_type:str='line', avg:bool=False, show_empty:bool=False) -> None :
-    """This function graphs statistics per 
+    """This function graphs chosen statistics per month or day
+    data - 'processed_nums' or 'processed_times'
+    per - 'month' or 'day'
+    avg - show average or not
+    show empty - add days within range with no data
     """
-    # fig, ax = plt.subplots(1,1)
+    fig, ax = plt.subplots(1,1, num='Orders statistics')
+
 
     if len(worker_id_list) == 0:
         raise(Exception('Worker id list cannot be empty'))
 
     get_func = None
     if data == 'processed_nums' and per == 'month':
+        fig.suptitle('Number of processed orders per month')
         get_func = _get_order_num_by_month
         ax.set_xlabel('Month')
         ax.set_ylabel('No. of unpacked orders')
 
     elif data == 'processed_nums' and per == 'day':
+        fig.suptitle('Number of processed orders per day')
         get_func = _get_order_num_by_day
         ax.set_xlabel('Date')
         ax.set_ylabel('No. of unpacked orders')
 
     elif data == 'processed_times' and per == 'month':
+        fig.suptitle('Time of order processing per month')
         get_func = _get_avg_order_processing_time_by_month
         ax.set_xlabel('Month')
         ax.set_ylabel('Avg. processing time (H)')
 
     elif data == 'processed_times' and per == 'day':
+        fig.suptitle('Time of order processing per day')
         get_func = _get_avg_order_processing_time_by_day
         ax.set_xlabel('Day')
         ax.set_ylabel('Avg. processing time (H)')
@@ -272,9 +247,68 @@ def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_wor
         pass
 
     ax.legend()
-    # plt.show()
+    plt.show()
 
-    return 
+    return date_min_x, date_max_x
+
+def _compile_orders_data(data:str, endpoint_url_orders:str, endpoint_url_workers:str, worker_id_list:List[str], per:str,
+                                         date_min:str=None, date_max:str=None, graph_type:str='line', avg:bool=False) -> None:
+    
+    get_func = None
+    step = None
+    if data == 'processed_nums' and per == 'month':
+        get_func = _get_order_num_by_month
+        step = np.timedelta64(1, 'M')
+
+    elif data == 'processed_nums' and per == 'day':
+        get_func = _get_order_num_by_day
+        step = np.timedelta64(1, 'D')
+
+    elif data == 'processed_times' and per == 'month':
+        get_func = _get_avg_order_processing_time_by_month
+        step = np.timedelta64(1, 'M')
+
+
+    elif data == 'processed_times' and per == 'day':
+        get_func = _get_avg_order_processing_time_by_day
+        step = np.timedelta64(1, 'D')
+
+    else:
+        raise(Exception('Incorrect arguments'))
+    
+
+    min_date = np.datetime64(dt.max)
+    max_date = np.datetime64(dt.min)
+    orders_dicts = []
+    for worker_id in worker_id_list:
+        order_nums:dict = get_func(endpoint_url_orders, worker_id, date_min=date_min, date_max=date_max, show_empty=True)
+        orders_dicts.append(order_nums)
+        keys = list(order_nums.keys())
+        min_date = min(min(keys), min_date)
+        max_date = max(max(keys), max_date)
+
+    dates = np.arange(min_date, max_date, step)
+    rows = [['Dates'] + worker_id_list]
+    for date in dates:
+        row = [date]
+        for orders_dict in orders_dicts:
+            row.append(orders_dict.get(date, 0))
+        rows.append(row)
+    
+    return rows
+
+def dump_orders_data_to_csv(filepath:str, data:str, endpoint_url_orders:str, endpoint_url_workers:str, worker_id_list:List[str], per:str,
+                                         date_min:str=None, date_max:str=None):
+    rows = _compile_orders_data(data, endpoint_url_orders, endpoint_url_workers, worker_id_list, per, date_min, date_max)
+    with open(filepath, 'w') as file:
+        np.savetxt(
+            file,
+            rows,
+            delimiter=',',
+            fmt="%s"
+        )
+        
+     
 
 # def graph_worker_unload_times(endpoint_url_orders:str, endpoint_url_workers:str, worker_id_list:List[str], per:str, ax:plt.Axes, 
 #                                          date_min:str=None, date_max:str=None, graph_type:str='line', avg:bool=False, show_empty:bool=False):
@@ -283,7 +317,5 @@ def graph_orders_by_category(orders_endpoint_url:str, product_list_url:str, ax:p
     categories_stats = _get_categories_stats(orders_endpoint_url, product_list_url)
     ax.pie(list(categories_stats.values()), labels=list(categories_stats.keys()), normalize=True)
     return True
-
-    
 
     
