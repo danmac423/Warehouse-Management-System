@@ -405,7 +405,7 @@ class SuppliesPage(QWidget):
             self.writeToConsole(f'Error: {mess}')
 
     def populate_suppliers_edit(self, dropdown):
-        response = requests.get('http://localhost:8080/api/suppliers')
+        response = requests.get('http://localhost:8080/api/suppliers', headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             suppliers = response.json()
             dropdown.clear()

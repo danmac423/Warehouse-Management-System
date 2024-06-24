@@ -114,7 +114,7 @@ class SuppliersPage(QWidget):
         form.setLayout(form_layout)
         form_layout.setAlignment(Qt.AlignTop)
 
-        submit_button = QPushButton('Add')
+        submit_button = QPushButton('Add Supplier')
         submit_button.clicked.connect(self.add_supplier)
 
         add_layout = QGridLayout()

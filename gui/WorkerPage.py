@@ -116,7 +116,7 @@ class WorkerPage(QWidget):
         form.setLayout(form_layout)
         form_layout.setAlignment(Qt.AlignTop)
 
-        submit_button = QPushButton('Add worker')
+        submit_button = QPushButton('Add Worker')
         submit_button.clicked.connect(self.add_worker)
 
         add_layout = QGridLayout()

@@ -257,22 +257,22 @@ class OrderPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 0, item)
 
-            item =   QTableWidgetItem(str(customer['email']))
+            item =  QTableWidgetItem(str(customer['email']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 1, item)
 
-            item =  QTableWidgetItem(str(worker['username']))
+            item = QTableWidgetItem(str(worker['username']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 2, item)
 
-            item =  QTableWidgetItem(str(order['dateReceived']))
+            item = QTableWidgetItem(str(order['dateReceived']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 3, item)
 
-            item =  QTableWidgetItem(str(order['status']))
+            item = QTableWidgetItem(str(order['status']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 4, item)
@@ -283,7 +283,7 @@ class OrderPage(QWidget):
             # item.setTextAlignment(Qt.AlignCenter)
             # self.table.setItem(row_position, 5, item)
 
-            item =  QTableWidgetItem(str(order['totalPrice']))
+            item = QTableWidgetItem(str(order['totalPrice']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 5, item)
@@ -331,11 +331,13 @@ class OrderPage(QWidget):
 
         if item.text():
             workers_to_assign.setCurrentText(item.text())
+        self.table.setItem(row_position, 2, QTableWidgetItem(""))
         self.table.setCellWidget(row_position, 2, workers_to_assign)
 
 
+
         assign_button = QPushButton('Update')
-        assign_button.clicked.connect(lambda: self.assign_order(row_position, workers_to_assign.currentData()))
+        assign_button.clicked.connect(partial(self.assign_order, row_position, workers_to_assign))
 
         revert_button = QPushButton('Revert')
         revert_button.clicked.connect(partial(self.revert_edit, row_position))
@@ -351,6 +353,7 @@ class OrderPage(QWidget):
         edit_layout.setContentsMargins(0, 0, 0, 0)
         edit_layout.setSpacing(0)
         self.table.setCellWidget(row_position, 6, edit_widget)
+
 
     def worker_list(self):
         response = requests.get('http://localhost:8080/api/workers', headers=self.globalVariables.http_headers)
@@ -445,12 +448,13 @@ class OrderPage(QWidget):
 
 
 
-    def assign_order(self, row_position, worker_id):
+    def assign_order(self, row_position, workers_to_assign):
         order_id = self.table.item(row_position, 0).text()
+        worker_id = workers_to_assign.currentData()
 
 
-        data = json.dumps({'id': order_id, 'workerId': worker_id})
-        response = requests.put(f'http://localhost:8080/api/orders/assignWorker', data=data, headers=self.globalVariables.http_headers)
+        data = json.dumps({'id': order_id, 'worker': {'id': worker_id}})
+        response = requests.put(f'http://localhost:8080/api/orders/assign', data=data, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.load_orders()
