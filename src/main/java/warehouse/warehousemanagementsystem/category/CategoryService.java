@@ -1,6 +1,8 @@
 package warehouse.warehousemanagementsystem.category;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.ConflictException;
 import warehouse.warehousemanagementsystem.exception.DatabaseException;
@@ -14,19 +16,17 @@ public class CategoryService {
 
     private final CategoryDao categoryDao;
 
+    @Autowired
     public CategoryService(CategoryDao categoryDao) {
         this.categoryDao = categoryDao;
     }
 
 
     public List<Category> getCategories(String categoryName) {
-        var categories = categoryDao.getCategories(categoryName);
-        if (categories.isEmpty()) {
-            throw new NotFoundException("No categories found");
-        }
-        return categories;
+        return categoryDao.getCategories(categoryName);
     }
 
+    @Transactional
     public void addCategory(Category category) {
         if (categoryDao.getCategoryByName(category.name()).isPresent()) {
             throw new ConflictException("Category already exists");
@@ -39,6 +39,7 @@ public class CategoryService {
         }
     }
 
+    @Transactional
     public void deleteCategory(Long id) {
         Optional<Category> category = categoryDao.getCategoryById(id);
         int result;
@@ -55,6 +56,7 @@ public class CategoryService {
         }
     }
 
+    @Transactional
     public void updateCategory(Category category) {
         Category currentCategory = categoryDao.getCategoryById(category.id()).orElseThrow(() -> new NotFoundException("Category not found"));
 
