@@ -105,7 +105,7 @@ class SuppliesHistoryPage(QWidget):
         if category_name:
             params['categoryName'] = category_name
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             supplies = response.json()
@@ -217,7 +217,7 @@ class SuppliesHistoryPage(QWidget):
             self.table.setItem(row_position, 7, item)
 
     def load_supplies_history(self):
-        response = requests.get('http://localhost:8080/api/supplies-history')
+        response = requests.get('http://localhost:8080/api/supplies-history', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.writeToConsole("Supplies history loaded sucessfully")

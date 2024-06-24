@@ -132,7 +132,7 @@ class CategoriesPage(QWidget):
         if category_name:
             params['name'] = category_name
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             self.writeToConsole("Categories loaded successfully")
             categories = response.json()
@@ -148,9 +148,9 @@ class CategoriesPage(QWidget):
 
     def add_category(self):
         name = self.category_name.text()
-        headers = {'Content-Type': 'application/json'}
+
         data = json.dumps({'name': name})
-        response = requests.post('http://localhost:8080/api/categories', headers=headers, data=data)
+        response = requests.post('http://localhost:8080/api/categories', headers=self.globalVariables.http_headers, data=data)
         if response.status_code == 201:
             self.clear_form()
             self.reset_filters()
@@ -199,7 +199,7 @@ class CategoriesPage(QWidget):
             self.table.setCellWidget(row_position, 4, delete_button)
 
     def load_categories(self):
-        response = requests.get('http://localhost:8080/api/categories')
+        response = requests.get('http://localhost:8080/api/categories', headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             self.writeToConsole("Categories loaded successfully")
             self.table.clearContents()
@@ -216,7 +216,7 @@ class CategoriesPage(QWidget):
             return
 
         category_id = self.table.item(selected_row, 0).text()
-        response = requests.delete(f'http://localhost:8080/api/categories/{category_id}')
+        response = requests.delete(f'http://localhost:8080/api/categories/{category_id}', headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             self.apply_filters()
             self.writeToConsole('Success: Category deleted successfully')
@@ -274,9 +274,8 @@ class CategoriesPage(QWidget):
     def update_category(self, row_position):
         category_id = self.table.item(row_position, 0).text()
         name = self.table.cellWidget(row_position, 1).text()
-        headers = {'Content-Type': 'application/json'}
         data = json.dumps({'name': name})
-        response = requests.put(f'http://localhost:8080/api/categories/{category_id}', headers=headers, data=data)
+        response = requests.put(f'http://localhost:8080/api/categories/{category_id}', headers=self.globalVariables.http_headers, data=data)
         if response.status_code == 200:
             self.writeToConsole('Category updated successfully')
             self.reset_table(row_position)

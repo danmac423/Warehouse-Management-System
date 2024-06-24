@@ -151,7 +151,7 @@ class ProductPage(QWidget):
         if current_product_name:
             params['productName'] = current_product_name
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             products = response.json()
@@ -167,10 +167,10 @@ class ProductPage(QWidget):
         price = self.price.text()
         category_id = self.category.currentData()
         stock = self.stock.text()
-        headers = {'Content-Type': 'application/json'}
+
         data = json.dumps({'name': name, 'price': price, 'category': {'id': category_id}, 'stock': stock})
-        response = requests.post('http://localhost:8080/api/products', headers=headers, data=data)
-        
+        response = requests.post('http://localhost:8080/api/products', headers=self.globalVariables.http_headers, data=data)
+
         if response.status_code == 201:
             self.clear_form()
             self.reset_filters()
@@ -237,7 +237,7 @@ class ProductPage(QWidget):
 
     def load_products(self, reset_filters=False):
 
-        response = requests.get('http://localhost:8080/api/products')
+        response = requests.get('http://localhost:8080/api/products', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.update_categories()
@@ -258,7 +258,7 @@ class ProductPage(QWidget):
             return
 
         product_id = self.table.item(selected_row, 0).text()
-        response = requests.delete(f'http://localhost:8080/api/products/{product_id}')
+        response = requests.delete(f'http://localhost:8080/api/products/{product_id}', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.apply_filters()
@@ -269,7 +269,7 @@ class ProductPage(QWidget):
             self.writeToConsole(f'Error: {mess}')
 
     def get_categories(self):
-        response = requests.get('http://localhost:8080/api/categories')
+        response = requests.get('http://localhost:8080/api/categories', headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             result = response.json()
             return [(cat['name'], cat['id']) for cat in result]
@@ -342,11 +342,11 @@ class ProductPage(QWidget):
         self.writeToConsole("Reverted edit")
 
     def update_categories(self):
-        response = requests.get('http://localhost:8080/api/categories')
+        response = requests.get('http://localhost:8080/api/categories', headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             result = response.json()
             categories_tuples = [(cat['name'], cat['id']) for cat in result]
-        
+
             self.category_dropdown.blockSignals(True)
             self.category.clear()
             self.category_dropdown.clear()
@@ -368,9 +368,9 @@ class ProductPage(QWidget):
         category_id = category_dropdown.currentData()
         stock = stock.text()
 
-        headers = {'Content-Type': 'application/json'}
+
         data = json.dumps({'id': product_id, 'name': product_name, 'price': price, 'category': {'id': category_id}, 'stock': stock})
-        response = requests.put(f'http://localhost:8080/api/products', headers=headers, data=data)
+        response = requests.put(f'http://localhost:8080/api/products', headers=self.globalVariables.http_headers, data=data)
 
         if response.status_code == 200:
             self.reset_table(row_position)

@@ -225,7 +225,7 @@ class OrderPage(QWidget):
         if worker_username:
             params['workerUsername'] = worker_username
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             orders = response.json()
             self.populate_table(orders)
@@ -303,7 +303,7 @@ class OrderPage(QWidget):
 
 
     def load_orders(self):
-        response = requests.get('http://localhost:8080/api/orders')
+        response = requests.get('http://localhost:8080/api/orders', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             # self.update_categories()
@@ -353,7 +353,7 @@ class OrderPage(QWidget):
         self.table.setCellWidget(row_position, 6, edit_widget)
 
     def worker_list(self):
-        response = requests.get('http://localhost:8080/api/workers')
+        response = requests.get('http://localhost:8080/api/workers', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             workers = response.json()
@@ -399,13 +399,13 @@ class OrderPage(QWidget):
 
     def show_more(self, rowposition):
         order_id = self.table.item(rowposition, 0).text()
-        response = requests.get(f'http://localhost:8080/api/orders/{order_id}')
+        response = requests.get(f'http://localhost:8080/api/orders/{order_id}', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             order = response.json()
-            
+
             # print(f"order {order}")
-            
+
             self.populate_more_info(order)
             self.writeToConsole(f"More info on order {order_id} loaded successfully")
         else:
@@ -427,7 +427,7 @@ class OrderPage(QWidget):
         for item in basket_products:
             # list_item = QListWidgetItem(format_item(item))
             self.products.addItem(format_item(item))
-            
+
         self.customer_name_last_name.setText(f"{customer['name']} {customer['lastName']}")
         self.customer_email.setText(f"{customer['email']}")
         self.customer_address.setText(f"{customer['address']['country']}, {customer['address']['city']}, {customer['address']['street']}, {customer['address']['houseNumber']}, {customer['address']['postalCode']}")
@@ -448,9 +448,9 @@ class OrderPage(QWidget):
     def assign_order(self, row_position, worker_id):
         order_id = self.table.item(row_position, 0).text()
 
-        headers = {'Content-Type': 'application/json'}
+
         data = json.dumps({'id': order_id, 'workerId': worker_id})
-        response = requests.put(f'http://localhost:8080/api/orders/assignWorker', headers=headers, data=data)
+        response = requests.put(f'http://localhost:8080/api/orders/assignWorker', data=data, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.load_orders()
