@@ -13,8 +13,8 @@ public class SupplyHistoryService {
         this.supplyHistoryDao = supplyHistoryDao;
     }
 
-    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, Long categoryId) {
-        return supplyHistoryDao.getSupplies(supplierName, workerUsername, productName, categoryId);
+    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, String categoryName) {
+        return supplyHistoryDao.getSupplies(supplierName, workerUsername, productName, categoryName);
     }
 
     public List<SupplyHistory> getAllSupplies() {

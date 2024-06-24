@@ -28,9 +28,9 @@ public class SupplyHistoryController {
             @RequestParam(required = false) String supplierName,
             @RequestParam(required = false) String workerUsername,
             @RequestParam(required = false) String productName,
-            @RequestParam(required = false) Long categoryId
+            @RequestParam(required = false) String categoryName
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(supplyHistoryService.getSupplies(supplierName, workerUsername, productName, categoryId));
+        return ResponseEntity.status(HttpStatus.OK).body(supplyHistoryService.getSupplies(supplierName, workerUsername, productName, categoryName));
     }
 
     @GetMapping("/worker/{workerId}")

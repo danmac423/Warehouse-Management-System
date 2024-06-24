@@ -38,7 +38,7 @@ public class SupplyHistoryDao {
                     products product ON supplies_history.product_id = product.id
                 LEFT JOIN
                     suppliers supplier ON supplies_history.supplier_id = supplier.id
-                """;
+""";
         sqlSuffix = """
                 GROUP BY
                     supplies_history.id, supplier.id, supplier.name, worker.id, worker.username,
@@ -49,7 +49,7 @@ public class SupplyHistoryDao {
                 """;
     }
 
-    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, Long categoryId) {
+    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, String categoryName) {
         if(supplierName == null) {
             supplierName = "";
         }
@@ -59,8 +59,8 @@ public class SupplyHistoryDao {
         if(productName == null) {
             productName = "";
         }
-        if(categoryId == null) {
-            categoryId = 0L;
+        if(categoryName == null) {
+            categoryName = "";
         }
         var sql = """
                 SELECT addresses.id AS address_id, addresses.street, addresses.house_nr, addresses.postal_code, addresses.city, addresses.country,
@@ -79,9 +79,8 @@ public class SupplyHistoryDao {
                     LOWER(suppliers.name) LIKE LOWER(?) AND
                     LOWER(workers.username) LIKE LOWER(?) AND
                     LOWER(products.name) LIKE LOWER(?) AND
-                    (categories.id = ? OR ? = 0)
+                    LOWER(categories.name) LIKE LOWER(?)
                 ORDER BY supplies_history.id
-                
                 """;
         return jdbcTemplate.query(
                 sql,
@@ -89,8 +88,7 @@ public class SupplyHistoryDao {
                 "%" + supplierName + "%",
                 "%" + workerUsername + "%",
                 "%" + productName + "%",
-                categoryId,
-                categoryId
+                "%" + categoryName + "%"
         );
     }
 

@@ -19,7 +19,6 @@ public class AddressController {
     }
 
     @GetMapping
-//    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Address>> getAllAddresses() {
         return new ResponseEntity<>(addressService.getAllAddresses(), HttpStatus.OK);
     }
