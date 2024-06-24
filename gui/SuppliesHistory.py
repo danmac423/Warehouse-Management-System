@@ -57,23 +57,72 @@ class SuppliesHistoryPage(QWidget):
         search_layout.setAlignment(Qt.AlignTop)
 
         form_layout = QFormLayout()
-        self.search_supplier_name = QLineEdit()
-        self.search_worker_username = QLineEdit()
+
+        self.search_supplier_name = QLineEdit(self)
+        self.search_supplier_name.textChanged.connect(self.apply_filters)
+
+        self.search_worker_username = QLineEdit(self)
+        self.search_worker_username.textChanged.connect(self.apply_filters)
+
+        self.search_product_name = QLineEdit(self)
+        self.search_product_name.textChanged.connect(self.apply_filters)
+
+        self.search_category_name = QLineEdit(self)
+        self.search_category_name.textChanged.connect(self.apply_filters)
 
         form_layout.addRow(QLabel('Supplier name:'), self.search_supplier_name)
         form_layout.addRow(QLabel('Worker username:'), self.search_worker_username)
+        form_layout.addRow(QLabel('Product name:'), self.search_product_name)
+        form_layout.addRow(QLabel('Category name:'), self.search_category_name)
 
         form = QWidget()
         form.setLayout(form_layout)
         form_layout.setAlignment(Qt.AlignTop)
 
-        search_button = QPushButton('Search')
-        search_button.clicked.connect(self.filter_supply)
+        reset_button = QPushButton('Reset Filters')
+        reset_button.clicked.connect(self.reset_filters)
 
-        search_layout.addWidget(form, 0,0)
-        search_layout.addWidget(search_button, 1, 0)
+        search_layout.addWidget(form, 0, 0)
+        search_layout.addWidget(reset_button, 1, 0)
         self.search_widget.setLayout(search_layout)
         search_layout.setAlignment(Qt.AlignTop)
+
+    def apply_filters(self):
+        worker_username = self.search_worker_username.text()
+        supplier_name = self.search_supplier_name.text()
+        product_name = self.search_product_name.text()
+        category_name = self.search_category_name.text()
+
+        url = 'http://localhost:8080/api/supplies-history'
+        params = {}
+
+        if worker_username:
+            params['workerUsername'] = worker_username
+        if supplier_name:
+            params['supplierName'] = supplier_name
+        if product_name:
+            params['productName'] = product_name
+        if category_name:
+            params['categoryName'] = category_name
+
+        response = requests.get(url, params=params, headers=self.globalVariables.http_headers)
+
+        if response.status_code == 200:
+            supplies = response.json()
+            self.populate_table(supplies)
+            self.writeToConsole("Supplies history filtered")
+        else:
+            body = json.loads(response.text)
+            mess = body.get('message')
+            self.writeToConsole(f'Error: {mess}')
+
+    def reset_filters(self):
+        self.search_worker_username.clear()
+        self.search_supplier_name.clear()
+        self.search_product_name.clear()
+        self.search_category_name.clear()
+        self.load_supplies_history()
+
 
 
     def _init_console(self):
@@ -102,8 +151,8 @@ class SuppliesHistoryPage(QWidget):
             self.table_scrollArea.setMinimumHeight(120)
             self.table_scrollArea.setMaximumHeight(300)
 
-            self.table.setColumnCount(8)
-            self.table.setHorizontalHeaderLabels(['ID', 'Supplier', 'Worker', 'Expected', 'Arrival', 'Processed', 'Product', 'Amount'])
+            self.table.setColumnCount(9)
+            self.table.setHorizontalHeaderLabels(['ID', 'Supplier', 'Worker', 'Expected', 'Arrival', 'Processed', 'Product', 'Category', 'Amount'])
             self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
             self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
             self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
@@ -112,37 +161,19 @@ class SuppliesHistoryPage(QWidget):
             self.table.horizontalHeader().setSectionResizeMode(5, QHeaderView.Stretch)
             self.table.horizontalHeader().setSectionResizeMode(6, QHeaderView.Stretch)
             self.table.horizontalHeader().setSectionResizeMode(7, QHeaderView.Stretch)
+            self.table.horizontalHeader().setSectionResizeMode(8, QHeaderView.Stretch)
             self.table.setSelectionBehavior(QTableWidget.SelectRows)
             self.table.setSelectionMode(QTableWidget.NoSelection)
 
-    def filter_supply(self):
-        supplierSubstring = self.search_supplier_name.text()
-        usernameSubstring = self.search_worker_username.text()
-
-        if supplierSubstring and usernameSubstring:
-            response = requests.get(f'http://localhost:8080/api/suppliesHistory/formated/supplier/{supplierSubstring}/username/{usernameSubstring}')
-        elif supplierSubstring:
-            response = requests.get(f'http://localhost:8080/api/suppliesHistory/formated/supplier/{supplierSubstring}')
-        elif usernameSubstring:
-            response = requests.get(f'http://localhost:8080/api/suppliesHistory/formated/username/{usernameSubstring}')
-        else:
-            self.load_supplies_history()
-            return
-
-        print(response.status_code)
-        if response.status_code == 200:
-            supplies = response.json()
-            self.populate_table(supplies)
-            self.writeToConsole(f"Supplies history filtered by supplier: \'{supplierSubstring}\' and worker: \'{usernameSubstring}\'")
-        else:
-            body = json.loads(response.text)
-            mess = body.get('message')
-            self.writeToConsole(f'Error: {mess}')
 
     def populate_table(self, supplies):
         self.table.clearContents()
         self.table.setRowCount(0)
         for supply in supplies:
+            supplier = supply['supplier']
+            worker = supply['worker']
+            product = supply['product']
+
             row_position = self.table.rowCount()
             self.table.insertRow(row_position)
 
@@ -151,12 +182,12 @@ class SuppliesHistoryPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 0, item)
 
-            item =   QTableWidgetItem(str(supply['supplierName']))
+            item =   QTableWidgetItem(str(supplier['name']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 1, item)
 
-            item =  QTableWidgetItem(str(supply['username']))
+            item =  QTableWidgetItem(str(worker['username']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 2, item)
@@ -176,27 +207,29 @@ class SuppliesHistoryPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 5, item)
 
-            item =  QTableWidgetItem(str(supply['productName']))
+            item =  QTableWidgetItem(str(product['name']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 6, item)
 
-            item =  QTableWidgetItem(str(supply['amount']))
+            item = QTableWidgetItem(str(product['category']['name']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 7, item)
 
-
+            item =  QTableWidgetItem(str(supply['amount']))
+            item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            item.setTextAlignment(Qt.AlignCenter)
+            self.table.setItem(row_position, 8, item)
 
     def load_supplies_history(self):
-        response = requests.get('http://localhost:8080/api/suppliesHistory/formated')
+        response = requests.get('http://localhost:8080/api/supplies-history', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.writeToConsole("Supplies history loaded sucessfully")
             self.table.clearContents()
             self.table.setRowCount(0)
             supplies = response.json()
-            print(supplies)
 
             self.populate_table(supplies)
         else:

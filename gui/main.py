@@ -20,6 +20,8 @@ from SuppliersPage import SuppliersPage
 from OrderHistoryPage import OrderHistoryPage
 from SuppliesHistory import SuppliesHistoryPage
 
+from WorkerDashboard import WorkerDashboard
+from WorkerToolBarWidget import WorkerToolBarWidget
 
 
 
@@ -32,30 +34,48 @@ class MainWindow(QMainWindow):
         # self.setMinimumSize(1024, 600)
         self.setMinimumSize(1280, 860)
 
-        self.globalVariables = GlobalVariables()
-
-        # self.show_login()
-        self.show_main_application()
+        self.show_login()
+        # self.show_main_application()
 
     def show_login(self):
+        self.globalVariables = GlobalVariables()
+        
         self.login_widget = LoginWindow(self.globalVariables)
         self.globalVariables.signals.login_successful.connect(self.show_main_application)
         self.setCentralWidget(self.login_widget)
 
     def show_main_application(self):
-        self.central_widget = CentralWidget(self.globalVariables)
-        self.setCentralWidget(self.central_widget)
-        self.init_toolbar()
-        self.globalVariables.signals.log_out.connect(lambda: self.log_out())
-        self.globalVariables.signals.log_out.connect(lambda: self.show_login())
+        if self.globalVariables.role == 'WORKER':
+            self.central_widget = WorkerDashboard(self.globalVariables)
+            self.setCentralWidget(self.central_widget)
+            self.init_worker_toolbar()
+            
+        else:
+            self.central_widget = CentralWidget(self.globalVariables)
+            self.setCentralWidget(self.central_widget)
+            self.init_toolbar()
+        
+        self.globalVariables.signals.log_out.connect(self.log_out)
+        self.globalVariables.signals.log_out.connect(self.show_login)
+
 
     def init_toolbar(self):
         self.toolBarWidget = ToolBarWidget(self.globalVariables)
         self.toolbar = self.addToolBar("Tools")
         self.toolbar.setMovable(False)
         self.toolbar.addWidget(self.toolBarWidget)
+        
+    def init_worker_toolbar(self):
+        self.toolBarWidget = WorkerToolBarWidget(self.globalVariables)
+        self.toolbar = self.addToolBar("Tools")
+        self.toolbar.setMovable(False)
+        self.toolbar.addWidget(self.toolBarWidget)
 
     def log_out(self):
+        if self.globalVariables:
+            self.globalVariables.deleteLater()
+            self.globalVariables = None
+        
         if self.central_widget:
             self.setCentralWidget(None)
             self.central_widget.deleteLater()
@@ -83,6 +103,7 @@ class CentralWidget(QWidget):
         self.globalVariables = globalVariables
 
         # self.login_widget = LoginWindow(self.globalVariables)
+        # self.worker_dashboard = WorkerDashboard(self.globalVariables)
 
         self.dashboard_page = DashboardPage(self.globalVariables)
         self.product_page = ProductPage(self.globalVariables)
@@ -114,6 +135,8 @@ class CentralWidget(QWidget):
     #     self.toolbar.addWidget(toolBarWidget)
 
     def stacked_widget_init(self):
+        # self.stacked_widget.addWidget(self.worker_dashboard)
+        
         self.stacked_widget.addWidget(self.dashboard_page)
         self.stacked_widget.addWidget(self.product_page)
         self.stacked_widget.addWidget(self.categories_page)

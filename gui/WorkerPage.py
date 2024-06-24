@@ -116,7 +116,7 @@ class WorkerPage(QWidget):
         form.setLayout(form_layout)
         form_layout.setAlignment(Qt.AlignTop)
 
-        submit_button = QPushButton('Add worker')
+        submit_button = QPushButton('Add Worker')
         submit_button.clicked.connect(self.add_worker)
 
         add_layout = QGridLayout()
@@ -160,7 +160,7 @@ class WorkerPage(QWidget):
         if username:
             params['username'] = username
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.writeToConsole("Workers loaded successfully")
@@ -179,9 +179,9 @@ class WorkerPage(QWidget):
         username = self.username.text()
         password = self.password.text()
 
-        headers = {'Content-Type': 'application/json'}
         data = json.dumps({'username': username, 'password': password, 'name': name, 'lastName': lastName, 'role': role})
-        response = requests.post('http://localhost:8080/api/workers', headers=headers, data=data)
+        # response = requests.post('http://localhost:8080/api/workers', data=data, headers=self.globalVariables.http_headers)
+        response = requests.post('http://localhost:8080/api/auth/register', data=data, headers=self.globalVariables.http_headers)
 
         if response.status_code == 201:
             self.clear_form()
@@ -251,7 +251,7 @@ class WorkerPage(QWidget):
             self.table.setCellWidget(row_position, 7, delete_button)
 
     def load_workers(self):
-        response = requests.get('http://localhost:8080/api/workers')
+        response = requests.get('http://localhost:8080/api/workers', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.writeToConsole("Workers loaded successfully")
@@ -271,7 +271,7 @@ class WorkerPage(QWidget):
             return
 
         worker_id = self.table.item(selected_row, 0).text()
-        response = requests.delete(f'http://localhost:8080/api/workers/{worker_id}')
+        response = requests.delete(f'http://localhost:8080/api/workers/{worker_id}', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.apply_filters()
@@ -356,11 +356,11 @@ class WorkerPage(QWidget):
         username = username.text()
         password = password.text()
 
-        headers = {'Content-Type': 'application/json'}
+
 
         if current_password != password:
             change_password_data = json.dumps({'workerId': worker_id, 'newPassword': password})
-            response = requests.post('http://localhost:8080/api/auth/change-password', headers=headers, data=change_password_data)
+            response = requests.post('http://localhost:8080/api/auth/change-password', data=change_password_data, headers=self.globalVariables.http_headers)
             if response.status_code != 200:
                 body = json.loads(response.text)
                 mess = body.get('message')
@@ -370,7 +370,7 @@ class WorkerPage(QWidget):
                 self.writeToConsole('Password updated successfully')
 
         data = json.dumps({'id': worker_id, 'username': username, 'name': name, 'lastName': lastName, 'role': role})
-        response = requests.put(f'http://localhost:8080/api/workers', headers=headers, data=data)
+        response = requests.put(f'http://localhost:8080/api/workers', data=data, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.reset_table(row_position)

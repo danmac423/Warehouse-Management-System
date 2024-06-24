@@ -114,7 +114,7 @@ class SuppliersPage(QWidget):
         form.setLayout(form_layout)
         form_layout.setAlignment(Qt.AlignTop)
 
-        submit_button = QPushButton('Add')
+        submit_button = QPushButton('Add Supplier')
         submit_button.clicked.connect(self.add_supplier)
 
         add_layout = QGridLayout()
@@ -165,7 +165,7 @@ class SuppliersPage(QWidget):
         if city:
             params['city'] = city
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             suppliers = response.json()
@@ -230,7 +230,7 @@ class SuppliersPage(QWidget):
             self.table.setCellWidget(row_position, 8, delete_button)
 
     def load_suppliers(self):
-        response = requests.get('http://localhost:8080/api/suppliers')
+        response = requests.get('http://localhost:8080/api/suppliers', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.writeToConsole("Suppliers loaded successfully")
@@ -248,7 +248,7 @@ class SuppliersPage(QWidget):
             return
 
         supplier_id = self.table.item(selected_row, 0).text()
-        response = requests.delete(f'http://localhost:8080/api/suppliers/{supplier_id}')
+        response = requests.delete(f'http://localhost:8080/api/suppliers/{supplier_id}', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.apply_filters()
@@ -328,7 +328,7 @@ class SuppliersPage(QWidget):
 
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'id': supplier_id, 'name': name, 'address': {'city': city, 'street': street, 'postalCode': postal_code, 'houseNumber': house_number, 'country': country}})
-        response = requests.put(f'http://localhost:8080/api/suppliers', headers=headers, data=data)
+        response = requests.put(f'http://localhost:8080/api/suppliers', headers=self.globalVariables.http_headers, data=data)
 
         if response.status_code == 200:
             self.reset_table(row_position)
@@ -355,9 +355,9 @@ class SuppliersPage(QWidget):
         house = self.house_number.text()
         postal = self.postal_code.text()
 
-        headers = {'Content-Type': 'application/json'}
+
         data = json.dumps({'name': supplier_name, 'address': {'city': city, 'street': street, 'postalCode': postal, 'houseNumber': house, 'country': country}})
-        response = requests.post('http://localhost:8080/api/suppliers', headers=headers, data=data)
+        response = requests.post('http://localhost:8080/api/suppliers', headers=self.globalVariables.http_headers, data=data)
 
         if response.status_code == 201:
             self.clear_form()

@@ -188,7 +188,7 @@ class SuppliesPage(QWidget):
         if product_name:
             params['productName'] = product_name
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             supplies = response.json()
             self.populate_table(supplies)
@@ -209,9 +209,9 @@ class SuppliesPage(QWidget):
         product_id = self.product_dropdown.currentData()
         amount = self.amount.text()
 
-        headers = {'Content-Type': 'application/json'}
+
         data = json.dumps({'supplier': {'id': supplier_id}, 'expectedDate': expected_date, 'product': {'id': product_id}, 'amount': amount, 'status': 'underway'})
-        response = requests.post('http://localhost:8080/api/supplies', headers=headers, data=data)
+        response = requests.post('http://localhost:8080/api/supplies', data=data, headers=self.globalVariables.http_headers)
         if response.status_code == 201:
             self.clear_form()
             self.reset_filters()
@@ -306,7 +306,7 @@ class SuppliesPage(QWidget):
             self.table.setCellWidget(row_position, 11, delete_button)
 
     def load_supplies(self):
-        response = requests.get('http://localhost:8080/api/supplies')
+        response = requests.get('http://localhost:8080/api/supplies', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.writeToConsole("Supplies loaded successfully")
@@ -326,7 +326,7 @@ class SuppliesPage(QWidget):
             return
 
         supply_id = self.table.item(selected_row, 0).text()
-        response = requests.delete(f'http://localhost:8080/api/supplies/{supply_id}')
+        response = requests.delete(f'http://localhost:8080/api/supplies/{supply_id}', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.apply_filters()
@@ -337,7 +337,6 @@ class SuppliesPage(QWidget):
             self.writeToConsole(f'Error: {mess}')
 
     def edit_supply(self, row_position):
-        print(row_position)
         self.select_row(row_position)
         self.table.item(row_position, 1).setFlags(self.table.item(row_position, 1).flags() | Qt.ItemFlag.ItemIsEditable)
         self.table.item(row_position, 4).setFlags(self.table.item(row_position, 4).flags() | Qt.ItemFlag.ItemIsEditable)
@@ -394,9 +393,8 @@ class SuppliesPage(QWidget):
         amount_value = amount.text()
         status = self.table.item(row_position, 3).text()
 
-        headers = {'Content-Type': 'application/json'}
         data = json.dumps({'id': supply_id, 'supplier': {'id': supplier_id}, 'expectedDate': date, 'product': {'id': product_id}, 'amount': amount_value, 'status': status})
-        response = requests.put(f'http://localhost:8080/api/supplies', headers=headers, data=data)
+        response = requests.put(f'http://localhost:8080/api/supplies', data=data, headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             self.reset_table(row_position)
             self.apply_filters()
@@ -407,7 +405,7 @@ class SuppliesPage(QWidget):
             self.writeToConsole(f'Error: {mess}')
 
     def populate_suppliers_edit(self, dropdown):
-        response = requests.get('http://localhost:8080/api/suppliers')
+        response = requests.get('http://localhost:8080/api/suppliers', headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             suppliers = response.json()
             dropdown.clear()
@@ -417,7 +415,7 @@ class SuppliesPage(QWidget):
             self.writeToConsole('Failed to load suppliers')
 
     def populate_products_edit(self, dropdown):
-        response = requests.get('http://localhost:8080/api/products')
+        response = requests.get('http://localhost:8080/api/products', headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             products = response.json()
             dropdown.clear()
@@ -470,9 +468,8 @@ class SuppliesPage(QWidget):
         supply_id = self.table.item(row_position, 0).text()
         status = self.table.item(row_position, 3).text()
 
-        headers = {'Content-Type': 'application/json'}
         data = json.dumps({'id': supply_id, 'status': status})
-        response = requests.put('http://localhost:8080/api/supplies/acknowledge', headers=headers, data=data)
+        response = requests.put('http://localhost:8080/api/supplies/acknowledge', data=data, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.load_supplies()
@@ -520,9 +517,9 @@ class SuppliesPage(QWidget):
         status = self.table.item(row_position, 3).text()
         worker_id = workers_to_assign.currentData()
 
-        headers = {'Content-Type': 'application/json'}
+
         data = json.dumps({'id': supply_id, 'worker': {'id': worker_id}, 'status': status})
-        response = requests.put(f'http://localhost:8080/api/supplies/assign', headers=headers, data=data)
+        response = requests.put(f'http://localhost:8080/api/supplies/assign', data=data, headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             self.load_supplies()
             self.writeToConsole(f'Success: Worker assigned successfully')
@@ -532,7 +529,7 @@ class SuppliesPage(QWidget):
             self.writeToConsole(f'Error: {mess}')
 
     def worker_list(self):
-        response = requests.get('http://localhost:8080/api/workers')
+        response = requests.get('http://localhost:8080/api/workers', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             workers = response.json()
@@ -545,7 +542,7 @@ class SuppliesPage(QWidget):
             return []
 
     def populate_suppliers(self):
-        response = requests.get('http://localhost:8080/api/suppliers')
+        response = requests.get('http://localhost:8080/api/suppliers', headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             suppliers = response.json()
             self.supplier_dropdown.clear()
@@ -555,7 +552,7 @@ class SuppliesPage(QWidget):
             self.writeToConsole('Failed to load suppliers')
 
     def populate_products(self):
-        response = requests.get('http://localhost:8080/api/products')
+        response = requests.get('http://localhost:8080/api/products', headers=self.globalVariables.http_headers)
         if response.status_code == 200:
             products = response.json()
             self.product_dropdown.clear()
