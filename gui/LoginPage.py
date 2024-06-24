@@ -30,7 +30,7 @@ class LoginWindow(QWidget):
         form_layout.addWidget(self.username_label)
 
         self.username_input = QLineEdit()
-        self.username_input.setMaximumWidth(self.width() // 2)  
+        self.username_input.setMaximumWidth(self.width() // 2)
         form_layout.addWidget(self.username_input)
 
         self.password_label = QLabel('Password')
@@ -38,15 +38,15 @@ class LoginWindow(QWidget):
 
         self.password_input = QLineEdit()
         self.password_input.setEchoMode(QLineEdit.Password)
-        self.password_input.setMaximumWidth(self.width() // 2) 
+        self.password_input.setMaximumWidth(self.width() // 2)
         form_layout.addWidget(self.password_input)
-        
+
         vertical_spacer_between_form_elements = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Fixed)
         form_layout.addItem(vertical_spacer_between_form_elements)
 
         self.login_button = QPushButton('Login')
         self.login_button.clicked.connect(self.login)
-        self.login_button.setMaximumWidth(self.width() // 2) 
+        self.login_button.setMaximumWidth(self.width() // 2)
         form_layout.addWidget(self.login_button)
 
 
@@ -63,14 +63,14 @@ class LoginWindow(QWidget):
         main_layout.addItem(vertical_spacer_bottom)
 
         # self.setWindowTitle('Login')
-        
+
         self.login_status = QLabel('')
         self.login_status.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(self.login_status)
-        
+
         vertical_spacer_bottom_2 = QSpacerItem(20, 20, QSizePolicy.Minimum, QSizePolicy.Expanding)
         main_layout.addItem(vertical_spacer_bottom_2)
-        
+
         self.setLayout(main_layout)
 
     def resizeEvent(self, event):
@@ -93,6 +93,7 @@ class LoginWindow(QWidget):
             # self.open_manager(token)
             self.globalVariables.signals.login_successful.emit(session_data)
             self.login_status.setText("")
+            print(session_data)
         else:
 
             self.login_status.setStyleSheet("QLabel { color: red; }")
