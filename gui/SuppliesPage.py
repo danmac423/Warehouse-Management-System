@@ -494,11 +494,8 @@ class SuppliesPage(QWidget):
         for worker in workers:
             workers_to_assign.addItem(worker[0], worker[1])  # get all possible workers
 
-        self.table.setCellWidget(row_position, 2, workers_to_assign)
-
-
-        assign_button = QPushButton('Update')
-        assign_button.clicked.connect(partial(self.assign_supply_update, row_position, workers_to_assign.currentData()))
+        assign_button = QPushButton('Assign')
+        assign_button.clicked.connect(partial(self.assign_supply_update, row_position, workers_to_assign))
 
         revert_button = QPushButton('Revert')
         revert_button.clicked.connect(partial(self.revert_edit, row_position))
@@ -506,6 +503,9 @@ class SuppliesPage(QWidget):
         edit_widget = QWidget()
         edit_layout = QGridLayout()
         edit_widget.setLayout(edit_layout)
+
+        self.table.setCellWidget(row_position, 2, workers_to_assign)
+
         edit_layout.addWidget(revert_button, 0, 0)
         edit_layout.addWidget(assign_button, 0, 1)
         edit_layout.setColumnStretch(0, 1)
@@ -515,10 +515,10 @@ class SuppliesPage(QWidget):
         edit_layout.setSpacing(0)
         self.table.setCellWidget(row_position, 9, edit_widget)
 
-    def assign_supply_update(self, row_position, worker_id):
+    def assign_supply_update(self, row_position, workers_to_assign):
         supply_id = self.table.item(row_position, 0).text()
         status = self.table.item(row_position, 3).text()
-        worker_id = worker_id
+        worker_id = workers_to_assign.currentData()
 
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'id': supply_id, 'worker': {'id': worker_id}, 'status': status})
