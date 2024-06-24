@@ -37,6 +37,7 @@ class GlobalVariables(QObject):
         super().__init__()
         self._window_size = (1280,680)
         self.session_token = ""
+<<<<<<< gui/GlobalVariables.py
         self.tokenType = ""
         self.role = ""
         self.loged_workerID = ""
@@ -44,7 +45,7 @@ class GlobalVariables(QObject):
         self.signals = Signals()
         self.signals.log_out.connect(self.clear_session_data)
         self.signals.login_successful.connect(self.set_session_data)
-
+        
     @property
     def window_size(self):
         return self._window_size
