@@ -22,7 +22,6 @@ public class WorkerService {
         if (worker.name().isEmpty()
                 || worker.lastName().isEmpty()
                 || worker.username().isEmpty()
-                || worker.password().isEmpty()
                 || worker.role().isEmpty()) {
             throw new BadRequestException("All fields are required");
         }
@@ -32,8 +31,8 @@ public class WorkerService {
         }
     }
 
-    public List<Worker> getAllWorkers() {
-        return workerDao.getAllWorkers();
+    public List<Worker> getWorkers(String username, String role) {
+        return workerDao.getWorkers(username, role);
     }
 
     public Optional<Worker> getWorkerById(Long id){
@@ -53,7 +52,7 @@ public class WorkerService {
     }
 
     public void updateWorker(Worker worker) {
-        Worker currentWorker = workerDao.getWorkerByUsername(worker.username()).orElseThrow(() -> new BadRequestException("Worker not found"));
+        Worker currentWorker = workerDao.getWorkerById(worker.id()).orElseThrow(() -> new BadRequestException("Worker not found"));
 
         validData(worker);
 
@@ -82,6 +81,5 @@ public class WorkerService {
             throw new DatabaseException("Failed to delete worker");
         }
     }
-
 
 }

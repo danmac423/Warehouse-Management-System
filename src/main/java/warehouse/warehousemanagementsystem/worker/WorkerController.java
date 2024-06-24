@@ -20,8 +20,11 @@ public class WorkerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Worker>> getAllWorkers() {
-        return new ResponseEntity<>(workerService.getAllWorkers(), HttpStatus.OK);
+    public ResponseEntity<List<Worker>> getWorkers(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String role
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(workerService.getWorkers(username, role));
     }
 
     @GetMapping("/{id}")
@@ -51,5 +54,6 @@ public class WorkerController {
         workerService.updateWorker(worker);
         return new ResponseEntity<>("Worker updated successfully", HttpStatus.OK);
     }
+
 
 }

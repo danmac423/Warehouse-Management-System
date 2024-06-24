@@ -4,7 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 **/gui/venv/
+**/gui_daniel/venv/
 **/.DS_Store
+**/gui/.venv
 
 ### STS ###
 .apt_generated

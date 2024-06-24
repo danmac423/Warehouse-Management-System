@@ -21,6 +21,10 @@ public class AddressService {
         return addressDao.getAllAddresses();
     }
 
+    public Address getAddressByData(Address address) {
+        return addressDao.getAddressByData(address).orElseThrow(() -> new NotFoundException("Address not found"));
+    }
+
     public void addAddress(Address address) {
         if (address.street().isEmpty()
                 || address.houseNumber().isEmpty()
@@ -31,9 +35,6 @@ public class AddressService {
         }
         if (addressDao.getAddressByData(address).isPresent()) {
             throw new ConflictException("Address already exists");
-        }
-        if (addressDao.addAddress(address) != 1) {
-            throw new DatabaseException("Failed to add address");
         }
     }
 
@@ -67,9 +68,6 @@ public class AddressService {
                 || address.city().isEmpty()
                 || address.country().isEmpty()) {
             throw new BadRequestException("All fields are required");
-        }
-        if (addressDao.updateAddress(address) != 1) {
-            throw new DatabaseException("Failed to update address");
         }
     }
 }

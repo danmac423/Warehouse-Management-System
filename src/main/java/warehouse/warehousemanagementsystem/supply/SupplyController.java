@@ -18,53 +18,87 @@ public class SupplyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Supply>> getAllSupplies() {
-        return new ResponseEntity<>(supplyService.getAllSupplies(), HttpStatus.OK);
+    public ResponseEntity<List<Supply>> getSupplies(
+            @RequestParam(required = false) String supplierName,
+            @RequestParam(required = false) String workerUsername,
+            @RequestParam(required = false) String productName,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long workerId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(supplyService.getSupplies(supplierName, workerUsername, productName, status, workerId));
     }
 
+
+
     @PostMapping
-    public ResponseEntity<String> addSupply(@RequestBody Supply supply) {
-        supplyService.addSupply(supply);
-        return new ResponseEntity<>("Supply added successfully", HttpStatus.CREATED);
+    public ResponseEntity<Supply> addSupply(@RequestBody Supply supply) {
+        Supply newSupply = supplyService.addSupply(supply);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newSupply);
+    }
+
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteSupply(@PathVariable Long id) {
+        supplyService.deleteSupply(id);
+        return ResponseEntity.status(HttpStatus.OK).body("Supply deleted successfully");
     }
 
     @PutMapping
-    public ResponseEntity<String> updateSupply(@RequestBody Supply supply) {
-        supplyService.updateSupply(supply);
-        return new ResponseEntity<>("Supply updated successfully", HttpStatus.OK);
-    }
-
-    @GetMapping("/worker/{workerId}")
-    public List<Supply> getSuppliesByWorker(@PathVariable Long workerId) {
-        return supplyService.getProductsByWorkerId(workerId);
-    }
-
-    @GetMapping("/product/{productId}")
-    public List<Supply> getSuppliesByProduct(@PathVariable Long productId) {
-        return supplyService.getProductsByProductId(productId);
-    }
-
-    @GetMapping("/supplier/{supplierId}")
-    public List<Supply> getSuppliesBySupplier(@PathVariable Long supplierId) {
-        return supplyService.getProductsBySupplierId(supplierId);
+    public ResponseEntity<Supply> updateSupply(@RequestBody Supply supply) {
+        Supply updatedSupply = supplyService.updateSupply(supply);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedSupply);
     }
 
     @PutMapping("/acknowledge")
-    public ResponseEntity<String> acknowledgeSupply(@RequestBody Supply supply) {
-        supplyService.acknowledgeSupply(supply);
-        return new ResponseEntity<>("Supply acknowledged successfully", HttpStatus.OK);
+    public ResponseEntity<Supply> acknowledgeSupply(@RequestBody Supply supply) {
+        Supply acknowledgedSupply = supplyService.acknowledgeSupply(supply);
+        return ResponseEntity.status(HttpStatus.OK).body(acknowledgedSupply);
+    }
+
+    @PutMapping("/assign")
+    public ResponseEntity<Supply> assignSupply(@RequestBody Supply supply) {
+        Supply assignedSupply = supplyService.assignSupply(supply);
+        return ResponseEntity.status(HttpStatus.OK).body(assignedSupply);
     }
 
     @PutMapping("/unpack")
     public ResponseEntity<String> unpackSupply(@RequestBody Supply supply) {
         supplyService.unpackSupply(supply);
-        return new ResponseEntity<>("Supply unpacked successfully", HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body("Supply unpacked successfully and added to the history");
     }
-
-    @PutMapping("/updateWorker")
-    public ResponseEntity<String> updateWorker(@RequestBody Supply supply) {
-        supplyService.updateWorker(supply);
-        return new ResponseEntity<>("Worker updated successfully", HttpStatus.OK);
-    }
-
+//
+//    @PutMapping("/updateWorker")
+//    public ResponseEntity<String> updateWorker(@RequestBody Supply supply) {
+//        supplyService.updateWorker(supply);
+//        return new ResponseEntity<>("Worker updated successfully", HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/formated")
+//    public ResponseEntity<List<SupplyView>> getAllSuppliesViews() {
+//        return new ResponseEntity<>(supplyService.getAllSuppliesViews(), HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/formated/username/{username}")
+//    public ResponseEntity<List<SupplyView>> getSuppliesViewsByWorkerUsername(@PathVariable String username) {
+//        return new ResponseEntity<>(supplyService.getSuppliesViewsByWorkerUsername(username), HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/formated/supplier/{name}")
+//    public ResponseEntity<List<SupplyView>> getSuppliesViewsBySupplierName(@PathVariable String name) {
+//        return new ResponseEntity<>(supplyService.getSuppliesViewsBySupplierName(name), HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/formated/supplier/{name}/username/{username}")
+//    public ResponseEntity<List<SupplyView>> getSuppliesViewsBySupplierNameAndUsername(@PathVariable String name, @PathVariable String username) {
+//        return new ResponseEntity<>(supplyService.getSuppliesViewsBySupplierNameWorkerUsername(name, username), HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/formated/status/{status}")
+//    public ResponseEntity<List<SupplyView>> getSuppliesViewsByStatus(@PathVariable String status) {
+//        return new ResponseEntity<>(supplyService.getSuppliesViewsByStatus(status), HttpStatus.OK);
+//    }
+//
+//    @GetMapping("/formated/worker/{workerId}")
+//    public ResponseEntity<List<SupplyView>> getSuppliesViewsByWorkerId(@PathVariable Long workerId) {
+//        return new ResponseEntity<>(supplyService.getSuppliesViewsByWorkerId(workerId), HttpStatus.OK);
+//    }
 }

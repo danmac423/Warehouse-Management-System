@@ -18,8 +18,13 @@ public class CategoryService {
         this.categoryDao = categoryDao;
     }
 
-    public List<Category> getAllCategories() {
-        return categoryDao.getAllCategories();
+
+    public List<Category> getCategories(String categoryName) {
+        var categories = categoryDao.getCategories(categoryName);
+        if (categories.isEmpty()) {
+            throw new NotFoundException("No categories found");
+        }
+        return categories;
     }
 
     public void addCategory(Category category) {
