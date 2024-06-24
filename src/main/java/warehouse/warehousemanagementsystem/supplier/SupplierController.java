@@ -18,13 +18,12 @@ public class SupplierController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Supplier>> getAllSuppliers() {
-        return ResponseEntity.status(HttpStatus.OK).body(supplierService.getAllSupplies());
-    }
-
-    @GetMapping("/supplierName/{name}")
-    public ResponseEntity<List<Supplier>> getSuppliersByName(@PathVariable String name) {
-        return ResponseEntity.status(HttpStatus.OK).body(supplierService.getSuppliersByName(name));
+    public ResponseEntity<List<Supplier>> getSuppliers(
+            @RequestParam (required = false) String supplierName,
+            @RequestParam (required = false) String country,
+            @RequestParam (required = false) String city
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(supplierService.getSupplies(supplierName, country, city));
     }
 
     @PostMapping

@@ -10,7 +10,7 @@ public class CategoryMapper implements RowMapper<Category> {
         return new Category(
                 rs.getLong("id"),
                 rs.getString("name"),
-                rs.getInt("productCount")
+                rs.getInt("product_count")
         );
     }
 }

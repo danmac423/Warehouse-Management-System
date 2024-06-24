@@ -18,53 +18,39 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Product>> getAllProducts() {
-        return new ResponseEntity<>(productService.getAllProducts(), HttpStatus.OK);
+    public ResponseEntity<List<Product>> getProducts(
+            @RequestParam(required = false) String productName,
+            @RequestParam(required = false) Long categoryId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(productService.getProducts(productName, categoryId));
     }
-
-    @GetMapping("/categoryId/{categoryId}")
-    public List<Product> getProductsByCategoryId(@PathVariable Long categoryId) {
-        return productService.getProductsByCategoryId(categoryId);
-    }
-
-    @GetMapping("/productName/{productName}")
-    public List<Product> getProductsByProductCame(@PathVariable String productName) {
-        return productService.getProductsByProductName(productName);
-    }
-
-    @GetMapping("/categoryId/{categoryId}/productName/{productName}")
-    public List<Product> getProductsByCategoryIdAndProductName(@PathVariable Long categoryId, @PathVariable String productName) {
-        return productService.getProductsByCategoryIdAndProductName(categoryId, productName);
-    }
-
-
 
     @PostMapping
-    public ResponseEntity<String> addProduct(@RequestBody Product product) {
-        productService.addProduct(product);
-        return new ResponseEntity<>("Product added successfully", HttpStatus.CREATED);
+    public ResponseEntity<Product> addProduct(@RequestBody Product product) {
+        Product newProduct = productService.addProduct(product);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newProduct);
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return new ResponseEntity<>("Product deleted successfully", HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body("Product deleted successfully");
     }
 
     @PutMapping
-    public ResponseEntity<String> updateProduct(@RequestBody Product product) {
-        productService.updateProduct(product);
-        return new ResponseEntity<>("Product updated successfully", HttpStatus.OK);
+    public ResponseEntity<Product> updateProduct(@RequestBody Product product) {
+        Product updatedProduct = productService.updateProduct(product);
+        return ResponseEntity.status(HttpStatus.OK).body(updatedProduct);
     }
 
-    @GetMapping("/order/{orderId}")
-    public ResponseEntity<List<ProductInOrder>> getProductsByOrder(@PathVariable Long orderId) {
-        return new ResponseEntity<>(productService.getProductsByOrder(orderId), HttpStatus.OK);
-    }
-
-    @GetMapping("/orderHistory/{orderId}")
-    public ResponseEntity<List<ProductInOrder>> getProductsByOrderHistory(@PathVariable Long orderId) {
-        return new ResponseEntity<>(productService.getProductsByOrderHistory(orderId), HttpStatus.OK);
+//    @GetMapping("/order/{orderId}")
+//    public ResponseEntity<List<ProductInOrder>> getProductsByOrder(@PathVariable Long orderId) {
+//        return ResponseEntity.status(HttpStatus.OK).body(productService.getProductsByOrder(orderId));
+//    }
+//
+    @GetMapping("/ordersHistory/{orderId}")
+    public List<ProductInOrder> getProductsByOrderHistory(@PathVariable Long orderId) {
+        return productService.getProductsByOrderHistory(orderId);
     }
 
 

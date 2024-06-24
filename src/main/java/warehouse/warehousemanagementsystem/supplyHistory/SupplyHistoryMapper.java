@@ -1,4 +1,4 @@
-package warehouse.warehousemanagementsystem.SupplyHistory;
+package warehouse.warehousemanagementsystem.supplyHistory;
 
 import org.springframework.jdbc.core.RowMapper;
 

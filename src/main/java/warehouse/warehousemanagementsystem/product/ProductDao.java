@@ -16,21 +16,77 @@ public class ProductDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Product> getAllProducts() {
+    public List<Product> getProducts(String productName, Long categoryId) {
+        if (productName == null) {
+            productName = "";
+        }
+        if (categoryId == null) {
+            categoryId = 0L;
+        }
         var sql = """
-                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
-                ORDER BY id
+                SELECT
+                    products.id AS product_id,
+                    products.name AS product_name,
+                    products.price AS product_price,
+                    products.stock AS product_stock,
+                    categories.id AS category_id,
+                    categories.name AS category_name,
+                    (SELECT COUNT(*) FROM products p WHERE p.category_id = categories.id) AS product_count
+                FROM
+                    products
+                        LEFT JOIN
+                    categories
+                    ON
+                        products.category_id = categories.id
+                WHERE LOWER(products.name) LIKE LOWER(?) AND
+                        (products.category_id = ? OR ? = 0)
+                ORDER BY
+                products.id;
                 """;
         return jdbcTemplate.query(
                 sql,
                 new ProductMapper()
+                , "%" + productName + "%"
+                , categoryId
+                , categoryId
         );
+    }
+
+    public List<ProductInOrder> getProductsByOrderHistory(Long orderHistoryId) {
+       var sql = """
+               SELECT products.id, products.name, products.price,
+                       categories.id as category_id, categories.name as category_name,
+                       products_orders_history.amount
+                FROM products
+                LEFT JOIN products_orders_history ON products.id = products_orders_history.product_id
+                LEFT JOIN categories ON products.category_id = categories.id
+                WHERE products_orders_history.order_id = ?
+                ORDER BY products.id
+               """;
+       return jdbcTemplate.query(
+               sql,
+               new ProductInOrderMapper(),
+               orderHistoryId
+       );
     }
 
     public Optional<Product> getProductById(Long id) {
         var sql = """
-                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
-                WHERE p.id = ?
+                SELECT
+                    products.id AS product_id,
+                    products.name AS product_name,
+                    products.price AS product_price,
+                    products.stock AS product_stock,
+                    categories.id AS category_id,
+                    categories.name AS category_name,
+                    (SELECT COUNT(*) FROM products p WHERE p.category_id = categories.id) AS product_count
+                FROM
+                    products
+                        LEFT JOIN
+                    categories
+                    ON
+                        products.category_id = categories.id
+                WHERE products.id = ?
                 """;
         return jdbcTemplate.query(
                 sql,
@@ -39,30 +95,45 @@ public class ProductDao {
         ).stream().findFirst();
     }
 
-    public Optional<Product> getProductByName(Product product) {
+    public Optional<Product> getProductByName(String name) {
         var sql = """
-                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
-                WHERE p.name = ?
+                SELECT
+                    products.id AS product_id,
+                    products.name AS product_name,
+                    products.price AS product_price,
+                    products.stock AS product_stock,
+                    categories.id AS category_id,
+                    categories.name AS category_name,
+                    (SELECT COUNT(*) FROM products p WHERE p.category_id = categories.id) AS product_count
+                FROM
+                    products
+                        LEFT JOIN
+                    categories
+                    ON
+                        products.category_id = categories.id
+                WHERE products.name = ?
                 """;
         return jdbcTemplate.query(
                 sql,
                 new ProductMapper(),
-                product.name()
+                name
         ).stream().findFirst();
     }
 
-    public int addProduct(Product product) {
+    public Product addProduct(Product product) {
         var sql = """
                 INSERT INTO products (name, price, category_id, stock)
                 VALUES (?, ?, ?, ?)
                 """;
-        return jdbcTemplate.update(
+        jdbcTemplate.update(
                 sql,
                 product.name(),
                 product.price(),
-                product.categoryId(),
+                product.category().id(),
                 product.stock()
         );
+
+        return getProductByName(product.name()).get();
     }
 
     public int deleteProduct(Long id) {
@@ -76,68 +147,31 @@ public class ProductDao {
         );
     }
 
-    public int updateProduct(Product product) {
+    public Product updateProduct(Product product) {
         var sql = """
                 UPDATE products
                 SET name = ?, price = ?, category_id = ?, stock = ?
                 WHERE id = ?
                 """;
-        return jdbcTemplate.update(
+        jdbcTemplate.update(
                 sql,
                 product.name(),
                 product.price(),
-                product.categoryId(),
+                product.category().id(),
                 product.stock(),
                 product.id()
         );
+        return getProductById(product.id()).get();
     }
 
-    public List<Product> getProductsByCategoryId(Long categoryId) {
+    public List<ProductInOrder> getProductsInOrder(Long orderId) {
         var sql = """
-                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
-                WHERE p.category_id = ?
-                ORDER BY p.id
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new ProductMapper(),
-                categoryId
-        );
-    }
-
-    public List<Product> getProductsByProductName(String substring) {
-        var sql = """
-                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
-                WHERE LOWER(p.name) LIKE LOWER(?)
-                ORDER BY p.id
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new ProductMapper(),
-                "%" + substring + "%"
-        );
-    }
-
-    public List<Product> getProductsByCategoryIdAndProductName(Long categoryId, String substring) {
-        var sql = """
-                SELECT p.*, c.name as category_name FROM products p JOIN categories c ON p.category_id = c.id
-                WHERE p.category_id = ? AND LOWER(p.name) LIKE LOWER(?)
-                ORDER BY id
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new ProductMapper(),
-                categoryId,
-                "%" + substring + "%"
-        );
-    }
-
-
-    public List<ProductInOrder> getProductsByOrder(Long orderId) {
-        var sql = """
-                SELECT products.id, products.name, products.price, categories.name as category_name, products_orders.amount
+                SELECT products.id, products.name, products.price,
+                       categories.id as category_id, categories.name as category_name,
+                       products_orders.amount
                 FROM products
-                JOIN products_orders ON products.id = products_orders.product_id JOIN categories ON products.category_id = categories.id
+                LEFT JOIN products_orders ON products.id = products_orders.product_id
+                LEFT JOIN categories ON products.category_id = categories.id
                 WHERE products_orders.order_id = ?
                 ORDER BY products.id
                 """;
@@ -148,18 +182,35 @@ public class ProductDao {
         );
     }
 
-    public List<ProductInOrder> getProductsByOrderHistory(Long orderId) {
-        var sql = """
-                SELECT products.id, products.name, products.price, categories.name as category_name, products_orders_history.amount
-                FROM products
-                JOIN products_orders_history ON products.id = products_orders_history.product_id JOIN categories ON products.category_id = categories.id
-                WHERE products_orders_history.order_id = ?
-                ORDER BY products.id
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new ProductInOrderMapper(),
-                orderId
-        );
-    }
+
+//
+//    public List<ProductInOrder> getProductsByOrder(Long orderId) {
+//        var sql = """
+//                SELECT products.id, products.name, products.price, categories.name as category_name, products_orders.amount
+//                FROM products
+//                JOIN products_orders ON products.id = products_orders.product_id JOIN categories ON products.category_id = categories.id
+//                WHERE products_orders.order_id = ?
+//                ORDER BY products.id
+//                """;
+//        return jdbcTemplate.query(
+//                sql,
+//                new ProductInOrderMapper(),
+//                orderId
+//        );
+//    }
+//
+//    public List<ProductInOrder> getProductsByOrderHistory(Long orderId) {
+//        var sql = """
+//                SELECT products.id, products.name, products.price, categories.name as category_name, products_orders_history.amount
+//                FROM products
+//                JOIN products_orders_history ON products.id = products_orders_history.product_id JOIN categories ON products.category_id = categories.id
+//                WHERE products_orders_history.order_id = ?
+//                ORDER BY products.id
+//                """;
+//        return jdbcTemplate.query(
+//                sql,
+//                new ProductInOrderMapper(),
+//                orderId
+//        );
+//    }
 }

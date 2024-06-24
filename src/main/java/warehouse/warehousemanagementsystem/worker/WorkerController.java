@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/workers")
@@ -19,8 +20,21 @@ public class WorkerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Worker>> getAllWorkers() {
-        return new ResponseEntity<>(workerService.getAllWorkers(), HttpStatus.OK);
+    public ResponseEntity<List<Worker>> getWorkers(
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String role
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(workerService.getWorkers(username, role));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Worker> getWorkerById(@PathVariable Long id){
+        Optional<Worker> worker = workerService.getWorkerById(id);
+        if(worker.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(worker.get(), HttpStatus.OK);
     }
 
     @PostMapping
@@ -39,11 +53,6 @@ public class WorkerController {
     public ResponseEntity<String> updateWorker(@RequestBody Worker worker) {
         workerService.updateWorker(worker);
         return new ResponseEntity<>("Worker updated successfully", HttpStatus.OK);
-    }
-
-    @GetMapping("/username/{username}")
-    public ResponseEntity<List<Worker>> getWorkersByUsername(@PathVariable String username) {
-        return new ResponseEntity<>(workerService.getWorkersByUsername(username), HttpStatus.OK);
     }
 
 

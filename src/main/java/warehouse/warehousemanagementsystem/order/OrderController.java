@@ -18,58 +18,26 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders() {
-        return new ResponseEntity<>(orderService.getAllOrders(), HttpStatus.OK);
+    public ResponseEntity<List<Order>> getOrders(
+            @RequestParam(required = false) String workerUsername,
+            @RequestParam(required = false) String customerEmail,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long workerId
+    ) {
+        List<Order> orders = orderService.getOrders(workerUsername, customerEmail, status, workerId);
+        return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
-    @GetMapping("/workerUsername/{usernameSubstring}")
-    public ResponseEntity<List<Order>> getOrdersByWorkerUsernameSubstring(@PathVariable String usernameSubstring) {
-        return new ResponseEntity<>(orderService.getOrdersByWorkerUsernameSubstring(usernameSubstring), HttpStatus.OK);
-    }
-
-    @GetMapping("/customerEmail/{emailSubstring}")
-    public ResponseEntity<List<Order>> getOrdersByCustomerEmailSubstring(@PathVariable String emailSubstring) {
-        return new ResponseEntity<>(orderService.getOrdersByCustomerEmailSubstring(emailSubstring), HttpStatus.OK);
-    }
-
-    @GetMapping("/customerEmail/{emailSubstring}/WorkerUsername/{usernameSubstring}")
-    public ResponseEntity<List<Order>> getOrdersByCustomerEmailWorkerUsernameSubstring(@PathVariable String emailSubstring, @PathVariable String usernameSubstring) {
-        return new ResponseEntity<>(orderService.getOrdersByCustomerEmailWorkerUsernameSubstring(emailSubstring, usernameSubstring), HttpStatus.OK);
-    }
-
-    @PostMapping
-    public ResponseEntity<String> addOrder(@RequestBody Order order) {
-        orderService.addOrder(order);
-        return new ResponseEntity<>("Order added successfully", HttpStatus.CREATED);
-    }
-
-    @PutMapping
-    public ResponseEntity<String> updateOrder(@RequestBody Order order) {
-        orderService.updateOrder(order);
-        return new ResponseEntity<>("Order updated successfully", HttpStatus.OK);
-    }
-
-    @GetMapping("/worker/{workerId}")
-    public List<Order> getOrdersByWorker(@PathVariable Long workerId) {
-        return orderService.getOrdersByWorker(workerId);
-    }
-
-    @GetMapping("/customer/{customerId}")
-    public List<Order> getOrdersByCustomer(@PathVariable Long customerId) {
-        return orderService.getOrdersByCustomer(customerId);
+    @GetMapping("/{orderId}")
+    public ResponseEntity<Order> getOrderById(@PathVariable Long orderId) {
+        Order order = orderService.getOrderById(orderId);
+        return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
     @PutMapping("/pack")
     public ResponseEntity<String> packOrder(@RequestBody Order order) {
         orderService.packOrder(order);
-        return new ResponseEntity<>("Order packed successfully", HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body("Order packed successfully and added to the history");
     }
-
-    @PutMapping("/assignWorker")
-    public ResponseEntity<String> assignWorker(@RequestBody Order order) {
-        orderService.assignWorker(order);
-        return new ResponseEntity<>("Worker assigned successfully", HttpStatus.OK);
-    }
-
 
 }

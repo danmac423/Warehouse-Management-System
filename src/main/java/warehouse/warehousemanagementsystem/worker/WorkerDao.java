@@ -17,15 +17,24 @@ public class WorkerDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Worker> getAllWorkers() {
+    public List<Worker> getWorkers(String username, String role) {
+        if (username == null) {
+            username = "";
+        }
+        if (role == null) {
+            role = "";
+        }
         var sql = """
                 SELECT * FROM workers
+                WHERE LOWER(username) LIKE LOWER(?) AND LOWER(role) LIKE LOWER(?)
                 ORDER BY id
                 """;
 
         return jdbcTemplate.query(
                 sql,
-                new WorkerMapper()
+                new WorkerMapper(),
+                "%" + username + "%",
+                "%" + role + "%"
         );
     }
 
@@ -68,14 +77,14 @@ public class WorkerDao {
     public int updateWorker(Worker worker) {
         var sql = """
                 UPDATE workers
-                SET username = ?, password = ?, name = ?, last_name = ?, role = ?
+                SET username = ?, name = ?, last_name = ?, role = ?
+                
                 WHERE id = ?
                 """;
 
         return jdbcTemplate.update(
                 sql,
                 worker.username(),
-                worker.password(),
                 worker.name(),
                 worker.lastName(),
                 worker.role(),
@@ -95,19 +104,13 @@ public class WorkerDao {
                 .stream().findFirst();
     }
 
-    public List<Worker> getWorkersByUsername(String username) {
+
+    public void changePassword(Long id, String encode) {
         var sql = """
-                SELECT *
-                FROM workers
-                WHERE username LIKE ?
-                ORDER BY id
+                UPDATE workers
+                SET password = ?
+                WHERE id = ?
                 """;
-        return jdbcTemplate.query(
-                sql,
-                new WorkerMapper(),
-                "%" + username + "%"
-        );
+        jdbcTemplate.update(sql, encode, id);
     }
-
-
 }

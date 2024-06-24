@@ -1,17 +1,17 @@
 package warehouse.warehousemanagementsystem.ordersHistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import warehouse.warehousemanagementsystem.order.Order;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/ordersHistory")
+@RequestMapping("/api/orders-history")
 public class OrdersHistoryController {
     private final OrdersHistoryService ordersHistoryService;
 
@@ -21,18 +21,42 @@ public class OrdersHistoryController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrdersHistory>> getAllOrders() {
-        return new ResponseEntity<>(ordersHistoryService.getAllOrders(), HttpStatus.OK);
+    public ResponseEntity<List<Order>> getOrders(
+            @RequestParam (required = false) String customerEmail,
+            @RequestParam (required = false) String workerUsername
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(ordersHistoryService.getOrders(customerEmail, workerUsername));
     }
 
+
+//    @GetMapping
+//    public ResponseEntity<List<OrdersHistory>> getAllOrders() {
+//        return new ResponseEntity<>(ordersHistoryService.getAllOrders(), HttpStatus.OK);
+//    }
+
+//    @GetMapping("/dates/{processedDateMin}/{processedDateMax}")
+//    public List<OrdersHistory> getAll0rdersWithDates(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMin,
+//                                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMax){
+//        return ordersHistoryService.getAllOrdersWithDate(processedDateMin, processedDateMax);
+//
+//    }
+
+
     @GetMapping("/{orderId}")
-    public OrdersHistory getOrderById(@PathVariable Long orderId) {
+    public Order getOrderById(@PathVariable Long orderId) {
         return ordersHistoryService.getOrderById(orderId);
     }
 
     @GetMapping("/worker/{workerId}")
     public List<OrdersHistory> getOrdersByWorker(@PathVariable Long workerId) {
         return ordersHistoryService.getOrdersByWorker(workerId);
+    }
+
+    @GetMapping("/worker/{workerId}/{processedDateMin}/{processedDateMax}")
+    public List<OrdersHistory> getOrdersByWorkerWithDates(@PathVariable Long workerId,
+                                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMin,
+                                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMax) {
+        return ordersHistoryService.getOrderByWorkerWithDates(workerId, processedDateMin, processedDateMax);
     }
 
     @GetMapping("/customer/{email}")

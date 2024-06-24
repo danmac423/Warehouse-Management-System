@@ -1,7 +1,7 @@
-package warehouse.warehousemanagementsystem.SupplyHistory;
+package warehouse.warehousemanagementsystem.supplyHistory;
 
 import org.springframework.stereotype.Service;
-import warehouse.warehousemanagementsystem.supply.SupplyView;
+import warehouse.warehousemanagementsystem.supply.Supply;
 
 import java.util.List;
 
@@ -11,6 +11,10 @@ public class SupplyHistoryService {
 
     public SupplyHistoryService(SupplyHistoryDao supplyHistoryDao) {
         this.supplyHistoryDao = supplyHistoryDao;
+    }
+
+    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, String categoryName) {
+        return supplyHistoryDao.getSupplies(supplierName, workerUsername, productName, categoryName);
     }
 
     public List<SupplyHistory> getAllSupplies() {

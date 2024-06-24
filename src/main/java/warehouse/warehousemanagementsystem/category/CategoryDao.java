@@ -17,22 +17,13 @@ public class CategoryDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Category> getAllCategories() {
-        var sql = """
-                SELECT c.id, c.name, COUNT(p.id) AS productCount
-                FROM categories c LEFT JOIN products p ON c.id = p.category_id
-                GROUP BY c.id, c.name
-                ORDER BY c.id
-                """;
-        return jdbcTemplate.query(
-                sql,
-                new CategoryMapper()
-        );
-    }
 
-    public List<Category> getCategoriesByCategoryName(String categoryName) {
+    public List<Category> getCategories(String categoryName) {
+        if (categoryName == null) {
+            categoryName = "";
+        }
         var sql = """
-                SELECT c.id, c.name, COUNT(p.id) AS productCount
+                SELECT c.id, c.name, COUNT(p.id) AS product_count
                 FROM categories c LEFT JOIN products p ON c.id = p.category_id
                 WHERE LOWER(c.name) LIKE LOWER(?)
                 GROUP BY c.id, c.name
@@ -47,7 +38,7 @@ public class CategoryDao {
 
     public Optional<Category> getCategoryById(Long id) {
         var sql = """
-                SELECT c.id, c.name, COUNT(p.id) AS productCount
+                SELECT c.id, c.name, COUNT(p.id) AS product_count
                 FROM categories c LEFT JOIN products p ON c.id = p.category_id
                 WHERE c.id = ?
                 GROUP BY c.id, c.name
@@ -58,7 +49,7 @@ public class CategoryDao {
 
     public Optional<Category> getCategoryByName(String name) {
         var sql = """
-                SELECT c.id, c.name, COUNT(p.id) AS productCount
+                SELECT c.id, c.name, COUNT(p.id) AS product_count
                 FROM categories c LEFT JOIN products p ON c.id = p.category_id
                 WHERE c.name = ?
                 GROUP BY c.id, c.name

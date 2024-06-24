@@ -1,9 +1,16 @@
 package warehouse.warehousemanagementsystem.ordersHistory;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.NotFoundException;
 
+import warehouse.warehousemanagementsystem.order.Order;
+import warehouse.warehousemanagementsystem.product.ProductInOrder;
+import warehouse.warehousemanagementsystem.product.Product;
+
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -18,16 +25,24 @@ public class OrdersHistoryService {
         return ordersHistoryDao.getAllOrders();
     }
 
-    public OrdersHistory getOrderById(Long orderId) {
-        try {
-            return ordersHistoryDao.getOrderById(orderId);
-        } catch (EmptyResultDataAccessException e) {
-            throw new NotFoundException("Order not found");
+    public Order getOrderById(Long orderId) {
+        Order order = ordersHistoryDao.getOrderById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
+
+        List<ProductInOrder> products = ordersHistoryDao.getProductsInOrder(order.id());
+
+        BigDecimal totalPrice = new BigDecimal(0);
+        for (ProductInOrder product : products) {
+            totalPrice = totalPrice.add(product.price());
         }
+        return new Order(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, products);
     }
 
     public List<OrdersHistory> getOrdersByWorker(Long workerId) {
         return ordersHistoryDao.getOrdersByWorker(workerId);
+    }
+
+    public List<OrdersHistory> getOrderByWorkerWithDates(Long workerId, Date processedDateMin, Date processedDateMax) {
+        return ordersHistoryDao.getOrderByWorkerWithDates(workerId, processedDateMin, processedDateMax);
     }
 
     public List<OrdersHistory> getOrdersByCustomer(String email) {
@@ -52,5 +67,21 @@ public class OrdersHistoryService {
 
     public List<OrdersHistoryView> getOrdersViewByOrderId(Long orderId) {
         return ordersHistoryDao.getOrdersHistViewsByOrderId(orderId);
+    }
+
+    public List<Order> getOrders(String customerEmail, String workerUsername) {
+        List<Order> orders = ordersHistoryDao.getOrders(customerEmail, workerUsername);
+
+        List<Order> completedOrders = new ArrayList<>();
+        for (Order order : orders) {
+            List<ProductInOrder> products = ordersHistoryDao.getProductsInOrder(order.id());
+            BigDecimal totalPrice = new BigDecimal(0);
+            for (ProductInOrder product : products) {
+                totalPrice = totalPrice.add(product.price());
+            }
+            order = new Order(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, products);
+            completedOrders.add(order);
+        }
+        return completedOrders;
     }
 }
