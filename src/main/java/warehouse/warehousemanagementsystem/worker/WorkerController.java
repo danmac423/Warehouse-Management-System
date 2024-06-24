@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/workers")
@@ -24,6 +25,16 @@ public class WorkerController {
             @RequestParam(required = false) String role
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(workerService.getWorkers(username, role));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Worker> getWorkerById(@PathVariable Long id){
+        Optional<Worker> worker = workerService.getWorkerById(id);
+        if(worker.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(worker.get(), HttpStatus.OK);
     }
 
     @PostMapping

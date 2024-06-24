@@ -1,6 +1,7 @@
 package warehouse.warehousemanagementsystem.ordersHistory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -33,6 +35,13 @@ public class OrdersHistoryController {
     @GetMapping("/worker/{workerId}")
     public List<OrdersHistory> getOrdersByWorker(@PathVariable Long workerId) {
         return ordersHistoryService.getOrdersByWorker(workerId);
+    }
+
+    @GetMapping("/worker/{workerId}/{processedDateMin}/{processedDateMax}")
+    public List<OrdersHistory> getOrdersByWorkerWithDates(@PathVariable Long workerId,
+                                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMin,
+                                                          @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMax) {
+        return ordersHistoryService.getOrderByWorkerWithDates(workerId, processedDateMin, processedDateMax);
     }
 
     @GetMapping("/customer/{email}")

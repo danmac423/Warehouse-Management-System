@@ -35,3 +35,14 @@ build/
 
 ### VS Code ###
 .vscode/
+analytics/__pycache__/analytics.cpython-310.pyc
+gui/__pycache__/DashboardPage.cpython-310.pyc
+gui/__pycache__/GlobalVariables.cpython-310.pyc
+gui/__pycache__/loginGUI.cpython-310.pyc
+gui/__pycache__/ProductPage.cpython-310.pyc
+gui/__pycache__/SideBarWidget.cpython-310.pyc
+gui/__pycache__/ToolBarWidget.cpython-310.pyc
+gui/__pycache__/CategoriesPage.cpython-310.pyc
+gui/__pycache__/OrdersPage.cpython-310.pyc
+gui/__pycache__/WorkerPage.cpython-310.pyc
+gui/__pycache__/AnalyticsPage.cpython-310.pyc
