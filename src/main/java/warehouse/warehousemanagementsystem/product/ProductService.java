@@ -99,7 +99,7 @@ public class ProductService {
         return productDao.updateProduct(product);
     }
 
-    public List<Product> getProductsByOrderHistory(Long orderHistoryId) {
+    public List<ProductInOrder> getProductsByOrderHistory(Long orderHistoryId) {
         return productDao.getProductsByOrderHistory(orderHistoryId);
     }
 //

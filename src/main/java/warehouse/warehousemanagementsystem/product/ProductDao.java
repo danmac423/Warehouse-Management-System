@@ -52,7 +52,7 @@ public class ProductDao {
         );
     }
 
-    public List<Product> getProductsByOrderHistory(Long orderHistoryId) {
+    public List<ProductInOrder> getProductsByOrderHistory(Long orderHistoryId) {
        var sql = """
                SELECT products.id, products.name, products.price,
                        categories.id as category_id, categories.name as category_name,
@@ -65,7 +65,7 @@ public class ProductDao {
                """;
        return jdbcTemplate.query(
                sql,
-               new ProductMapper(),
+               new ProductInOrderMapper(),
                orderHistoryId
        );
     }
