@@ -10,17 +10,10 @@ class WorkerDashboard(QWidget):
     def __init__(self, globalVariables):
         super().__init__()
         self.globalVariables = globalVariables
-        ###
-        self.current_supplier_name = ""
-        self.current_worker_username = ""
-        self.current_product_name = ""
 
-        self.worker_id = '0'
-        ###
-        
         self._setup_ui()
         layout = QVBoxLayout()
-        
+
         layout.addWidget(self.more_widget)
         layout.addWidget(self.orders_widget)
         layout.addWidget(self.supplies_widget)
@@ -37,7 +30,7 @@ class WorkerDashboard(QWidget):
     def _setup_ui(self):
         self._init_console()
         self._init_more_box()
-        
+
         ###
         self.orders_widget = QGroupBox("Orders")
         self.orders_widget.setMinimumHeight(210)
@@ -63,7 +56,7 @@ class WorkerDashboard(QWidget):
         self._init_table()
         self.supplies_layout.addWidget(self.table_scrollArea)
         ###
-        
+
     def _init_console(self):
         self.console_box = QGroupBox("Last operation status:")
         self.console_layout = QVBoxLayout()
@@ -80,7 +73,6 @@ class WorkerDashboard(QWidget):
         formatted_time = current_time.toString("hh:mm:ss")
         self.console.clear()
         self.console.append(formatted_time + " >>   " + message)
-
 
     def _init_table(self):
         self.table_scrollArea.setWidget(self.table)
@@ -159,8 +151,8 @@ class WorkerDashboard(QWidget):
 
     def load_supplies(self):
         params = {}
-        params['workerId'] = self.worker_id
-        response = requests.get('http://localhost:8080/api/supplies', params=params)
+        params['workerId'] = self.globalVariables.loged_workerID
+        response = requests.get('http://localhost:8080/api/supplies', params=params, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.writeToConsole("Supplies loaded successfully")
@@ -187,12 +179,11 @@ class WorkerDashboard(QWidget):
 
     def unpack_supply(self, row_position):
         supply_id = self.table.item(row_position, 0).text()
-        status = self.table.item(row_position, 3).text()
-        worker_id = self.worker_id
+        worker_id = self.globalVariables.loged_workerID
 
-        headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'id': supply_id, 'status': status, 'worker':{'id': worker_id}} )
-        response = requests.put('http://localhost:8080/api/supplies/unpack', headers=headers, data=data)
+
+        data = json.dumps({'id': supply_id, 'worker': {'id': worker_id}} )
+        response = requests.put('http://localhost:8080/api/supplies/unpack', data=data, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.load_supplies()
@@ -201,14 +192,6 @@ class WorkerDashboard(QWidget):
             body = json.loads(response.text)
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
-
-    def reset_table(self, row_position):
-        for col in range(5):
-            item = self.table.item(row_position, col)
-            item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable)
-        self.table.clearSelection()
-        self.table.setSelectionMode(QTableWidget.NoSelection)
-
 
     def _init_more_box(self):
 
@@ -301,7 +284,7 @@ class WorkerDashboard(QWidget):
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table_order.setItem(row_position, 5, item)
-            
+
             more_button = QPushButton('Pack')
             more_button.clicked.connect(partial(self.pack_order, row_position))
             self.table_order.setCellWidget(row_position, 6, more_button)
@@ -312,12 +295,10 @@ class WorkerDashboard(QWidget):
 
     def pack_order(self, row_position):
         order_id = self.table.item(row_position, 0).text()
-        status = self.table.item(row_position, 4).text()
-        worker_id = self.worker_id
+        worker_id = self.globalVariables.loged_workerID
 
-        headers = {'Content-Type': 'application/json'}
-        data = json.dumps({'id': order_id, 'status': status, 'worker':{'id': worker_id}} )
-        response = requests.put('http://localhost:8080/api/supplies/unpack', headers=headers, data=data)
+        data = json.dumps({'id': order_id, 'worker': {'id': worker_id}} )
+        response = requests.put('http://localhost:8080/api/supplies/unpack', data=data, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.load_supplies()
@@ -326,10 +307,13 @@ class WorkerDashboard(QWidget):
             body = json.loads(response.text)
             mess = body.get('message')
             self.writeToConsole(f'Error: {mess}')
-    
+
 
     def load_orders(self):
-        response = requests.get('http://localhost:8080/api/orders')
+        param = {}
+        param['workerId'] = self.globalVariables.loged_workerID
+
+        response = requests.get('http://localhost:8080/api/orders', headers=self.globalVariables.http_headers, params=param)
 
         if response.status_code == 200:
             self.writeToConsole("Orders loaded sucessfully")
@@ -351,11 +335,11 @@ class WorkerDashboard(QWidget):
 
     def show_more(self, rowposition):
         order_id = self.table.item(rowposition, 0).text()
-        response = requests.get(f'http://localhost:8080/api/orders/{order_id}')
+        response = requests.get(f'http://localhost:8080/api/orders/{order_id}', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             order = response.json()
-            
+
             self.populate_more_info(order)
             self.writeToConsole(f"More info on order {order_id} loaded successfully")
         else:
@@ -368,13 +352,12 @@ class WorkerDashboard(QWidget):
         self.more_widget.setTitle(f"More info on Order ID: {order['id']}")
 
         basket_products = order['products']
-        worker = order['worker']
         customer = order['customer']
 
 
         for item in basket_products:
             self.products.addItem(format_item(item))
-            
+
         self.customer_name_last_name.setText(f"{customer['name']} {customer['lastName']}")
         self.customer_email.setText(f"{customer['email']}")
         self.customer_address.setText(f"{customer['address']['country']}, {customer['address']['city']}, {customer['address']['street']}, {customer['address']['houseNumber']}, {customer['address']['postalCode']}")
