@@ -136,29 +136,34 @@ public class SupplyService {
 
     }
 
+    @Transactional
     public Supply acknowledgeSupply(Supply supply) {
-        if (!supply.status().equals("underway")) {
+        Supply currentSupply = supplyDao.getSupplyById(supply.id()).orElseThrow(() -> new BadRequestException("Supply not found"));
+        if (!currentSupply.status().equals("underway")) {
             throw new BadRequestException("The supply must be underway to acknowledge");
         }
 
         return supplyDao.acknowledgeSupply(supply);
     }
 
-
+    @Transactional
     public Supply assignSupply(Supply supply) {
-        if (!supply.status().equals("arrived")) {
+        Supply currentSupply = supplyDao.getSupplyById(supply.id()).orElseThrow(() -> new BadRequestException("Supply not found"));
+        if (!currentSupply.status().equals("arrived")) {
             throw new BadRequestException("The supply must be arrived to assign");
         }
 
         if (supply.worker() == null || supply.worker().id() == null) {
-            throw new BadRequestException("The supply must have a worker assigned to it");
+            throw new BadRequestException("You must provide a worker to assign the supply to");
         }
 
         return supplyDao.assignSupply(supply);
     }
 
+    @Transactional
     public void unpackSupply(Supply supply) {
-        if (!supply.status().equals("arrived")) {
+        Supply currentSupply = supplyDao.getSupplyById(supply.id()).orElseThrow(() -> new BadRequestException("Supply not found"));
+        if (!currentSupply.status().equals("arrived")) {
             throw new BadRequestException("The supply must be arrived to unpack");
         }
 

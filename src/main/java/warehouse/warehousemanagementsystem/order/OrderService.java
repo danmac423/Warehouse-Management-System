@@ -65,13 +65,15 @@ public class OrderService {
         return new Order(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, productsInOrder);
     }
 
+    @Transactional
     public Order assignOrder(Order order) {
-        if (!order.status().equals("received")) {
+        Order currentOrder = orderDao.getOrderById(order.id()).orElseThrow(() -> new NotFoundException("Order not found"));
+        if (!currentOrder.status().equals("received")) {
             throw new BadRequestException("Order must be received before assigning");
         }
 
         if (order.worker() == null || order.worker().id() == null) {
-            throw new BadRequestException("Order must have a worker assigned before assigning");
+            throw new BadRequestException("You must provide a worker to assign the order to");
         }
 
         return orderDao.assignOrder(order);
