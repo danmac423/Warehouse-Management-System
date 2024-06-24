@@ -2,6 +2,7 @@ package warehouse.warehousemanagementsystem.product;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import warehouse.warehousemanagementsystem.category.Category;
 import warehouse.warehousemanagementsystem.category.CategoryDao;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
@@ -28,7 +29,7 @@ public class ProductService {
         return productDao.getProducts(productName, categoryId);
     }
 
-
+    @Transactional
     public Product addProduct(Product product) {
 
         Category category = product.category();
@@ -59,6 +60,7 @@ public class ProductService {
         return productDao.addProduct(product);
     }
 
+    @Transactional
     public void deleteProduct(Long id) {
         Optional<Product> product = productDao.getProductById(id);
         int result;
@@ -75,6 +77,7 @@ public class ProductService {
         }
     }
 
+    @Transactional
     public Product updateProduct(Product product) {
         Category category = product.category();
         Product currentProduct = productDao.getProductById(product.id()).orElseThrow(() -> new NotFoundException("Product not found"));
@@ -102,10 +105,4 @@ public class ProductService {
     public List<ProductInOrder> getProductsByOrderHistory(Long orderHistoryId) {
         return productDao.getProductsByOrderHistory(orderHistoryId);
     }
-//
-//    public List<ProductInOrder> getProductsByOrder(Long orderId) {
-//        return productDao.getProductsByOrder(orderId);
-//    }
-//
-//    public List<ProductInOrder> getProductsByOrderHistory(Long orderId) { return productDao.getProductsByOrderHistory(orderId); }
 }

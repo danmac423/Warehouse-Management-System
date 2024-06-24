@@ -1,5 +1,6 @@
 package warehouse.warehousemanagementsystem.supplyHistory;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.supply.Supply;
 
@@ -9,6 +10,7 @@ import java.util.List;
 public class SupplyHistoryService {
     private final SupplyHistoryDao supplyHistoryDao;
 
+    @Autowired
     public SupplyHistoryService(SupplyHistoryDao supplyHistoryDao) {
         this.supplyHistoryDao = supplyHistoryDao;
     }

@@ -1,6 +1,8 @@
 package warehouse.warehousemanagementsystem.worker;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.ConflictException;
 import warehouse.warehousemanagementsystem.exception.DatabaseException;
@@ -14,6 +16,7 @@ public class WorkerService {
 
     private final WorkerDao workerDao;
 
+    @Autowired
     public WorkerService(WorkerDao workerDao) {
         this.workerDao = workerDao;
     }
@@ -39,6 +42,7 @@ public class WorkerService {
         return workerDao.getWorkerById(id);
     }
 
+    @Transactional
     public void addWorker(Worker worker) {
         validData(worker);
 
@@ -51,6 +55,7 @@ public class WorkerService {
         }
     }
 
+    @Transactional
     public void updateWorker(Worker worker) {
         Worker currentWorker = workerDao.getWorkerById(worker.id()).orElseThrow(() -> new BadRequestException("Worker not found"));
 
@@ -65,6 +70,7 @@ public class WorkerService {
         }
     }
 
+    @Transactional
     public void deleteWorker(Long id) {
         Optional<Worker> worker = workerDao.getWorkerById(id);
         int result;

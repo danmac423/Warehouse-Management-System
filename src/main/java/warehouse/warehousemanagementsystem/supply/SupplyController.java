@@ -28,8 +28,6 @@ public class SupplyController {
         return ResponseEntity.status(HttpStatus.OK).body(supplyService.getSupplies(supplierName, workerUsername, productName, status, workerId));
     }
 
-
-
     @PostMapping
     public ResponseEntity<Supply> addSupply(@RequestBody Supply supply) {
         Supply newSupply = supplyService.addSupply(supply);
@@ -65,40 +63,4 @@ public class SupplyController {
         supplyService.unpackSupply(supply);
         return ResponseEntity.status(HttpStatus.OK).body("Supply unpacked successfully and added to the history");
     }
-//
-//    @PutMapping("/updateWorker")
-//    public ResponseEntity<String> updateWorker(@RequestBody Supply supply) {
-//        supplyService.updateWorker(supply);
-//        return new ResponseEntity<>("Worker updated successfully", HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/formated")
-//    public ResponseEntity<List<SupplyView>> getAllSuppliesViews() {
-//        return new ResponseEntity<>(supplyService.getAllSuppliesViews(), HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/formated/username/{username}")
-//    public ResponseEntity<List<SupplyView>> getSuppliesViewsByWorkerUsername(@PathVariable String username) {
-//        return new ResponseEntity<>(supplyService.getSuppliesViewsByWorkerUsername(username), HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/formated/supplier/{name}")
-//    public ResponseEntity<List<SupplyView>> getSuppliesViewsBySupplierName(@PathVariable String name) {
-//        return new ResponseEntity<>(supplyService.getSuppliesViewsBySupplierName(name), HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/formated/supplier/{name}/username/{username}")
-//    public ResponseEntity<List<SupplyView>> getSuppliesViewsBySupplierNameAndUsername(@PathVariable String name, @PathVariable String username) {
-//        return new ResponseEntity<>(supplyService.getSuppliesViewsBySupplierNameWorkerUsername(name, username), HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/formated/status/{status}")
-//    public ResponseEntity<List<SupplyView>> getSuppliesViewsByStatus(@PathVariable String status) {
-//        return new ResponseEntity<>(supplyService.getSuppliesViewsByStatus(status), HttpStatus.OK);
-//    }
-//
-//    @GetMapping("/formated/worker/{workerId}")
-//    public ResponseEntity<List<SupplyView>> getSuppliesViewsByWorkerId(@PathVariable Long workerId) {
-//        return new ResponseEntity<>(supplyService.getSuppliesViewsByWorkerId(workerId), HttpStatus.OK);
-//    }
 }
