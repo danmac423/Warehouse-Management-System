@@ -270,8 +270,7 @@ class OrderHistoryPage(QWidget):
 
     def load_ordersHistory(self):
         response = requests.get('http://localhost:8080/api/orders-history')
-        print(response.status_code)
-
+        
         if response.status_code == 200:
             self.writeToConsole("ordersHistory loaded sucessfully")
             self.table.clearContents()

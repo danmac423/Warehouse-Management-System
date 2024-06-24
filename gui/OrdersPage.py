@@ -101,7 +101,7 @@ class OrderPage(QWidget):
 
     def _init_more_box(self):
         # products_box= QGroupBox("Products")
-        products_box = QGroupBox()
+        # products_box = QGroupBox()
 
 
         # self.order_id = QLineEdit(readOnly = True)
@@ -120,13 +120,13 @@ class OrderPage(QWidget):
         products_layout.addWidget(self.products)
         self.more_list = [
             # self.order_id,
-            self.products,
+            # self.products,
             self.customer_name_last_name,
             self.customer_email,
             self.customer_address
         ]
-        self.more_widget = QGroupBox('More info')
-        self.more_widget.setLayout(products_layout)
+        # self.more_widget = QGroupBox('More info')
+        # self.more_widget.setLayout(products_layout)
 
 
         # self.customer_id = QLineEdit(readOnly = True)
@@ -143,7 +143,7 @@ class OrderPage(QWidget):
         # self.customer_email = QLineEdit(readOnly = True)
         # self.customer_lastname = QLineEdit(readOnly = True)
 
-        products_layout = QVBoxLayout()
+        # products_layout = QVBoxLayout()
         # products_layout.setContentsMargins(0, 0, 0, 0)
         # # form_layout.addRow(QLabel("Order ID:"), self.order_id)
         # products_layout.addWidget(self.products)
@@ -173,13 +173,13 @@ class OrderPage(QWidget):
         #     self.total_price
         # ]
 
-        products_box.setLayout(products_layout)
+        # products_box.setLayout(products_layout)
         # form1.setLayout(form_layout1)
         # form2.setLayout(form_layout2)
 
 
         more_layout = QGridLayout()
-        more_layout.addWidget(products_box, 0, 0, 1, 2)
+        more_layout.addWidget(self.products, 0, 0, 1, 2)
         more_layout.addWidget(self.customer_name_last_name, 1, 0)
         more_layout.addWidget(self.customer_email, 1, 1)
         more_layout.addWidget(self.customer_address, 2, 0, 1, 2)
@@ -319,7 +319,6 @@ class OrderPage(QWidget):
             self.writeToConsole(f'Error: {mess}')
 
     def edit_order(self, row_position):
-        # print(row_position)
         self.select_row(row_position)
 
         item = self.table.item(row_position, 2)
@@ -394,8 +393,9 @@ class OrderPage(QWidget):
 
     def clear_more_list(self):
         self.more_widget.setTitle("More info")
+        self.products.clear()
         for item in self.more_list:
-            item.clear()
+                item.clear()
 
     def show_more(self, rowposition):
         order_id = self.table.item(rowposition, 0).text()
@@ -403,6 +403,9 @@ class OrderPage(QWidget):
 
         if response.status_code == 200:
             order = response.json()
+            
+            print(f"order {order}")
+            
             self.populate_more_info(order)
             self.writeToConsole(f"More info on order {order_id} loaded successfully")
         else:
@@ -416,32 +419,34 @@ class OrderPage(QWidget):
         self.clear_more_list()
         self.more_widget.setTitle(f"More info on Order ID: {order['id']}")
 
-        products = order['products']
+        basket_products = order['products']
         worker = order['worker']
         customer = order['customer']
 
 
-        for item in products:
-            list_item = QListWidgetItem(format_item(item))
-            self.products.addItem(list_item)
+        for item in basket_products:
+            # list_item = QListWidgetItem(format_item(item))
+            self.products.addItem(format_item(item))
+            
+        self.customer_name_last_name.setText(f"{customer['name']} {customer['lastName']}")
+        self.customer_email.setText(f"{customer['email']}")
+        self.customer_address.setText(f"{customer['address']['country']}, {customer['address']['city']}, {customer['address']['street']}, {customer['address']['houseNumber']}, {customer['address']['postalCode']}")
 
-        self.customer_id.setText(str(customer['id']))
-        self.customer_name.setText(customer['name'])
-        self.customer_email.setText(customer['email'])
-        self.customer_lastname.setText(customer['lastName'])
-        self.worker_id.setText(str(worker['id']))
-        self.worker_username.setText(worker['username'])
-        self.date_received.setText(order['dateReceived'])
-        self.date_processed.setText(order['dateProcessed'])
-        self.status.setText(order['status'])
-        self.total_price.setText(str(order['totalPrice']))
+        # self.customer_id.setText(str(customer['id']))
+        # self.customer_name.setText(customer['name'])
+        # self.customer_email.setText(customer['email'])
+        # self.customer_lastname.setText(customer['lastName'])
+        # self.worker_id.setText(str(worker['id']))
+        # self.worker_username.setText(worker['username'])
+        # self.date_received.setText(order['dateReceived'])
+        # self.date_processed.setText(order['dateProcessed'])
+        # self.status.setText(order['status'])
+        # self.total_price.setText(str(order['totalPrice']))
 
 
 
     def assign_order(self, row_position, worker_id):
         order_id = self.table.item(row_position, 0).text()
-        print(f"order_id {order_id}")
-        print(f"worked_id {worker_id}")
 
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'id': order_id, 'workerId': worker_id})

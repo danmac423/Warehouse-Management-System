@@ -224,7 +224,6 @@ class SuppliesHistoryPage(QWidget):
             self.table.clearContents()
             self.table.setRowCount(0)
             supplies = response.json()
-            print(supplies)
 
             self.populate_table(supplies)
         else:

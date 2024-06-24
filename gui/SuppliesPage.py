@@ -337,7 +337,6 @@ class SuppliesPage(QWidget):
             self.writeToConsole(f'Error: {mess}')
 
     def edit_supply(self, row_position):
-        print(row_position)
         self.select_row(row_position)
         self.table.item(row_position, 1).setFlags(self.table.item(row_position, 1).flags() | Qt.ItemFlag.ItemIsEditable)
         self.table.item(row_position, 4).setFlags(self.table.item(row_position, 4).flags() | Qt.ItemFlag.ItemIsEditable)

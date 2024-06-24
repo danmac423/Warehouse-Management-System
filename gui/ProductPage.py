@@ -170,7 +170,7 @@ class ProductPage(QWidget):
         headers = {'Content-Type': 'application/json'}
         data = json.dumps({'name': name, 'price': price, 'category': {'id': category_id}, 'stock': stock})
         response = requests.post('http://localhost:8080/api/products', headers=headers, data=data)
-        print(response.status_code)
+        
         if response.status_code == 201:
             self.clear_form()
             self.reset_filters()
@@ -253,13 +253,11 @@ class ProductPage(QWidget):
 
     def delete_product(self, row):
         selected_row = row
-        print(selected_row)
         if selected_row == -1:
             self.writeToConsole('Error: No product selected')
             return
 
         product_id = self.table.item(selected_row, 0).text()
-        print(f"product_id: {product_id}")
         response = requests.delete(f'http://localhost:8080/api/products/{product_id}')
 
         if response.status_code == 200:
@@ -282,7 +280,6 @@ class ProductPage(QWidget):
             return []
 
     def edit_product(self, row_position):
-        print(row_position)
         self.select_row(row_position)
         for col in range(1, 5):
             item = self.table.item(row_position, col)
@@ -349,7 +346,7 @@ class ProductPage(QWidget):
         if response.status_code == 200:
             result = response.json()
             categories_tuples = [(cat['name'], cat['id']) for cat in result]
-            print(f"--------product_page_up_cat")
+        
             self.category_dropdown.blockSignals(True)
             self.category.clear()
             self.category_dropdown.clear()
