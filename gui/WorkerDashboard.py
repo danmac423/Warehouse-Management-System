@@ -302,6 +302,7 @@ class WorkerDashboard(QWidget):
 
         if response.status_code == 200:
             self.load_orders()
+            self.clear_more_list()
             self.writeToConsole(f'Packing of order id: {order_id} successfully done')
         else:
             body = json.loads(response.text)
