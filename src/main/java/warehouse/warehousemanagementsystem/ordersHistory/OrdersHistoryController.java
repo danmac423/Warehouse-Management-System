@@ -34,12 +34,12 @@ public class OrdersHistoryController {
 //        return new ResponseEntity<>(ordersHistoryService.getAllOrders(), HttpStatus.OK);
 //    }
 
-    @GetMapping("/dates/{processedDateMin}/{processedDateMax}")
-    public List<OrdersHistory> getAll0rdersWithDates(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMin,
-                                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMax){
-        return ordersHistoryService.getAllOrdersWithDate(processedDateMin, processedDateMax);
-
-    }
+//    @GetMapping("/dates/{processedDateMin}/{processedDateMax}")
+//    public List<OrdersHistory> getAll0rdersWithDates(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMin,
+//                                                     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @PathVariable Date processedDateMax){
+//        return ordersHistoryService.getAllOrdersWithDate(processedDateMin, processedDateMax);
+//
+//    }
 
 
     @GetMapping("/{orderId}")
