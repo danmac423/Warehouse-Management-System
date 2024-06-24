@@ -152,10 +152,9 @@ public class SupplyDao {
     }
 
     public Supply assignSupply(Supply supply) {
-        var sql = "UPDATE supplies SET status = ?, worker_id = ? WHERE id = ?";
+        var sql = "UPDATE supplies SET worker_id = ? WHERE id = ?";
         jdbcTemplate.update(
                 sql,
-                "arrived",
                 supply.worker().id(),
                 supply.id()
         );

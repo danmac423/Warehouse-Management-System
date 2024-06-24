@@ -44,4 +44,11 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.OK).body("Order packed successfully and added to the history");
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
+    @PutMapping("/assign")
+    public ResponseEntity<Order> assignOrder(@RequestBody Order order) {
+        Order assignedOrder = orderService.assignOrder(order);
+        return ResponseEntity.status(HttpStatus.OK).body(assignedOrder);
+    }
+
 }

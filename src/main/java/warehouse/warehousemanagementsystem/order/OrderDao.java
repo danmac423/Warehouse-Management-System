@@ -90,4 +90,17 @@ public class OrderDao {
         );
     }
 
+    public Order assignOrder(Order order) {
+        var sql = """
+                UPDATE orders
+                SET worker_id = ?
+                WHERE id = ?
+                """;
+        jdbcTemplate.update(
+                sql,
+                order.worker().id(),
+                order.id()
+        );
+        return order;
+    }
 }
