@@ -101,7 +101,7 @@ public class ProductDao {
                 name
         ).stream().findFirst();
     }
-//
+
     public Product addProduct(Product product) {
         var sql = """
                 INSERT INTO products (name, price, category_id, stock)
@@ -144,6 +144,24 @@ public class ProductDao {
                 product.id()
         );
         return getProductById(product.id()).get();
+    }
+
+    public List<ProductInOrder> getProductsInOrder(Long orderId) {
+        var sql = """
+                SELECT products.id, products.name, products.price,
+                       categories.id as category_id, categories.name as category_name,
+                       products_orders.amount
+                FROM products
+                LEFT JOIN products_orders ON products.id = products_orders.product_id
+                LEFT JOIN categories ON products.category_id = categories.id
+                WHERE products_orders.order_id = ?
+                ORDER BY products.id
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new ProductInOrderMapper(),
+                orderId
+        );
     }
 
 
