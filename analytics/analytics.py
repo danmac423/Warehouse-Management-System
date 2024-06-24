@@ -196,7 +196,7 @@ def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_wor
     
     max_y = 0
     date_min_x = np.datetime64(dt.today().isoformat())
-    date_max_x = np.datetime64(dt.today().isoformat())
+    date_max_x = np.datetime64(dt.min)
 
     averages = {}
 
@@ -226,6 +226,9 @@ def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_wor
         except:
             pass
     
+    if date_max_x == np.datetime64(dt.min):
+        date_max_x = np.datetime64(dt.today().isoformat())
+    
     if avg:
         num_workers = len(worker_id_list)
         averages = {k:v/num_workers for k,v in averages.items()}
@@ -244,11 +247,11 @@ def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_wor
 
     if per == 'month' and date_min_x != date_max_x:
         one_month = np.timedelta64(1, 'M').astype('<m8[us]')
-        ax.set_xticks(np.arange(date_min_x, date_max_x, one_month))
+        ax.set_xticks(np.arange(date_min_x, date_max_x+one_month, one_month))
     
     elif per == 'day' and date_min_x  != date_max_x:
         one_day = np.timedelta64(1, 'D').astype('<m8[us]')
-        ax.set_xticks(np.arange(date_min_x, date_max_x, one_day))
+        ax.set_xticks(np.arange(date_min_x, date_max_x+one_day, one_day))
 
     if data == 'processed_nums':
         ax.set_yticks(np.arange(0, max_y+1, 1))
@@ -258,7 +261,7 @@ def graph_worker_orders_data(data:str, endpoint_url_orders:str, endpoint_url_wor
     ax.legend()
     plt.show()
 
-    return date_min_x, date_max_x
+    return
 
 def _compile_orders_data(data:str, endpoint_url_orders:str, worker_id_list:List[str], per:str,
                                          date_min:str=None, date_max:str=None, graph_type:str='line', avg:bool=False) -> None:
@@ -286,23 +289,27 @@ def _compile_orders_data(data:str, endpoint_url_orders:str, worker_id_list:List[
         raise(Exception('Incorrect arguments'))
     
 
-    min_date = None
-    max_date = None
+    min_date = np.datetime64(dt.today().isoformat())
+    max_date = np.datetime64(dt.min)
     orders_dicts = []
     for worker_id in worker_id_list:
         order_nums:dict = get_func(endpoint_url_orders, worker_id, date_min=date_min, date_max=date_max, show_empty=True)
         orders_dicts.append(order_nums)
         keys = list(order_nums.keys())
-        try:
+        if len(keys) > 0:
             min_date = min(min(keys), min_date)
             max_date = max(max(keys), max_date)
-        except:
-            pass
+
+    if max_date == np.datetime64(dt.min):
+        max_date = np.datetime64(dt.today().isoformat())
     
     rows = [['Dates'] + worker_id_list]
-    if not (min_date and max_date):
-        return rows 
-    dates = np.arange(min_date, max_date, step)
+
+    dates = None
+    if min_date == max_date:
+        dates = [min_date]
+    else:
+        dates = np.arange(min_date, max_date, step)
    
     for date in dates:
         row = [date]
