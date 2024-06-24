@@ -88,7 +88,7 @@ class LoginWindow(QWidget):
         response = requests.post('http://localhost:8080/api/auth/login', headers=headers, data=data)
 
         if response.status_code == 200:
-            # print(response.json())
+            print(response.json())
             session_data = response.json()
             # self.open_manager(token)
             self.globalVariables.signals.login_successful.emit(session_data)
