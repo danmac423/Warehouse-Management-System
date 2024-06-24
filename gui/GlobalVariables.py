@@ -22,7 +22,6 @@ class Signals(QObject):
     login_successful = Signal(dict)
     log_out = Signal()
 
-
     window_size_changed = Signal(tuple)
 
     menu_toggled = Signal()
