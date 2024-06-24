@@ -32,12 +32,12 @@ class MainWindow(QMainWindow):
         # self.setMinimumSize(1024, 600)
         self.setMinimumSize(1280, 860)
 
-        self.globalVariables = GlobalVariables()
-
         self.show_login()
         # self.show_main_application()
 
     def show_login(self):
+        self.globalVariables = GlobalVariables()
+        
         self.login_widget = LoginWindow(self.globalVariables)
         self.globalVariables.signals.login_successful.connect(self.show_main_application)
         self.setCentralWidget(self.login_widget)
@@ -57,9 +57,13 @@ class MainWindow(QMainWindow):
         self.toolbar.addWidget(self.toolBarWidget)
 
     def log_out(self):
+        if self.globalVariables:
+            self.globalVariables.deleteLater()
+            self.globalVariables = None
+        
         if self.central_widget:
             self.setCentralWidget(None)
-            # self.central_widget.deleteLater()
+            self.central_widget.deleteLater()
             self.central_widget = None
 
         # if hasattr(self, 'toolbar') and self.toolbar is not None:

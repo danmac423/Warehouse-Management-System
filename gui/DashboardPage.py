@@ -7,9 +7,9 @@ class DashboardPage(QWidget):
         super().__init__()
         self.globalVariables = globalVariables
         self.colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A8', '#A833FF', '#33FFF5', '#FF8C33', ' #E4D00A']
-        self._init_signals()
         self._init_blocks()
         self.initUI()
+        self._init_signals()
 
     def initUI(self):
         # layout = QVBoxLayout()
@@ -61,7 +61,7 @@ class DashboardPage(QWidget):
     def _init_signals(self):
         self.globalVariables.signals.window_size_changed.connect(lambda new_window_size: self.update_window_size(new_window_size))
         
-    def update_window_size(self, new_window_size):
+    def update_window_size(self, new_window_size):      
         for block in self.blocks_list:
             global_w, global_h = new_window_size
             size = min(global_w/4 - global_w/40, global_h/2 - 20)

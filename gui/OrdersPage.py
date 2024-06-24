@@ -404,7 +404,7 @@ class OrderPage(QWidget):
         if response.status_code == 200:
             order = response.json()
             
-            print(f"order {order}")
+            # print(f"order {order}")
             
             self.populate_more_info(order)
             self.writeToConsole(f"More info on order {order_id} loaded successfully")
