@@ -53,6 +53,16 @@ public class OrderService {
 
         orderDao.packOrder(order);
     }
+
+    public Order getOrderById(Long orderId) {
+        Order order = orderDao.getOrderById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
+        List<ProductInOrder> productsInOrder = productDao.getProductsInOrder(order.id());
+        BigDecimal totalPrice = new BigDecimal(0);
+        for (ProductInOrder productInOrder : productsInOrder) {
+            totalPrice = totalPrice.add(productInOrder.price());
+        }
+        return new Order(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, productsInOrder);
+    }
 //
 //    public List<Order> getOrdersByWorkerUsernameSubstring(String usernameSubstring) {
 //        var orders =  orderDao.getOrdersByWorkerUsernameSubstring(usernameSubstring);
