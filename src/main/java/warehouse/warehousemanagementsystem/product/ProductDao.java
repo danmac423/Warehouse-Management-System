@@ -52,6 +52,24 @@ public class ProductDao {
         );
     }
 
+    public List<Product> getProductsByOrderHistory(Long orderHistoryId) {
+       var sql = """
+               SELECT products.id, products.name, products.price,
+                       categories.id as category_id, categories.name as category_name,
+                       products_orders_history.amount
+                FROM products
+                LEFT JOIN products_orders_history ON products.id = products_orders_history.product_id
+                LEFT JOIN categories ON products.category_id = categories.id
+                WHERE products_orders_history.order_id = ?
+                ORDER BY products.id
+               """;
+       return jdbcTemplate.query(
+               sql,
+               new ProductMapper(),
+               orderHistoryId
+       );
+    }
+
     public Optional<Product> getProductById(Long id) {
         var sql = """
                 SELECT

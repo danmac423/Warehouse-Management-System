@@ -3,6 +3,7 @@ package warehouse.warehousemanagementsystem.ordersHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import warehouse.warehousemanagementsystem.product.Product;
 
 import java.util.Date;
 import java.util.List;
@@ -56,6 +57,19 @@ public class OrdersHistoryDao {
         return jdbcTemplate.query(
                 sql,
                 new OrdersHistoryMapper()
+        );
+    }
+
+    public List<OrdersHistory> getAllOrdersWithDate(Date processedDateMin, Date processedDateMax) {
+        var sql = """
+                SELECT * FROM orders_history
+                WHERE date_processed BETWEEN ? and ?
+                """;
+        return jdbcTemplate.query(
+                sql,
+                new OrdersHistoryMapper(),
+                processedDateMin,
+                processedDateMax
         );
     }
 

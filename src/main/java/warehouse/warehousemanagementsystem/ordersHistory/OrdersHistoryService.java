@@ -3,6 +3,7 @@ package warehouse.warehousemanagementsystem.ordersHistory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 import warehouse.warehousemanagementsystem.exception.NotFoundException;
+import warehouse.warehousemanagementsystem.product.Product;
 
 import java.util.Date;
 import java.util.List;
@@ -17,6 +18,10 @@ public class OrdersHistoryService {
 
     public List<OrdersHistory> getAllOrders() {
         return ordersHistoryDao.getAllOrders();
+    }
+
+    public List<OrdersHistory> getAllOrdersWithDate(Date processedDateMin, Date processedDateMax) {
+        return ordersHistoryDao.getAllOrdersWithDate(processedDateMin, processedDateMax);
     }
 
     public OrdersHistory getOrderById(Long orderId) {
