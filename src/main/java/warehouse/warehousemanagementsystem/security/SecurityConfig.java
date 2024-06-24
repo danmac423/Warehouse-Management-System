@@ -40,10 +40,10 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .requestMatchers("/api/auth/**").permitAll();
-//                .anyRequest().authenticated();
-//                .and()
-//                .httpBasic();
+                .requestMatchers("/api/auth/login").permitAll()
+                .anyRequest().authenticated()
+                .and()
+                .httpBasic();
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

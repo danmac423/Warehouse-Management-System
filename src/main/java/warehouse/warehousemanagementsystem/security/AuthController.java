@@ -3,6 +3,7 @@ package warehouse.warehousemanagementsystem.security;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -35,6 +36,7 @@ public class AuthController {
         this.jwtGenerator = jwtGenerator;
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
 
@@ -52,6 +54,7 @@ public class AuthController {
         return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("change-password")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
         Worker worker = workerDao.getWorkerById(changePasswordDto.workerId()).orElseThrow(() -> new RuntimeException("Worker not found"));
