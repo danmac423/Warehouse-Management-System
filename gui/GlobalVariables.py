@@ -36,7 +36,6 @@ class GlobalVariables(QObject):
         super().__init__()
         self._window_size = (1280,680)
         self.session_token = ""
-
         self.tokenType = ""
         self.role = ""
         self.loged_workerID = ""
