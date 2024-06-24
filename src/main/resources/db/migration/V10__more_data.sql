@@ -41,9 +41,9 @@ DECLARE
     order2_id bigint;
     order3_id bigint;
     order4_id bigint;
-    order5_id bigint;
+	order5_id bigint;
 
-    supply1_id bigint;
+	supply1_id bigint;
     supply2_id bigint;
     supply3_id bigint;
     supply4_id bigint;
@@ -230,11 +230,11 @@ BEGIN
 
 	INSERT INTO orders (customer_id, date_processed, worker_id, status, date_received)
     VALUES (cust1_id, null, null, 'received', CURRENT_TIMESTAMP - INTERVAL '2 days')
-	RETURNING id INTO order4_id;
-
-	INSERT INTO orders (customer_id, date_processed, worker_id, status, date_received)
-    VALUES (cust2_id, null, null, 'received', CURRENT_TIMESTAMP - INTERVAL '1 days')
 	RETURNING id INTO order5_id;
+
+	-- INSERT INTO orders (customer_id, date_processed, worker_id, status, date_received)
+ --    VALUES (cust2_id, null, null, 'received', CURRENT_TIMESTAMP - INTERVAL '1 days')
+	-- RETURNING id INTO order1_id;
 
     -- Products Orders
     INSERT INTO products_orders(product_id, order_id, amount)
@@ -251,7 +251,10 @@ BEGIN
 		(prod3_id, order4_id, 5),
         (prod5_id, order4_id, 4),
         (prod6_id, order4_id, 2),
-		(prod6_id, order4_id, 10);
+		(prod6_id, order4_id, 10),
+		(prod1_id, order5_id, 4),
+        (prod4_id, order5_id, 2),
+		(prod2_id, order5_id, 1);
 
     UPDATE orders
     SET status = 'processed'
