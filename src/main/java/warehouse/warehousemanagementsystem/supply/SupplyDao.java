@@ -162,7 +162,7 @@ public class SupplyDao {
         var sql = "UPDATE supplies SET status = ?, worker_id = ? WHERE id = ?";
         jdbcTemplate.update(
                 sql,
-                "assigned",
+                "arrived",
                 supply.worker().id(),
                 supply.id()
         );

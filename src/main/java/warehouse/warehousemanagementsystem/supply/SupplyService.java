@@ -168,8 +168,8 @@ public class SupplyService {
     }
 
     public void unpackSupply(Supply supply) {
-        if (!supply.status().equals("assigned")) {
-            throw new BadRequestException("The supply must be assigned to unpack");
+        if (!supply.status().equals("arrived")) {
+            throw new BadRequestException("The supply must be arrived to unpack");
         }
 
         if (supply.worker() == null || supply.worker().id() == null) {
