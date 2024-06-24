@@ -271,11 +271,11 @@ class CategoriesPage(QWidget):
         self.apply_filters()
         self.writeToConsole("Reverted edit")
 
-    def update_category(self, row_position):
+    def update_category(self, row_position, name):
         category_id = self.table.item(row_position, 0).text()
-        name = self.table.cellWidget(row_position, 1).text()
-        data = json.dumps({'name': name})
-        response = requests.put(f'http://localhost:8080/api/categories/{category_id}', headers=self.globalVariables.http_headers, data=data)
+        name = name.text()
+        data = json.dumps({'id': category_id, 'name': name})
+        response = requests.put(f'http://localhost:8080/api/categories', headers=self.globalVariables.http_headers, data=data)
         if response.status_code == 200:
             self.writeToConsole('Category updated successfully')
             self.reset_table(row_position)
