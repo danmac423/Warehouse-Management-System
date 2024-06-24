@@ -213,7 +213,7 @@ class OrderHistoryPage(QWidget):
         if worker_username:
             params['workerUsername'] = worker_username
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.writeToConsole("Orders filtered successfully")
@@ -269,8 +269,8 @@ class OrderHistoryPage(QWidget):
             self.table.setCellWidget(row_position, 5, more_button)
 
     def load_ordersHistory(self):
-        response = requests.get('http://localhost:8080/api/orders-history')
-        
+        response = requests.get('http://localhost:8080/api/orders-history', headers=self.globalVariables.http_headers)
+
         if response.status_code == 200:
             self.writeToConsole("ordersHistory loaded sucessfully")
             self.table.clearContents()
@@ -290,7 +290,7 @@ class OrderHistoryPage(QWidget):
 
     def show_more(self, rowposition):
         order_id = self.table.item(rowposition, 0).text()
-        response = requests.get(f'http://localhost:8080/api/orders-history/{order_id}')
+        response = requests.get(f'http://localhost:8080/api/orders-history/{order_id}', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             order = response.json()

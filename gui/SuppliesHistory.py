@@ -73,7 +73,7 @@ class SuppliesHistoryPage(QWidget):
         form_layout.addRow(QLabel('Supplier name:'), self.search_supplier_name)
         form_layout.addRow(QLabel('Worker username:'), self.search_worker_username)
         form_layout.addRow(QLabel('Product name:'), self.search_product_name)
-        form_layout.addRow(QLabel('Category:'), self.search_category_name)
+        form_layout.addRow(QLabel('Category name:'), self.search_category_name)
 
         form = QWidget()
         form.setLayout(form_layout)
@@ -105,7 +105,7 @@ class SuppliesHistoryPage(QWidget):
         if category_name:
             params['categoryName'] = category_name
 
-        response = requests.get(url, params=params)
+        response = requests.get(url, params=params, headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             supplies = response.json()
@@ -151,8 +151,8 @@ class SuppliesHistoryPage(QWidget):
             self.table_scrollArea.setMinimumHeight(120)
             self.table_scrollArea.setMaximumHeight(300)
 
-            self.table.setColumnCount(8)
-            self.table.setHorizontalHeaderLabels(['ID', 'Supplier', 'Worker', 'Expected', 'Arrival', 'Processed', 'Product', 'Amount'])
+            self.table.setColumnCount(9)
+            self.table.setHorizontalHeaderLabels(['ID', 'Supplier', 'Worker', 'Expected', 'Arrival', 'Processed', 'Product', 'Category', 'Amount'])
             self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.Stretch)
             self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)
             self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
@@ -161,6 +161,7 @@ class SuppliesHistoryPage(QWidget):
             self.table.horizontalHeader().setSectionResizeMode(5, QHeaderView.Stretch)
             self.table.horizontalHeader().setSectionResizeMode(6, QHeaderView.Stretch)
             self.table.horizontalHeader().setSectionResizeMode(7, QHeaderView.Stretch)
+            self.table.horizontalHeader().setSectionResizeMode(8, QHeaderView.Stretch)
             self.table.setSelectionBehavior(QTableWidget.SelectRows)
             self.table.setSelectionMode(QTableWidget.NoSelection)
 
@@ -211,13 +212,18 @@ class SuppliesHistoryPage(QWidget):
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 6, item)
 
-            item =  QTableWidgetItem(str(supply['amount']))
+            item = QTableWidgetItem(str(product['category']['name']))
             item.setFlags(item.flags() & ~Qt.ItemIsEditable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table.setItem(row_position, 7, item)
 
+            item =  QTableWidgetItem(str(supply['amount']))
+            item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+            item.setTextAlignment(Qt.AlignCenter)
+            self.table.setItem(row_position, 8, item)
+
     def load_supplies_history(self):
-        response = requests.get('http://localhost:8080/api/supplies-history')
+        response = requests.get('http://localhost:8080/api/supplies-history', headers=self.globalVariables.http_headers)
 
         if response.status_code == 200:
             self.writeToConsole("Supplies history loaded sucessfully")
