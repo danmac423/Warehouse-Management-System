@@ -5,10 +5,10 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class AddressMapper implements RowMapper<Address> {
+public class AddressMapper implements RowMapper<AddressDto> {
     @Override
-    public Address mapRow(ResultSet resultSet, int i) throws SQLException {
-        return new Address(
+    public AddressDto mapRow(ResultSet resultSet, int i) throws SQLException {
+        return new AddressDto(
                 resultSet.getLong("id"),
                 resultSet.getString("street"),
                 resultSet.getString("house_nr"),

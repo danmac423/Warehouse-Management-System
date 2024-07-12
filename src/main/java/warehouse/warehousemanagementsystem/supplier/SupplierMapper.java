@@ -1,15 +1,15 @@
 package warehouse.warehousemanagementsystem.supplier;
 
 import org.springframework.jdbc.core.RowMapper;
-import warehouse.warehousemanagementsystem.address.Address;
+import warehouse.warehousemanagementsystem.address.AddressDto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SupplierMapper implements RowMapper<Supplier> {
+public class SupplierMapper implements RowMapper<SupplierDto> {
     @Override
-    public Supplier mapRow(ResultSet rs, int rowNum) throws SQLException {
-            Address address = new Address(
+    public SupplierDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+            AddressDto address = new AddressDto(
                     rs.getLong("address_id"),
                     rs.getString("street"),
                     rs.getString("house_nr"),
@@ -18,7 +18,7 @@ public class SupplierMapper implements RowMapper<Supplier> {
                     rs.getString("country")
             );
 
-            return new Supplier(
+            return new SupplierDto(
                     rs.getLong("supplier_id"),
                     rs.getString("name"),
                     address

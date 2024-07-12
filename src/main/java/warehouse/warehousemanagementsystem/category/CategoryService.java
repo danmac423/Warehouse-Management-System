@@ -22,12 +22,12 @@ public class CategoryService {
     }
 
 
-    public List<Category> getCategories(String categoryName) {
+    public List<CategoryDto> getCategories(String categoryName) {
         return categoryDao.getCategories(categoryName);
     }
 
     @Transactional
-    public void addCategory(Category category) {
+    public void addCategory(CategoryDto category) {
         if (categoryDao.getCategoryByName(category.name()).isPresent()) {
             throw new ConflictException("Category already exists");
         }
@@ -41,7 +41,7 @@ public class CategoryService {
 
     @Transactional
     public void deleteCategory(Long id) {
-        Optional<Category> category = categoryDao.getCategoryById(id);
+        Optional<CategoryDto> category = categoryDao.getCategoryById(id);
         int result;
         if (category.isEmpty()) {
             throw new NotFoundException("Category not found");
@@ -57,8 +57,8 @@ public class CategoryService {
     }
 
     @Transactional
-    public void updateCategory(Category category) {
-        Category currentCategory = categoryDao.getCategoryById(category.id()).orElseThrow(() -> new NotFoundException("Category not found"));
+    public void updateCategory(CategoryDto category) {
+        CategoryDto currentCategory = categoryDao.getCategoryById(category.id()).orElseThrow(() -> new NotFoundException("Category not found"));
 
         if (category.name().isEmpty()) {
             throw new BadRequestException("Category name cannot be empty");

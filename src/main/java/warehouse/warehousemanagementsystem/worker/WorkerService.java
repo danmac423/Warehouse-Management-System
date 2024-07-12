@@ -21,7 +21,7 @@ public class WorkerService {
         this.workerDao = workerDao;
     }
 
-    private void validData(Worker worker) {
+    private void validData(WorkerDto worker) {
         if (worker.name().isEmpty()
                 || worker.lastName().isEmpty()
                 || worker.username().isEmpty()
@@ -34,17 +34,17 @@ public class WorkerService {
         }
     }
 
-    public List<Worker> getWorkers(String username, String role) {
+    public List<WorkerDto> getWorkers(String username, String role) {
         return workerDao.getWorkers(username, role);
     }
 
-    public Optional<Worker> getWorkerById(Long id){
+    public Optional<WorkerDto> getWorkerById(Long id){
         return workerDao.getWorkerById(id);
     }
 
     @Transactional
-    public void updateWorker(Worker worker) {
-        Worker currentWorker = workerDao.getWorkerById(worker.id()).orElseThrow(() -> new BadRequestException("Worker not found"));
+    public void updateWorker(WorkerDto worker) {
+        WorkerDto currentWorker = workerDao.getWorkerById(worker.id()).orElseThrow(() -> new BadRequestException("Worker not found"));
 
         validData(worker);
 
@@ -59,7 +59,7 @@ public class WorkerService {
 
     @Transactional
     public void deleteWorker(Long id) {
-        Optional<Worker> worker = workerDao.getWorkerById(id);
+        Optional<WorkerDto> worker = workerDao.getWorkerById(id);
         int result;
 
         if (worker.isEmpty()) {

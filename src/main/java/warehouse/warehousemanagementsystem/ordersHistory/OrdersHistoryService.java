@@ -4,12 +4,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import warehouse.warehousemanagementsystem.exception.NotFoundException;
-import warehouse.warehousemanagementsystem.order.Order;
-import warehouse.warehousemanagementsystem.product.ProductInOrder;
+import warehouse.warehousemanagementsystem.order.OrderDto;
+import warehouse.warehousemanagementsystem.product.ProductInOrderDto;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -21,71 +20,34 @@ public class OrdersHistoryService {
         this.ordersHistoryDao = ordersHistoryDao;
     }
 
-    public List<OrdersHistory> getAllOrders() {
-        return ordersHistoryDao.getAllOrders();
-    }
-
     @Transactional
-    public Order getOrderById(Long orderId) {
-        Order order = ordersHistoryDao.getOrderById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
+    public OrderDto getOrderById(Long orderId) {
+        OrderDto order = ordersHistoryDao.getOrderById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
 
-        List<ProductInOrder> products = ordersHistoryDao.getProductsInOrder(order.id());
+        List<ProductInOrderDto> products = ordersHistoryDao.getProductsInOrder(order.id());
 
         BigDecimal totalPrice = new BigDecimal(0);
-        for (ProductInOrder productInOrder : products) {
+        for (ProductInOrderDto productInOrder : products) {
             BigDecimal itemPrice = productInOrder.price();
             BigDecimal amount = BigDecimal.valueOf(productInOrder.amount());
             totalPrice = totalPrice.add(itemPrice.multiply(amount));
         }
-        return new Order(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, products);
+        return new OrderDto(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, products);
     }
 
-    public List<OrdersHistory> getOrdersByWorker(Long workerId) {
-        return ordersHistoryDao.getOrdersByWorker(workerId);
-    }
+    public List<OrderDto> getOrders(String customerEmail, String workerUsername) {
+        List<OrderDto> orders = ordersHistoryDao.getOrders(customerEmail, workerUsername);
 
-    public List<OrdersHistory> getOrderByWorkerWithDates(Long workerId, Date processedDateMin, Date processedDateMax) {
-        return ordersHistoryDao.getOrderByWorkerWithDates(workerId, processedDateMin, processedDateMax);
-    }
-
-    public List<OrdersHistory> getOrdersByCustomer(String email) {
-        return ordersHistoryDao.getOrdersByCustomer(email);
-    }
-
-    public List<OrdersHistoryView> getAllOrdersViews() {
-        return ordersHistoryDao.getAllOrdersViews();
-    }
-
-    public List<OrdersHistoryView> getOrdersViewByUsernameSubstr (String usernameSubstr) {
-        return ordersHistoryDao.getOrdersHistViewsByWorkerUsernameSubstring(usernameSubstr);
-    }
-
-    public List<OrdersHistoryView> getOrdersViewByEmail (String email) {
-        return ordersHistoryDao.getOrdersHistViewsByCustomerEmailSubstring(email);
-    }
-
-    public List<OrdersHistoryView> getOrdersViewByEmailAndUsername(String email, String username) {
-        return ordersHistoryDao.getOrdersHistViewsByCustomerEmailWorkerUsernameSubstring(email, username);
-    }
-
-    public List<OrdersHistoryView> getOrdersViewByOrderId(Long orderId) {
-        return ordersHistoryDao.getOrdersHistViewsByOrderId(orderId);
-    }
-
-    @Transactional
-    public List<Order> getOrders(String customerEmail, String workerUsername) {
-        List<Order> orders = ordersHistoryDao.getOrders(customerEmail, workerUsername);
-
-        List<Order> completedOrders = new ArrayList<>();
-        for (Order order : orders) {
-            List<ProductInOrder> products = ordersHistoryDao.getProductsInOrder(order.id());
+        List<OrderDto> completedOrders = new ArrayList<>();
+        for (OrderDto order : orders) {
+            List<ProductInOrderDto> products = ordersHistoryDao.getProductsInOrder(order.id());
             BigDecimal totalPrice = new BigDecimal(0);
-            for (ProductInOrder productInOrder : products) {
+            for (ProductInOrderDto productInOrder : products) {
                 BigDecimal itemPrice = productInOrder.price();
                 BigDecimal amount = BigDecimal.valueOf(productInOrder.amount());
                 totalPrice = totalPrice.add(itemPrice.multiply(amount));
             }
-            order = new Order(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, products);
+            order = new OrderDto(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, products);
             completedOrders.add(order);
         }
         return completedOrders;

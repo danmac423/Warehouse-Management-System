@@ -16,7 +16,7 @@ public class SupplierDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Supplier> getSuppliers(String supplierName, String country, String city) {
+    public List<SupplierDto> getSuppliers(String supplierName, String country, String city) {
         if (supplierName == null) {
             supplierName = "";
         }
@@ -44,7 +44,7 @@ public class SupplierDao {
         );
     }
 
-    public Optional<Supplier> getSupplierById(Long id) {
+    public Optional<SupplierDto> getSupplierById(Long id) {
         var sql = """
                 SELECT suppliers.id AS supplier_id, suppliers.name, addresses.id AS address_id, addresses.street, addresses.house_nr, addresses.postal_code, addresses.city, addresses.country
                 FROM suppliers LEFT JOIN addresses ON addresses.id = suppliers.address_id
@@ -57,7 +57,7 @@ public class SupplierDao {
         ).stream().findFirst();
     }
 
-    public Optional<Supplier> getSupplierByName(String name) {
+    public Optional<SupplierDto> getSupplierByName(String name) {
         var sql = """
                 SELECT suppliers.id AS supplier_id, suppliers.name, addresses.id AS address_id, addresses.street, addresses.house_nr, addresses.postal_code, addresses.city, addresses.country
                 FROM suppliers LEFT JOIN addresses ON addresses.id = suppliers.address_id
@@ -70,7 +70,7 @@ public class SupplierDao {
         ).stream().findFirst();
     }
 
-    public Supplier addSupplier(Supplier supplier) {
+    public SupplierDto addSupplier(SupplierDto supplier) {
         var sql = """
                 INSERT INTO suppliers (name, address_id)
                 VALUES (?, ?)
@@ -95,7 +95,7 @@ public class SupplierDao {
     }
 
 
-    public Supplier updateSupplier(Supplier supplier) {
+    public SupplierDto updateSupplier(SupplierDto supplier) {
         var sql = """
                 UPDATE suppliers
                 SET name = ?, address_id = ?

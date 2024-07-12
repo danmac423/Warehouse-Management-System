@@ -22,7 +22,7 @@ public class WorkerController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<Worker>> getWorkers(
+    public ResponseEntity<List<WorkerDto>> getWorkers(
             @RequestParam(required = false) String username,
             @RequestParam(required = false) String role
     ) {
@@ -31,15 +31,15 @@ public class WorkerController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/{id}")
-    public ResponseEntity<Worker> getWorkerById(@PathVariable Long id){
-        Optional<Worker> worker = workerService.getWorkerById(id);
+    public ResponseEntity<WorkerDto> getWorkerById(@PathVariable Long id){
+        Optional<WorkerDto> worker = workerService.getWorkerById(id);
         return worker.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.BAD_REQUEST));
 
     }
 
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteWorker(@PathVariable Long id) {
         workerService.deleteWorker(id);
         return new ResponseEntity<>("Worker deleted successfully", HttpStatus.OK);
@@ -47,7 +47,7 @@ public class WorkerController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping
-    public ResponseEntity<String> updateWorker(@RequestBody Worker worker) {
+    public ResponseEntity<String> updateWorker(@RequestBody WorkerDto worker) {
         workerService.updateWorker(worker);
         return new ResponseEntity<>("Worker updated successfully", HttpStatus.OK);
     }

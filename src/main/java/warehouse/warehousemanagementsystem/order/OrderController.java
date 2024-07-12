@@ -20,34 +20,34 @@ public class OrderController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
     @GetMapping
-    public ResponseEntity<List<Order>> getOrders(
+    public ResponseEntity<List<OrderDto>> getOrders(
             @RequestParam(required = false) String workerUsername,
             @RequestParam(required = false) String customerEmail,
             @RequestParam(required = false) String status,
             @RequestParam(required = false) Long workerId
     ) {
-        List<Order> orders = orderService.getOrders(workerUsername, customerEmail, status, workerId);
+        List<OrderDto> orders = orderService.getOrders(workerUsername, customerEmail, status, workerId);
         return new ResponseEntity<>(orders, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
     @GetMapping("/{orderId}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long orderId) {
-        Order order = orderService.getOrderById(orderId);
+    public ResponseEntity<OrderDto> getOrderById(@PathVariable Long orderId) {
+        OrderDto order = orderService.getOrderById(orderId);
         return ResponseEntity.status(HttpStatus.OK).body(order);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
     @PutMapping("/pack")
-    public ResponseEntity<String> packOrder(@RequestBody Order order) {
+    public ResponseEntity<String> packOrder(@RequestBody OrderDto order) {
         orderService.packOrder(order);
         return ResponseEntity.status(HttpStatus.OK).body("Order packed successfully and added to the history");
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/assign")
-    public ResponseEntity<Order> assignOrder(@RequestBody Order order) {
-        Order assignedOrder = orderService.assignOrder(order);
+    public ResponseEntity<OrderDto> assignOrder(@RequestBody OrderDto order) {
+        OrderDto assignedOrder = orderService.assignOrder(order);
         return ResponseEntity.status(HttpStatus.OK).body(assignedOrder);
     }
 

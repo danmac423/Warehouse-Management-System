@@ -18,7 +18,7 @@ public class OrderDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    Optional<Order> getOrderById(Long id) {
+    Optional<OrderDto> getOrderById(Long id) {
         var sql = """
                 SELECT orders.id AS order_id, orders.date_processed, orders.status, orders.date_received,
                        customers.id AS customer_id, customers.name AS customer_name, customers.last_name AS customer_last_name, customers.email AS customer_email,
@@ -37,7 +37,7 @@ public class OrderDao {
         ).stream().findFirst();
     }
 
-    public List<Order> getOrders(String workerUsername, String customerEmail, String status, Long workerId) {
+    public List<OrderDto> getOrders(String workerUsername, String customerEmail, String status, Long workerId) {
         if (workerUsername == null) {
             workerUsername = "";
         }
@@ -78,7 +78,7 @@ public class OrderDao {
         );
     }
 
-    public void packOrder(Order order) {
+    public void packOrder(OrderDto order) {
         var sql = """
                 UPDATE orders
                 SET status = 'processed'
@@ -90,7 +90,7 @@ public class OrderDao {
         );
     }
 
-    public Order assignOrder(Order order) {
+    public OrderDto assignOrder(OrderDto order) {
         var sql = """
                 UPDATE orders
                 SET worker_id = ?

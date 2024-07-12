@@ -4,10 +4,10 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class OrdersHistoryMapper implements RowMapper<OrdersHistory> {
+public class OrdersHistoryMapper implements RowMapper<OrdersHistoryDto> {
     @Override
-    public OrdersHistory mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new OrdersHistory(
+    public OrdersHistoryDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new OrdersHistoryDto(
                 rs.getLong("id"),
                 rs.getLong("customer_id"),
                 rs.getTimestamp("date_processed"),

@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import warehouse.warehousemanagementsystem.worker.Worker;
+import warehouse.warehousemanagementsystem.worker.WorkerDto;
 import warehouse.warehousemanagementsystem.worker.WorkerDao;
 
 import java.util.Collection;
@@ -27,7 +27,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Worker worker = workerDao.getWorkerByUsername(username)
+        WorkerDto worker = workerDao.getWorkerByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
         return new User(
                 worker.username(),

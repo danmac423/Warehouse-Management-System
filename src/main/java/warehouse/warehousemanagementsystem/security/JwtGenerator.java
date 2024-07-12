@@ -13,19 +13,36 @@ import java.util.Date;
 public class JwtGenerator {
 
     @Value("${jwt.expiration}")
-    private long jwtExpiration;
+    private long jwtExpirationMs;
+
+    @Value("${jwt.expiration.refresh}")
+    private long jwtExpirationRefreshMs;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
 
 
-    public String generateToken(Authentication authentication) {
+    public String generateAccessToken(Authentication authentication) {
 
         String username = authentication.getName();
         Date currentDate = new Date();
-        Date expireDate = new Date(currentDate.getTime() + jwtExpiration);
+        Date expireDate = new Date(currentDate.getTime() + jwtExpirationMs);
 
          return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(expireDate)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
+    }
+
+    public String generateRefreshToken(Authentication authentication) {
+
+        String username = authentication.getName();
+        Date currentDate = new Date();
+        Date expireDate = new Date(currentDate.getTime() + jwtExpirationRefreshMs);
+
+        return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(expireDate)

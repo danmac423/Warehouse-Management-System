@@ -16,7 +16,7 @@ public class ProductDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Product> getProducts(String productName, Long categoryId) {
+    public List<ProductDto> getProducts(String productName, Long categoryId) {
         if (productName == null) {
             productName = "";
         }
@@ -52,7 +52,7 @@ public class ProductDao {
         );
     }
 
-    public List<ProductInOrder> getProductsByOrderHistory(Long orderHistoryId) {
+    public List<ProductInOrderDto> getProductsByOrderHistory(Long orderHistoryId) {
        var sql = """
                SELECT products.id, products.name, products.price,
                        categories.id as category_id, categories.name as category_name,
@@ -70,7 +70,7 @@ public class ProductDao {
        );
     }
 
-    public Optional<Product> getProductById(Long id) {
+    public Optional<ProductDto> getProductById(Long id) {
         var sql = """
                 SELECT
                     products.id AS product_id,
@@ -95,7 +95,7 @@ public class ProductDao {
         ).stream().findFirst();
     }
 
-    public Optional<Product> getProductByName(String name) {
+    public Optional<ProductDto> getProductByName(String name) {
         var sql = """
                 SELECT
                     products.id AS product_id,
@@ -120,7 +120,7 @@ public class ProductDao {
         ).stream().findFirst();
     }
 
-    public Product addProduct(Product product) {
+    public ProductDto addProduct(ProductDto product) {
         var sql = """
                 INSERT INTO products (name, price, category_id, stock)
                 VALUES (?, ?, ?, ?)
@@ -147,7 +147,7 @@ public class ProductDao {
         );
     }
 
-    public Product updateProduct(Product product) {
+    public ProductDto updateProduct(ProductDto product) {
         var sql = """
                 UPDATE products
                 SET name = ?, price = ?, category_id = ?, stock = ?
@@ -164,7 +164,7 @@ public class ProductDao {
         return getProductById(product.id()).get();
     }
 
-    public List<ProductInOrder> getProductsInOrder(Long orderId) {
+    public List<ProductInOrderDto> getProductsInOrder(Long orderId) {
         var sql = """
                 SELECT products.id, products.name, products.price,
                        categories.id as category_id, categories.name as category_name,

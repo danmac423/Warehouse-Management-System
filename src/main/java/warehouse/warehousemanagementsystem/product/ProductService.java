@@ -3,7 +3,7 @@ package warehouse.warehousemanagementsystem.product;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import warehouse.warehousemanagementsystem.category.Category;
+import warehouse.warehousemanagementsystem.category.CategoryDto;
 import warehouse.warehousemanagementsystem.category.CategoryDao;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.ConflictException;
@@ -25,14 +25,14 @@ public class ProductService {
         this.categoryDao = categoryDao;
     }
 
-    public List<Product> getProducts(String productName, Long categoryId) {
+    public List<ProductDto> getProducts(String productName, Long categoryId) {
         return productDao.getProducts(productName, categoryId);
     }
 
     @Transactional
-    public Product addProduct(Product product) {
+    public ProductDto addProduct(ProductDto product) {
 
-        Category category = product.category();
+        CategoryDto category = product.category();
         if (category == null) {
             throw new BadRequestException("Category is required");
         }
@@ -62,7 +62,7 @@ public class ProductService {
 
     @Transactional
     public void deleteProduct(Long id) {
-        Optional<Product> product = productDao.getProductById(id);
+        Optional<ProductDto> product = productDao.getProductById(id);
         int result;
         if (product.isEmpty()) {
             throw new BadRequestException("Product not found");
@@ -78,9 +78,9 @@ public class ProductService {
     }
 
     @Transactional
-    public Product updateProduct(Product product) {
-        Category category = product.category();
-        Product currentProduct = productDao.getProductById(product.id()).orElseThrow(() -> new NotFoundException("Product not found"));
+    public ProductDto updateProduct(ProductDto product) {
+        CategoryDto category = product.category();
+        ProductDto currentProduct = productDao.getProductById(product.id()).orElseThrow(() -> new NotFoundException("Product not found"));
         if (product.name().isEmpty()
                 || product.price() == null
                 || product.stock() == 0
@@ -102,7 +102,7 @@ public class ProductService {
         return productDao.updateProduct(product);
     }
 
-    public List<ProductInOrder> getProductsByOrderHistory(Long orderHistoryId) {
+    public List<ProductInOrderDto> getProductsByOrderHistory(Long orderHistoryId) {
         return productDao.getProductsByOrderHistory(orderHistoryId);
     }
 }

@@ -17,7 +17,7 @@ public class WorkerDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Worker> getWorkers(String username, String role) {
+    public List<WorkerDto> getWorkers(String username, String role) {
         if (username == null) {
             username = "";
         }
@@ -38,7 +38,7 @@ public class WorkerDao {
         );
     }
 
-    public Optional<Worker> getWorkerById(Long id) {
+    public Optional<WorkerDto> getWorkerById(Long id) {
         var sql = """
                 SELECT *
                 FROM workers
@@ -49,7 +49,7 @@ public class WorkerDao {
                 .stream().findFirst();
     }
 
-    public void addWorker(Worker worker) {
+    public void addWorker(WorkerDto worker) {
         var sql = """
                 INSERT INTO workers (username, password, name, last_name, role)
                 VALUES (?, ?, ?, ?, ?)
@@ -74,7 +74,7 @@ public class WorkerDao {
         return jdbcTemplate.update(sql, id);
     }
 
-    public int updateWorker(Worker worker) {
+    public int updateWorker(WorkerDto worker) {
         var sql = """
                 UPDATE workers
                 SET username = ?, name = ?, last_name = ?, role = ?
@@ -93,7 +93,7 @@ public class WorkerDao {
     }
 
 
-    public Optional<Worker> getWorkerByUsername(String username) {
+    public Optional<WorkerDto> getWorkerByUsername(String username) {
         var sql = """
                 SELECT *
                 FROM workers

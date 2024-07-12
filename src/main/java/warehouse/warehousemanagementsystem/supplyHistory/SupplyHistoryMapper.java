@@ -5,10 +5,10 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SupplyHistoryMapper implements RowMapper<SupplyHistory>{
+public class SupplyHistoryMapper implements RowMapper<SupplyHistoryDto>{
     @Override
-    public SupplyHistory mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new SupplyHistory(
+    public SupplyHistoryDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+        return new SupplyHistoryDto(
                 rs.getLong("id"),
                 rs.getLong("supplier_id"),
                 rs.getLong("worker_id"),

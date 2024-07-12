@@ -1,19 +1,19 @@
 package warehouse.warehousemanagementsystem.supply;
 
 import org.springframework.jdbc.core.RowMapper;
-import warehouse.warehousemanagementsystem.address.Address;
-import warehouse.warehousemanagementsystem.category.Category;
-import warehouse.warehousemanagementsystem.product.Product;
-import warehouse.warehousemanagementsystem.supplier.Supplier;
-import warehouse.warehousemanagementsystem.worker.Worker;
+import warehouse.warehousemanagementsystem.address.AddressDto;
+import warehouse.warehousemanagementsystem.category.CategoryDto;
+import warehouse.warehousemanagementsystem.product.ProductDto;
+import warehouse.warehousemanagementsystem.supplier.SupplierDto;
+import warehouse.warehousemanagementsystem.worker.WorkerDto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SupplyMapper implements RowMapper<Supply>{
+public class SupplyMapper implements RowMapper<SupplyDto>{
     @Override
-    public Supply mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Address address = new Address(
+    public SupplyDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+        AddressDto address = new AddressDto(
                 rs.getLong("address_id"),
                 rs.getString("street"),
                 rs.getString("house_nr"),
@@ -22,15 +22,15 @@ public class SupplyMapper implements RowMapper<Supply>{
                 rs.getString("country")
         );
 
-        Supplier supplier = new Supplier(
+        SupplierDto supplier = new SupplierDto(
                 rs.getLong("supplier_id"),
                 rs.getString("supplier_name"),
                 address
         );
 
-        Worker worker;
+        WorkerDto worker;
         if (rs.getInt("worker_id") != 0) {
-            worker = new Worker(
+            worker = new WorkerDto(
                     rs.getLong("worker_id"),
                     rs.getString("username"),
                     rs.getString("password"),
@@ -42,13 +42,13 @@ public class SupplyMapper implements RowMapper<Supply>{
             worker = null;
         }
 
-        Category category = new Category(
+        CategoryDto category = new CategoryDto(
                 rs.getLong("category_id"),
                 rs.getString("category_name"),
                 rs.getInt("product_count")
         );
 
-        Product product = new Product(
+        ProductDto product = new ProductDto(
                 rs.getLong("product_id"),
                 rs.getString("product_name"),
                 rs.getBigDecimal("price"),
@@ -56,7 +56,7 @@ public class SupplyMapper implements RowMapper<Supply>{
                 rs.getInt("stock")
         );
 
-        return new Supply(
+        return new SupplyDto(
                 rs.getLong("supply_id"),
                 supplier,
                 worker,

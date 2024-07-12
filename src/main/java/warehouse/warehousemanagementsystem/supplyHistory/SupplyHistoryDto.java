@@ -2,16 +2,13 @@ package warehouse.warehousemanagementsystem.supplyHistory;
 
 import java.sql.Date;
 
-public record SupplyHistoryView(
+public record SupplyHistoryDto(
         Long id,
         Long supplierId,
-        String supplierName,
         Long workerId,
-        String username,
         Date arrivalDate,
-        Date expectedDate,
         Date processedDate,
+        Date expectedDate,
         Long productId,
-        String productName,
         int amount) {
 }

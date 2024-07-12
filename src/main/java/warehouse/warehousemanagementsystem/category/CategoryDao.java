@@ -18,7 +18,7 @@ public class CategoryDao {
     }
 
 
-    public List<Category> getCategories(String categoryName) {
+    public List<CategoryDto> getCategories(String categoryName) {
         if (categoryName == null) {
             categoryName = "";
         }
@@ -36,7 +36,7 @@ public class CategoryDao {
         );
     }
 
-    public Optional<Category> getCategoryById(Long id) {
+    public Optional<CategoryDto> getCategoryById(Long id) {
         var sql = """
                 SELECT c.id, c.name, COUNT(p.id) AS product_count
                 FROM categories c LEFT JOIN products p ON c.id = p.category_id
@@ -47,7 +47,7 @@ public class CategoryDao {
                 .stream().findFirst();
     }
 
-    public Optional<Category> getCategoryByName(String name) {
+    public Optional<CategoryDto> getCategoryByName(String name) {
         var sql = """
                 SELECT c.id, c.name, COUNT(p.id) AS product_count
                 FROM categories c LEFT JOIN products p ON c.id = p.category_id
@@ -58,7 +58,7 @@ public class CategoryDao {
                 .stream().findFirst();
     }
 
-    public int addCategory(Category category) {
+    public int addCategory(CategoryDto category) {
         var sql = """
                 INSERT INTO categories (name)
                 VALUES (?)
@@ -80,7 +80,7 @@ public class CategoryDao {
         );
     }
 
-    public int updateCategory(Category category) {
+    public int updateCategory(CategoryDto category) {
         var sql = """
                 UPDATE categories
                 SET name = ?

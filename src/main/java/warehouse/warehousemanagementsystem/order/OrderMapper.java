@@ -1,19 +1,19 @@
 package warehouse.warehousemanagementsystem.order;
 
 import org.springframework.jdbc.core.RowMapper;
-import warehouse.warehousemanagementsystem.address.Address;
-import warehouse.warehousemanagementsystem.customer.Customer;
-import warehouse.warehousemanagementsystem.worker.Worker;
+import warehouse.warehousemanagementsystem.address.AddressDto;
+import warehouse.warehousemanagementsystem.customer.CustomerDto;
+import warehouse.warehousemanagementsystem.worker.WorkerDto;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class OrderMapper implements RowMapper<Order>{
+public class OrderMapper implements RowMapper<OrderDto>{
 
 
     @Override
-    public Order mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Address address = new Address(
+    public OrderDto mapRow(ResultSet rs, int rowNum) throws SQLException {
+        AddressDto address = new AddressDto(
                 rs.getLong("address_id"),
                 rs.getString("street"),
                 rs.getString("house_nr"),
@@ -22,7 +22,7 @@ public class OrderMapper implements RowMapper<Order>{
                 rs.getString("country")
         );
 
-        Customer customer = new Customer(
+        CustomerDto customer = new CustomerDto(
                 rs.getLong("customer_id"),
                 rs.getString("customer_name"),
                 rs.getString("customer_last_name"),
@@ -30,7 +30,7 @@ public class OrderMapper implements RowMapper<Order>{
                 rs.getString("customer_email")
         );
 
-        Worker worker = new Worker(
+        WorkerDto worker = new WorkerDto(
                 rs.getLong("worker_id"),
                 rs.getString("worker_username"),
                 null,
@@ -39,7 +39,7 @@ public class OrderMapper implements RowMapper<Order>{
                 rs.getString("worker_role")
         );
 
-        return new Order(
+        return new OrderDto(
                 rs.getLong("order_id"),
                 customer,
                 rs.getDate("date_processed"),

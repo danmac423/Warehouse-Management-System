@@ -15,7 +15,7 @@ public class AddressDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Optional<Address> getAddressById(Long id) {
+    public Optional<AddressDto> getAddressById(Long id) {
         var sql = """
                 SELECT * FROM addresses
                 WHERE id = ?
@@ -24,7 +24,7 @@ public class AddressDao {
                 .stream().findFirst();
     }
 
-    public Optional<Address> getAddressByData(Address address) {
+    public Optional<AddressDto> getAddressByData(AddressDto address) {
         var sql = """
                 SELECT * FROM addresses
                 WHERE street = ? AND house_nr = ? AND postal_code = ? AND city = ? AND country = ?
@@ -40,7 +40,7 @@ public class AddressDao {
         ).stream().findFirst();
     }
 
-    public Address addAddress(Address address) {
+    public AddressDto addAddress(AddressDto address) {
         var sql = """
                 INSERT INTO addresses (street, house_nr, postal_code, city, country)
                 VALUES (?, ?, ?, ?, ?)
@@ -56,7 +56,7 @@ public class AddressDao {
         return getAddressByData(address).orElseThrow();
     }
 
-    public Address updateAddress(Address address) {
+    public AddressDto updateAddress(AddressDto address) {
         var sql = """
                 UPDATE addresses
                 SET street = ?, house_nr = ?, postal_code = ?, city = ?, country = ?

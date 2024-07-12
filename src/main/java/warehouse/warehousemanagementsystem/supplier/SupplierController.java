@@ -20,7 +20,7 @@ public class SupplierController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<Supplier>> getSuppliers(
+    public ResponseEntity<List<SupplierDto>> getSuppliers(
             @RequestParam (required = false) String supplierName,
             @RequestParam (required = false) String country,
             @RequestParam (required = false) String city
@@ -30,13 +30,13 @@ public class SupplierController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
-    public ResponseEntity<Supplier> addSupplier(@RequestBody Supplier supplier) {
-        Supplier newSupplier = supplierService.addSupplierAndAddress(supplier);
+    public ResponseEntity<SupplierDto> addSupplier(@RequestBody SupplierDto supplier) {
+        SupplierDto newSupplier = supplierService.addSupplierAndAddress(supplier);
         return ResponseEntity.status(HttpStatus.CREATED).body(newSupplier);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteSupplier(@PathVariable Long id) {
         supplierService.deleteSupplier(id);
         return ResponseEntity.status(HttpStatus.OK).body("Supplier deleted successfully");
@@ -44,8 +44,8 @@ public class SupplierController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping
-    public ResponseEntity<Supplier> updateProduct(@RequestBody Supplier supplier) {
-        Supplier updatedSupplier = supplierService.updateSupplier(supplier);
+    public ResponseEntity<SupplierDto> updateProduct(@RequestBody SupplierDto supplier) {
+        SupplierDto updatedSupplier = supplierService.updateSupplier(supplier);
         return ResponseEntity.status(HttpStatus.OK).body(updatedSupplier);
     }
 }

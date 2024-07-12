@@ -20,7 +20,7 @@ public class SupplyController {
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
     @GetMapping
-    public ResponseEntity<List<Supply>> getSupplies(
+    public ResponseEntity<List<SupplyDto>> getSupplies(
             @RequestParam(required = false) String supplierName,
             @RequestParam(required = false) String workerUsername,
             @RequestParam(required = false) String productName,
@@ -32,13 +32,13 @@ public class SupplyController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
-    public ResponseEntity<Supply> addSupply(@RequestBody Supply supply) {
-        Supply newSupply = supplyService.addSupply(supply);
+    public ResponseEntity<SupplyDto> addSupply(@RequestBody SupplyDto supply) {
+        SupplyDto newSupply = supplyService.addSupply(supply);
         return ResponseEntity.status(HttpStatus.CREATED).body(newSupply);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteSupply(@PathVariable Long id) {
         supplyService.deleteSupply(id);
         return ResponseEntity.status(HttpStatus.OK).body("Supply deleted successfully");
@@ -46,28 +46,28 @@ public class SupplyController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping
-    public ResponseEntity<Supply> updateSupply(@RequestBody Supply supply) {
-        Supply updatedSupply = supplyService.updateSupply(supply);
+    public ResponseEntity<SupplyDto> updateSupply(@RequestBody SupplyDto supply) {
+        SupplyDto updatedSupply = supplyService.updateSupply(supply);
         return ResponseEntity.status(HttpStatus.OK).body(updatedSupply);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/acknowledge")
-    public ResponseEntity<Supply> acknowledgeSupply(@RequestBody Supply supply) {
-        Supply acknowledgedSupply = supplyService.acknowledgeSupply(supply);
+    public ResponseEntity<SupplyDto> acknowledgeSupply(@RequestBody SupplyDto supply) {
+        SupplyDto acknowledgedSupply = supplyService.acknowledgeSupply(supply);
         return ResponseEntity.status(HttpStatus.OK).body(acknowledgedSupply);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/assign")
-    public ResponseEntity<Supply> assignSupply(@RequestBody Supply supply) {
-        Supply assignedSupply = supplyService.assignSupply(supply);
+    public ResponseEntity<SupplyDto> assignSupply(@RequestBody SupplyDto supply) {
+        SupplyDto assignedSupply = supplyService.assignSupply(supply);
         return ResponseEntity.status(HttpStatus.OK).body(assignedSupply);
     }
 
     @PreAuthorize("hasAnyAuthority('ADMIN', 'WORKER')")
     @PutMapping("/unpack")
-    public ResponseEntity<String> unpackSupply(@RequestBody Supply supply) {
+    public ResponseEntity<String> unpackSupply(@RequestBody SupplyDto supply) {
         supplyService.unpackSupply(supply);
         return ResponseEntity.status(HttpStatus.OK).body("Supply unpacked successfully and added to the history");
     }

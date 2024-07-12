@@ -3,7 +3,7 @@ package warehouse.warehousemanagementsystem.supplier;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import warehouse.warehousemanagementsystem.address.Address;
+import warehouse.warehousemanagementsystem.address.AddressDto;
 import warehouse.warehousemanagementsystem.address.AddressDao;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.ConflictException;
@@ -24,14 +24,14 @@ public class SupplierService {
         this.addressDao = addressDao;
     }
 
-    public List<Supplier> getSupplies(String supplierName, String country, String city) {
+    public List<SupplierDto> getSupplies(String supplierName, String country, String city) {
         return supplierDao.getSuppliers(supplierName, country, city);
     }
 
     @Transactional
-    public Supplier addSupplierAndAddress(Supplier supplier) {
+    public SupplierDto addSupplierAndAddress(SupplierDto supplier) {
 
-        Address address = supplier.address();
+        AddressDto address = supplier.address();
         if (supplier.name().isEmpty()
                 || address.street().isEmpty()
                 || address.houseNumber().isEmpty()
@@ -47,7 +47,7 @@ public class SupplierService {
 
         address = addressDao.addAddress(address);
 
-        Supplier newSupplier = new Supplier(
+        SupplierDto newSupplier = new SupplierDto(
                 supplier.id(),
                 supplier.name(),
                 address
@@ -59,7 +59,7 @@ public class SupplierService {
     @Transactional
     public void deleteSupplier(Long id) {
 
-        Optional<Supplier> supplier = supplierDao.getSupplierById(id);
+        Optional<SupplierDto> supplier = supplierDao.getSupplierById(id);
         int result;
         if (supplier.isEmpty()) {
             throw new BadRequestException("Supplier not found");
@@ -75,8 +75,8 @@ public class SupplierService {
     }
 
     @Transactional
-    public Supplier updateSupplier(Supplier supplier) {
-        Address address = supplier.address();
+    public SupplierDto updateSupplier(SupplierDto supplier) {
+        AddressDto address = supplier.address();
         if (supplier.name().isEmpty()
                 || address.street().isEmpty()
                 || address.houseNumber().isEmpty()
@@ -86,14 +86,14 @@ public class SupplierService {
             throw new BadRequestException("All fields are required");
         }
 
-        Supplier currentSupplier = supplierDao.getSupplierById(supplier.id()).orElseThrow(() -> new NotFoundException("Supplier not found"));
-        Address currentAddress = currentSupplier.address();
+        SupplierDto currentSupplier = supplierDao.getSupplierById(supplier.id()).orElseThrow(() -> new NotFoundException("Supplier not found"));
+        AddressDto currentAddress = currentSupplier.address();
 
         if (supplierDao.getSupplierByName(supplier.name()).isPresent() && !currentSupplier.name().equals(supplier.name())) {
             throw new ConflictException("Supplier with this name already exists");
         }
 
-        address = new Address(
+        address = new AddressDto(
                 currentAddress.id(),
                 address.street(),
                 address.houseNumber(),
@@ -102,9 +102,9 @@ public class SupplierService {
                 address.country()
         );
 
-        Address updatedAddress = addressDao.updateAddress(address);
+        AddressDto updatedAddress = addressDao.updateAddress(address);
 
-        return supplierDao.updateSupplier(new Supplier(
+        return supplierDao.updateSupplier(new SupplierDto(
                 supplier.id(),
                 supplier.name(),
                 updatedAddress

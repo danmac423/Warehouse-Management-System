@@ -3,11 +3,11 @@ package warehouse.warehousemanagementsystem.supply;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
-import warehouse.warehousemanagementsystem.product.Product;
+import warehouse.warehousemanagementsystem.product.ProductDto;
 import warehouse.warehousemanagementsystem.product.ProductDao;
-import warehouse.warehousemanagementsystem.supplier.Supplier;
+import warehouse.warehousemanagementsystem.supplier.SupplierDto;
 import warehouse.warehousemanagementsystem.supplier.SupplierDao;
-import warehouse.warehousemanagementsystem.worker.Worker;
+import warehouse.warehousemanagementsystem.worker.WorkerDto;
 
 import java.util.List;
 import java.util.Objects;
@@ -24,24 +24,24 @@ public class SupplyService {
         this.productDao = productDao;
     }
 
-    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, String status, Long workerId) {
+    public List<SupplyDto> getSupplies(String supplierName, String workerUsername, String productName, String status, Long workerId) {
         return supplyDao.getSupplies(supplierName, workerUsername, productName, status, workerId);
     }
 
     @Transactional
-    public Supply addSupply(Supply supply) {
-        Supplier supplier = supply.supplier();
+    public SupplyDto addSupply(SupplyDto supply) {
+        SupplierDto supplier = supply.supplier();
         if (supplier == null) {
             throw new BadRequestException("Supplier is required");
         }
         supplier = supplierDao.getSupplierById(supplier.id()).orElseThrow(() -> new BadRequestException("Supplier not found"));
 
-        Worker worker = supply.worker();
+        WorkerDto worker = supply.worker();
         if (worker != null) {
             throw new BadRequestException("Worker cannot be assigned to the supply at the moment");
         }
 
-        Product product = supply.product();
+        ProductDto product = supply.product();
         if (product == null) {
             throw new BadRequestException("Product is required");
         }
@@ -71,14 +71,14 @@ public class SupplyService {
             throw new BadRequestException("The supply already exists");
         }
 
-        Supply newSupply = new Supply(null, supplier, null, "underway", null, null, supply.expectedDate(), product, supply.amount());
+        SupplyDto newSupply = new SupplyDto(null, supplier, null, "underway", null, null, supply.expectedDate(), product, supply.amount());
 
         return supplyDao.addSupply(newSupply);
     }
 
     @Transactional
     public void deleteSupply(Long id) {
-        Supply supply = supplyDao.getSupplyById(id).orElseThrow(() -> new BadRequestException("Supply not found"));
+        SupplyDto supply = supplyDao.getSupplyById(id).orElseThrow(() -> new BadRequestException("Supply not found"));
         if (!supply.status().equals("underway")) {
             throw new BadRequestException("The supply must be underway to delete");
         }
@@ -88,19 +88,19 @@ public class SupplyService {
     }
 
     @Transactional
-    public Supply updateSupply(Supply supply) {
-        Supplier supplier = supply.supplier();
+    public SupplyDto updateSupply(SupplyDto supply) {
+        SupplierDto supplier = supply.supplier();
         if (supplier == null) {
             throw new BadRequestException("Supplier is required");
         }
         supplier = supplierDao.getSupplierById(supplier.id()).orElseThrow(() -> new BadRequestException("Supplier not found"));
 
-        Worker worker = supply.worker();
+        WorkerDto worker = supply.worker();
         if (worker != null) {
             throw new BadRequestException("Worker cannot be assigned to the supply at the moment");
         }
 
-        Product product = supply.product();
+        ProductDto product = supply.product();
         if (product == null) {
             throw new BadRequestException("Product is required");
         }
@@ -130,15 +130,15 @@ public class SupplyService {
             throw new BadRequestException("The supply already exists");
         }
 
-        Supply updatedSupply = new Supply(supply.id(), supplier, null, "underway", null, null, supply.expectedDate(), product, supply.amount());
+        SupplyDto updatedSupply = new SupplyDto(supply.id(), supplier, null, "underway", null, null, supply.expectedDate(), product, supply.amount());
 
         return supplyDao.updateSupply(updatedSupply);
 
     }
 
     @Transactional
-    public Supply acknowledgeSupply(Supply supply) {
-        Supply currentSupply = supplyDao.getSupplyById(supply.id()).orElseThrow(() -> new BadRequestException("Supply not found"));
+    public SupplyDto acknowledgeSupply(SupplyDto supply) {
+        SupplyDto currentSupply = supplyDao.getSupplyById(supply.id()).orElseThrow(() -> new BadRequestException("Supply not found"));
         if (!currentSupply.status().equals("underway")) {
             throw new BadRequestException("The supply must be underway to acknowledge");
         }
@@ -147,8 +147,8 @@ public class SupplyService {
     }
 
     @Transactional
-    public Supply assignSupply(Supply supply) {
-        Supply currentSupply = supplyDao.getSupplyById(supply.id()).orElseThrow(() -> new BadRequestException("Supply not found"));
+    public SupplyDto assignSupply(SupplyDto supply) {
+        SupplyDto currentSupply = supplyDao.getSupplyById(supply.id()).orElseThrow(() -> new BadRequestException("Supply not found"));
         if (!currentSupply.status().equals("arrived")) {
             throw new BadRequestException("The supply must be arrived to assign");
         }
@@ -161,8 +161,8 @@ public class SupplyService {
     }
 
     @Transactional
-    public void unpackSupply(Supply supply) {
-        Supply currentSupply = supplyDao.getSupplyById(supply.id()).orElseThrow(() -> new BadRequestException("Supply not found"));
+    public void unpackSupply(SupplyDto supply) {
+        SupplyDto currentSupply = supplyDao.getSupplyById(supply.id()).orElseThrow(() -> new BadRequestException("Supply not found"));
         if (!currentSupply.status().equals("arrived")) {
             throw new BadRequestException("The supply must be arrived to unpack");
         }

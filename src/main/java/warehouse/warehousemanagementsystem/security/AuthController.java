@@ -9,14 +9,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import warehouse.warehousemanagementsystem.worker.Worker;
+import org.springframework.web.bind.annotation.*;
 import warehouse.warehousemanagementsystem.worker.WorkerDao;
+import warehouse.warehousemanagementsystem.worker.WorkerDto;
 
 @RestController
+//@CrossOrigin
 @RequestMapping(path = "api/auth")
 public class AuthController {
 
@@ -37,10 +35,10 @@ public class AuthController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("register")
+    @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
 
-        Worker worker = new Worker(
+        WorkerDto worker = new WorkerDto(
                 null,
                 registerDto.username(),
                 passwordEncoder.encode(registerDto.password()),
@@ -55,15 +53,15 @@ public class AuthController {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @PostMapping("change-password")
+    @PostMapping("/change-password")
     public ResponseEntity<String> changePassword(@RequestBody ChangePasswordDto changePasswordDto) {
-        Worker worker = workerDao.getWorkerById(changePasswordDto.workerId()).orElseThrow(() -> new RuntimeException("Worker not found"));
+        WorkerDto worker = workerDao.getWorkerById(changePasswordDto.workerId()).orElseThrow(() -> new RuntimeException("Worker not found"));
         workerDao.changePassword(worker.id(), passwordEncoder.encode(changePasswordDto.newPassword()));
         return new ResponseEntity<>("Password changed successfully", HttpStatus.OK);
     }
 
-    @PostMapping("login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginDto loginDto) {
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -72,12 +70,30 @@ public class AuthController {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = jwtGenerator.generateToken(authentication);
 
-        Worker worker = workerDao.getWorkerByUsername(loginDto.username()).get();
-        String role = worker.role();
-        Long workerId = worker.id();
-        return new ResponseEntity<>(new AuthResponse(token, role, workerId), HttpStatus.OK);
+        String accessToken = jwtGenerator.generateAccessToken(authentication);
+        String refreshToken = jwtGenerator.generateRefreshToken(authentication);
+
+        WorkerDto worker = workerDao.getWorkerByUsername(loginDto.username()).get();
+
+        return ResponseEntity.ok(new AuthResponseDto(accessToken, refreshToken, worker));
+
+    }
+
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestParam String refreshToken) {
+        if (jwtGenerator.validateToken(refreshToken)) {
+            String username = jwtGenerator.getUsernameFromJwt(refreshToken);
+            WorkerDto worker = workerDao.getWorkerByUsername(username).get();
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, null);
+
+            String newAccessToken = jwtGenerator.generateAccessToken(authentication);
+
+            return ResponseEntity.ok(new AuthResponseDto(newAccessToken, refreshToken, worker));
+        }else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+        }
 
     }
 

@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import warehouse.warehousemanagementsystem.exception.BadRequestException;
 import warehouse.warehousemanagementsystem.exception.NotFoundException;
 import warehouse.warehousemanagementsystem.product.ProductDao;
-import warehouse.warehousemanagementsystem.product.ProductInOrder;
+import warehouse.warehousemanagementsystem.product.ProductInOrderDto;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -24,26 +24,26 @@ public class OrderService {
     }
 
     @Transactional
-    public List<Order> getOrders(String workerUsername, String customerEmail, String status, Long workerId) {
-        List<Order> orders = orderDao.getOrders(workerUsername, customerEmail, status, workerId);
+    public List<OrderDto> getOrders(String workerUsername, String customerEmail, String status, Long workerId) {
+        List<OrderDto> orders = orderDao.getOrders(workerUsername, customerEmail, status, workerId);
 
-        List<Order> completedOrders = new ArrayList<>();
-        for (Order order : orders) {
-            List<ProductInOrder> productsInOrder = productDao.getProductsInOrder(order.id());
+        List<OrderDto> completedOrders = new ArrayList<>();
+        for (OrderDto order : orders) {
+            List<ProductInOrderDto> productsInOrder = productDao.getProductsInOrder(order.id());
             BigDecimal totalPrice = new BigDecimal(0);
-            for (ProductInOrder productInOrder : productsInOrder) {
+            for (ProductInOrderDto productInOrder : productsInOrder) {
                 BigDecimal itemPrice = productInOrder.price();
                 BigDecimal amount = BigDecimal.valueOf(productInOrder.amount());
                 totalPrice = totalPrice.add(itemPrice.multiply(amount));
             }
-            order = new Order(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, productsInOrder);
+            order = new OrderDto(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, productsInOrder);
             completedOrders.add(order);
         }
         return completedOrders;
     }
 
     @Transactional
-    public void packOrder(Order order) {
+    public void packOrder(OrderDto order) {
         order = orderDao.getOrderById(order.id()).orElseThrow(() -> new NotFoundException("Order not found"));
         if (!order.status().equals("received")) {
             throw new BadRequestException("Order must be received before packing");
@@ -57,21 +57,21 @@ public class OrderService {
     }
 
     @Transactional
-    public Order getOrderById(Long orderId) {
-        Order order = orderDao.getOrderById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
-        List<ProductInOrder> productsInOrder = productDao.getProductsInOrder(order.id());
+    public OrderDto getOrderById(Long orderId) {
+        OrderDto order = orderDao.getOrderById(orderId).orElseThrow(() -> new NotFoundException("Order not found"));
+        List<ProductInOrderDto> productsInOrder = productDao.getProductsInOrder(order.id());
         BigDecimal totalPrice = new BigDecimal(0);
-        for (ProductInOrder productInOrder : productsInOrder) {
+        for (ProductInOrderDto productInOrder : productsInOrder) {
             BigDecimal itemPrice = productInOrder.price();
             BigDecimal amount = BigDecimal.valueOf(productInOrder.amount());
             totalPrice = totalPrice.add(itemPrice.multiply(amount));
         }
-        return new Order(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, productsInOrder);
+        return new OrderDto(order.id(), order.customer(), order.dateProcessed(), order.worker(), order.status(), order.dateReceived(), totalPrice, productsInOrder);
     }
 
     @Transactional
-    public Order assignOrder(Order order) {
-        Order currentOrder = orderDao.getOrderById(order.id()).orElseThrow(() -> new NotFoundException("Order not found"));
+    public OrderDto assignOrder(OrderDto order) {
+        OrderDto currentOrder = orderDao.getOrderById(order.id()).orElseThrow(() -> new NotFoundException("Order not found"));
         if (!currentOrder.status().equals("received")) {
             throw new BadRequestException("Order must be received before assigning");
         }

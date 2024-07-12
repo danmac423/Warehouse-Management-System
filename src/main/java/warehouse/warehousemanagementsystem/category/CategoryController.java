@@ -21,19 +21,19 @@ public class CategoryController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping
-    public ResponseEntity<List<Category>> getCategories(@RequestParam(required = false) String name) {
+    public ResponseEntity<List<CategoryDto>> getCategories(@RequestParam(required = false) String name) {
         return new ResponseEntity<>(categoryService.getCategories(name), HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping
-    public ResponseEntity<String> addCategory(@RequestBody Category category) {
+    public ResponseEntity<String> addCategory(@RequestBody CategoryDto category) {
         categoryService.addCategory(category);
         return new ResponseEntity<>("Category added successfully", HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    @DeleteMapping("{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCategory(@PathVariable Long id) {
         categoryService.deleteCategory(id);
         return new ResponseEntity<>("Category deleted successfully", HttpStatus.OK);
@@ -41,7 +41,7 @@ public class CategoryController {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping
-    public ResponseEntity<String> updateCategory(@RequestBody Category category) {
+    public ResponseEntity<String> updateCategory(@RequestBody CategoryDto category) {
         categoryService.updateCategory(category);
         return new ResponseEntity<>("Category updated successfully", HttpStatus.OK);
     }

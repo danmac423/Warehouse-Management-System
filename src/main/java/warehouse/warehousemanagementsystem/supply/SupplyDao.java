@@ -33,7 +33,7 @@ public class SupplyDao {
 
 
 
-    public List<Supply> getSupplies(String supplierName, String workerUsername, String productName, String status, Long workerId) {
+    public List<SupplyDto> getSupplies(String supplierName, String workerUsername, String productName, String status, Long workerId) {
         if (supplierName == null) {
             supplierName = "";
         }
@@ -71,7 +71,7 @@ public class SupplyDao {
         );
     }
 
-    Optional<Supply> getSupplyById(Long id) {
+    Optional<SupplyDto> getSupplyById(Long id) {
         var sql = sqlPrefix.concat("""
                 WHERE supplies.id = ?
                 """);
@@ -82,7 +82,7 @@ public class SupplyDao {
         ).stream().findFirst();
     }
 
-    Optional<Supply> getSupplyBySupply(Supply supply) {
+    Optional<SupplyDto> getSupplyBySupply(SupplyDto supply) {
         var sql = sqlPrefix.concat("""
                 WHERE product_id = ? AND status = ? AND expected_date = ? AND amount = ?
                 """);
@@ -96,7 +96,7 @@ public class SupplyDao {
         ).stream().findFirst();
     }
 
-    public Supply addSupply(Supply supply) {
+    public SupplyDto addSupply(SupplyDto supply) {
         var sql = """
                 INSERT INTO supplies (supplier_id, worker_id, status, arrival_date, processed_date, expected_date, product_id, amount)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -124,7 +124,7 @@ public class SupplyDao {
         );
     }
 
-    public Supply updateSupply(Supply supply) {
+    public SupplyDto updateSupply(SupplyDto supply) {
         var sql = """
                 UPDATE supplies
                 SET supplier_id = ?, expected_date = ?, product_id = ?, amount = ?
@@ -141,7 +141,7 @@ public class SupplyDao {
         return getSupplyById(supply.id()).get();
     }
 
-    public Supply acknowledgeSupply(Supply supply) {
+    public SupplyDto acknowledgeSupply(SupplyDto supply) {
         var sql = "UPDATE supplies SET status = ? WHERE id = ?";
         jdbcTemplate.update(
                 sql,
@@ -151,7 +151,7 @@ public class SupplyDao {
         return getSupplyById(supply.id()).get();
     }
 
-    public Supply assignSupply(Supply supply) {
+    public SupplyDto assignSupply(SupplyDto supply) {
         var sql = "UPDATE supplies SET worker_id = ? WHERE id = ?";
         jdbcTemplate.update(
                 sql,
@@ -161,7 +161,7 @@ public class SupplyDao {
         return getSupplyById(supply.id()).get();
     }
 
-    public void unpackSupply(Supply supply) {
+    public void unpackSupply(SupplyDto supply) {
         var sql = "UPDATE supplies SET status = ? WHERE id = ?";
         jdbcTemplate.update(
                 sql,
