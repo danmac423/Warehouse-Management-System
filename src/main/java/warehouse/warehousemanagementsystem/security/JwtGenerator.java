@@ -2,6 +2,7 @@ package warehouse.warehousemanagementsystem.security;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.core.Authentication;
@@ -21,6 +22,15 @@ public class JwtGenerator {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    private final RefreshTokenDao refreshTokenDao;
+
+    @Autowired
+    public JwtGenerator(RefreshTokenDao refreshTokenDao) {
+        this.refreshTokenDao = refreshTokenDao;
+    }
+
+
+
 
     public String generateAccessToken(Authentication authentication) {
 
@@ -37,17 +47,23 @@ public class JwtGenerator {
     }
 
     public String generateRefreshToken(Authentication authentication) {
-
         String username = authentication.getName();
         Date currentDate = new Date();
         Date expireDate = new Date(currentDate.getTime() + jwtExpirationRefreshMs);
 
-        return Jwts.builder()
+        String refreshToken = Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();
+
+        refreshTokenDao.saveRefreshToken(username, refreshToken, currentDate, expireDate);
+
+
+
+
+        return refreshToken;
     }
 
     public String getUsernameFromJwt(String token) {

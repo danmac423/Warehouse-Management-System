@@ -22,16 +22,19 @@ public class AuthController {
     private final WorkerDao workerDao;
     private final PasswordEncoder passwordEncoder;
     private final JwtGenerator jwtGenerator;
+    private final RefreshTokenDao refreshTokenDao;
 
     @Autowired
     public AuthController(AuthenticationManager authenticationManager,
                           WorkerDao workerDao,
                           PasswordEncoder passwordEncoder,
-                          JwtGenerator jwtGenerator) {
+                          JwtGenerator jwtGenerator,
+                          RefreshTokenDao refreshTokenDao) {
         this.authenticationManager = authenticationManager;
         this.workerDao = workerDao;
         this.passwordEncoder = passwordEncoder;
         this.jwtGenerator = jwtGenerator;
+        this.refreshTokenDao = refreshTokenDao;
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -75,29 +78,31 @@ public class AuthController {
         String refreshToken = jwtGenerator.generateRefreshToken(authentication);
 
         WorkerDto worker = workerDao.getWorkerByUsername(loginDto.username()).get();
+        WorkerDto workerWithoutPassword = new WorkerDto(worker.id(), worker.username(), null, worker.name(), worker.lastName(), worker.role());
 
-        return ResponseEntity.ok(new AuthResponseDto(accessToken, refreshToken, worker));
 
+
+        return ResponseEntity.ok(new AuthResponseDto(accessToken, refreshToken, workerWithoutPassword));
     }
 
-    @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestParam String refreshToken) {
-        if (jwtGenerator.validateToken(refreshToken)) {
-            String username = jwtGenerator.getUsernameFromJwt(refreshToken);
-            WorkerDto worker = workerDao.getWorkerByUsername(username).get();
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponseDto>  refresh(@RequestBody RefreshDto refreshDto) {
+        String storedToken = refreshTokenDao.getRefreshToken(refreshDto.username());
+        if (storedToken == null) {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
 
-            Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, null);
+        if (storedToken.equals(refreshDto.refreshToken())) {
+            Authentication authentication = new UsernamePasswordAuthenticationToken(refreshDto.username(), null);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             String newAccessToken = jwtGenerator.generateAccessToken(authentication);
 
-            return ResponseEntity.ok(new AuthResponseDto(newAccessToken, refreshToken, worker));
-        }else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+            return ResponseEntity.ok(new AuthResponseDto(newAccessToken, refreshDto.refreshToken(), null));
+        } else {
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
         }
-
     }
-
-
 
 
 }
